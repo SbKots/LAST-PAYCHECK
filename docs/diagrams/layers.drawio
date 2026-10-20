@@ -1,0 +1,49 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/28.1.2 Chrome/138.0.7204.243 Electron/37.4.0 Safari/537.36" version="28.1.2">
+  <diagram name="1 Слои и зависимости" id="layers-page">
+    <mxGraphModel dx="2379" dy="1270" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2000" pageHeight="1180" background="#FFFFFF" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="pkg_presentation" value="presentation" style="html=1;whiteSpace=wrap;rounded=0;strokeColor=#111111;strokeWidth=1.5;fillColor=#FFFFFF;fontColor=#0F172A;fontFamily=Helvetica;fontSize=15;shape=folder;tabPosition=left;tabWidth=160;tabHeight=29;container=1;collapsible=0;recursiveResize=0;align=left;verticalAlign=top;spacingLeft=12;spacingTop=5;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="110" y="235" width="460" height="450" as="geometry" />
+        </mxCell>
+        <mxCell id="layer_p" value="&lt;b&gt;Presentation&lt;/b&gt;&lt;br&gt;&lt;br&gt;Compose и Canvas&lt;br&gt;ViewModel и StateFlow&lt;br&gt;Действия пользователя" style="html=1;whiteSpace=wrap;rounded=0;strokeColor=#111111;strokeWidth=1.5;fillColor=#FFFFFF;fontColor=#0F172A;fontFamily=Helvetica;fontSize=15;dropTarget=0;align=center;verticalAlign=middle;spacingLeft=12;spacingRight=12;" parent="pkg_presentation" vertex="1">
+          <mxGeometry x="25" y="80" width="410" height="205" as="geometry" />
+        </mxCell>
+        <mxCell id="pkg_presentation_info" value="Показывает состояние игры.&lt;br&gt;Передаёт команды в Domain." style="html=1;whiteSpace=wrap;fillColor=none;strokeColor=none;fontColor=#0F172A;fontFamily=Helvetica;fontSize=14;align=center;verticalAlign=middle;" parent="pkg_presentation" vertex="1">
+          <mxGeometry x="22" y="325" width="416" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="pkg_domain" value="domain" style="html=1;whiteSpace=wrap;rounded=0;strokeColor=#111111;strokeWidth=1.5;fillColor=#FFFFFF;fontColor=#0F172A;fontFamily=Helvetica;fontSize=15;shape=folder;tabPosition=left;tabWidth=160;tabHeight=29;container=1;collapsible=0;recursiveResize=0;align=left;verticalAlign=top;spacingLeft=12;spacingTop=5;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="775" y="235" width="460" height="450" as="geometry" />
+        </mxCell>
+        <mxCell id="layer_d" value="&lt;b&gt;Domain&lt;/b&gt;&lt;br&gt;&lt;br&gt;GameEngine и сущности&lt;br&gt;Экономика и игровое время&lt;br&gt;Use Cases и интерфейсы" style="html=1;whiteSpace=wrap;rounded=0;strokeColor=#111111;strokeWidth=1.5;fillColor=#FFFFFF;fontColor=#0F172A;fontFamily=Helvetica;fontSize=15;dropTarget=0;align=center;verticalAlign=middle;spacingLeft=12;spacingRight=12;" parent="pkg_domain" vertex="1">
+          <mxGeometry x="25" y="80" width="410" height="205" as="geometry" />
+        </mxCell>
+        <mxCell id="pkg_domain_info" value="Не зависит от Android и Data.&lt;br&gt;Хранит правила игры и контракты." style="html=1;whiteSpace=wrap;fillColor=none;strokeColor=none;fontColor=#0F172A;fontFamily=Helvetica;fontSize=14;align=center;verticalAlign=middle;" parent="pkg_domain" vertex="1">
+          <mxGeometry x="22" y="325" width="416" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="pkg_data" value="data" style="html=1;whiteSpace=wrap;rounded=0;strokeColor=#111111;strokeWidth=1.5;fillColor=#FFFFFF;fontColor=#0F172A;fontFamily=Helvetica;fontSize=15;shape=folder;tabPosition=left;tabWidth=160;tabHeight=29;container=1;collapsible=0;recursiveResize=0;align=left;verticalAlign=top;spacingLeft=12;spacingTop=5;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1440" y="235" width="460" height="450" as="geometry" />
+        </mxCell>
+        <mxCell id="layer_a" value="&lt;b&gt;Data&lt;/b&gt;&lt;br&gt;&lt;br&gt;Реализации репозиториев&lt;br&gt;Room и DataStore&lt;br&gt;Retrofit и OkHttp" style="html=1;whiteSpace=wrap;rounded=0;strokeColor=#111111;strokeWidth=1.5;fillColor=#FFFFFF;fontColor=#0F172A;fontFamily=Helvetica;fontSize=15;dropTarget=0;align=center;verticalAlign=middle;spacingLeft=12;spacingRight=12;" parent="pkg_data" vertex="1">
+          <mxGeometry x="25" y="80" width="410" height="205" as="geometry" />
+        </mxCell>
+        <mxCell id="pkg_data_info" value="Реализует контракты Domain.&lt;br&gt;Хранит и загружает данные." style="html=1;whiteSpace=wrap;fillColor=none;strokeColor=none;fontColor=#0F172A;fontFamily=Helvetica;fontSize=14;align=center;verticalAlign=middle;" parent="pkg_data" vertex="1">
+          <mxGeometry x="22" y="325" width="416" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="p_dep_d" value="" style="html=1;rounded=0;strokeColor=#111111;strokeWidth=1.6;fontColor=#0F172A;fontFamily=Helvetica;fontSize=13;labelBackgroundColor=#FFFFFF;dashed=1;endArrow=open;endFill=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="layer_p" target="layer_d" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a_dep_d" value="" style="html=1;rounded=0;strokeColor=#111111;strokeWidth=1.6;fontColor=#0F172A;fontFamily=Helvetica;fontSize=13;labelBackgroundColor=#FFFFFF;dashed=1;endArrow=open;endFill=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="layer_a" target="layer_d" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="p_dep_label" value="зависит от" style="html=1;whiteSpace=wrap;fillColor=none;strokeColor=none;fontColor=#0F172A;fontFamily=Helvetica;fontSize=14;align=center;verticalAlign=middle;" parent="1" vertex="1">
+          <mxGeometry x="578" y="340" width="175" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="a_dep_label" value="зависит от" style="html=1;whiteSpace=wrap;fillColor=none;strokeColor=none;fontColor=#0F172A;fontFamily=Helvetica;fontSize=14;align=center;verticalAlign=middle;" parent="1" vertex="1">
+          <mxGeometry x="1255" y="340" width="175" height="32" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

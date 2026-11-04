@@ -1,0 +1,172 @@
+{
+  "occupation": [
+    {
+      "id": "warehouse",
+      "title": "Складская профессия",
+      "description": "Проектное описание",
+      "source": "DEMO",
+      "external_id": null
+    }
+  ],
+  "skill": [
+    {
+      "id": "logistics",
+      "code": "logistics",
+      "title": "Логистика",
+      "description": "Учебный навык склада",
+      "source": "DEMO",
+      "external_id": null
+    }
+  ],
+  "occupation_skill": [
+    {
+      "occupation_id": "warehouse",
+      "skill_id": "logistics",
+      "importance": null
+    }
+  ],
+  "job_definition": [
+    {
+      "id": "warehouse-helper",
+      "occupation_id": "warehouse",
+      "required_skill_id": "logistics",
+      "title": "Помощник склада",
+      "required_level": 0,
+      "duration_hours": 10,
+      "base_pay_minor": 400,
+      "bonus_cap_minor": 100,
+      "task_plan": 40,
+      "extra_energy_per_hour": 2,
+      "mechanic": "WAREHOUSE"
+    },
+    {
+      "id": "warehouse-picker",
+      "occupation_id": "warehouse",
+      "required_skill_id": "logistics",
+      "title": "Комплектовщик",
+      "required_level": 1,
+      "duration_hours": 10,
+      "base_pay_minor": 500,
+      "bonus_cap_minor": 120,
+      "task_plan": 45,
+      "extra_energy_per_hour": 3,
+      "mechanic": "WAREHOUSE"
+    },
+    {
+      "id": "warehouse-senior",
+      "occupation_id": "warehouse",
+      "required_skill_id": "logistics",
+      "title": "Старший сортировщик",
+      "required_level": 2,
+      "duration_hours": 10,
+      "base_pay_minor": 600,
+      "bonus_cap_minor": 150,
+      "task_plan": 50,
+      "extra_energy_per_hour": 4,
+      "mechanic": "WAREHOUSE"
+    }
+  ],
+  "inflation_observation": [
+    {
+      "id": "demo-rus-2020",
+      "country_code": "RUS",
+      "year": 2020,
+      "indicator_code": "FP.CPI.TOTL.ZG",
+      "value_percent": 5,
+      "source": "DEMO",
+      "fetched_at": "2026-11-01T09:00:00Z"
+    }
+  ],
+  "car_brand": [
+    {
+      "id": "demo",
+      "name": "Учебная марка",
+      "source": "DEMO",
+      "external_id": null
+    }
+  ],
+  "car_model": [
+    {
+      "id": "city-hatch",
+      "brand_id": "demo",
+      "name": "Городской хэтчбек",
+      "variant": "Учебный вариант",
+      "model_year": null,
+      "source": "DEMO",
+      "external_id": null
+    },
+    {
+      "id": "family-wagon",
+      "brand_id": "demo",
+      "name": "Семейный универсал",
+      "variant": "Учебный вариант",
+      "model_year": null,
+      "source": "DEMO",
+      "external_id": null
+    },
+    {
+      "id": "sport-coupe",
+      "brand_id": "demo",
+      "name": "Спортивное купе",
+      "variant": "Учебный вариант",
+      "model_year": null,
+      "source": "DEMO",
+      "external_id": null
+    }
+  ],
+  "car_balance": [
+    {
+      "purchase_price_minor": 6000,
+      "race_max_speed_kmh": 140,
+      "acceleration_mps2": 3,
+      "handling": 0.7,
+      "tank_liters": 40,
+      "repair_price_per_point_minor": 5,
+      "model_id": "city-hatch",
+      "consumption_l_per_100km": 6
+    },
+    {
+      "purchase_price_minor": 9500,
+      "race_max_speed_kmh": 160,
+      "acceleration_mps2": 3,
+      "handling": 0.7,
+      "tank_liters": 50,
+      "repair_price_per_point_minor": 5,
+      "model_id": "family-wagon",
+      "consumption_l_per_100km": 7.5
+    },
+    {
+      "purchase_price_minor": 14000,
+      "race_max_speed_kmh": 200,
+      "acceleration_mps2": 3,
+      "handling": 0.7,
+      "tank_liters": 60,
+      "repair_price_per_point_minor": 5,
+      "model_id": "sport-coupe",
+      "consumption_l_per_100km": 10
+    }
+  ],
+  "car_specification": [],
+  "race_track": [
+    {
+      "id": "night-delivery",
+      "title": "Ночная доставка",
+      "length_m": 1000,
+      "asset_key": "tracks/night-delivery-v1",
+      "asset_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "layout_revision": 1
+    }
+  ],
+  "race_configuration": [
+    {
+      "id": "night-standard",
+      "track_id": "night-delivery",
+      "title": "Учебный заезд",
+      "laps": 1,
+      "time_limit_seconds": 120,
+      "entry_fee_minor": 0,
+      "finish_reward_minor": 180,
+      "required_car_condition": 1
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+<configuration>
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder><pattern>%d{HH:mm:ss} %-5level %logger{32} - %msg%n</pattern></encoder>
+  </appender>
+  <appender name="AUDIT_JSON" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder><pattern>%msg%n</pattern></encoder>
+  </appender>
+  <logger name="CatalogAudit" level="INFO" additivity="false"><appender-ref ref="AUDIT_JSON"/></logger>
+  <logger name="org.jetbrains.exposed" level="OFF"/>
+  <logger name="org.flywaydb" level="WARN"/>
+  <logger name="io.ktor" level="WARN"/>
+  <root level="INFO"><appender-ref ref="STDOUT"/></root>
+</configuration>

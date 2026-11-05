@@ -10,6 +10,7 @@ dependencies {
     implementation("io.ktor:ktor-server-content-negotiation-jvm:$ktor")
     implementation("io.ktor:ktor-server-status-pages-jvm:$ktor")
     implementation("io.ktor:ktor-serialization-kotlinx-json-jvm:$ktor")
+    implementation("io.ktor:ktor-client-cio-jvm:$ktor")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.12.0")
     implementation("org.jetbrains.exposed:exposed-jdbc:1.6.0")
     implementation("org.flywaydb:flyway-core:13.12.0")

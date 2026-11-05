@@ -3,12 +3,14 @@ package lastpay.api
 import lastpay.application.CatalogService
 import lastpay.domain.*
 import lastpay.infrastructure.Configuration
+import lastpay.infrastructure.providerClient
 import lastpay.security.*
 import kotlinx.serialization.json.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.CancellationException
 import io.ktor.http.*
+import io.ktor.client.HttpClient
 import io.ktor.server.application.*
 import io.ktor.server.application.hooks.ResponseSent
 import io.ktor.server.request.*
@@ -24,10 +26,14 @@ import org.slf4j.LoggerFactory
 private val audit = LoggerFactory.getLogger("CatalogAudit")
 private val requestIdKey = AttributeKey<String>("catalog-request-id")
 private val errorCodeKey = AttributeKey<String>("catalog-error-code")
+internal val providerNameKey = AttributeKey<String>("integration-provider")
+internal val providerFailureKey = AttributeKey<ProviderFailure>("integration-provider-failure")
 private fun ApplicationCall.requestId() = attributes.computeIfAbsent(requestIdKey) { UUID.randomUUID().toString() }
 
-fun Application.catalogModule(service: CatalogService, config: Configuration, limiter: RequestLimiter = RequestLimiter()) {
+fun Application.catalogModule(service: CatalogService, config: Configuration, limiter: RequestLimiter = RequestLimiter(),
+    upstream: HttpClient = providerClient()) {
     val access=AdminAccess(config.adminToken,config.adminScope)
+    monitor.subscribe(ApplicationStopped) { upstream.close() }
     install(createApplicationPlugin("HttpAudit") {
         on(ResponseSent) { call ->
             val status = call.response.status()?.value ?: 200
@@ -36,8 +42,15 @@ fun Application.catalogModule(service: CatalogService, config: Configuration, li
                 put("requestId", call.requestId())
                 put("method", call.request.httpMethod.value)
                 put("status", status)
-                put("area", if (call.request.path().startsWith("/api/v1/admin/")) "admin" else "public")
+                val path = call.request.path()
+                put("area", when {
+                    path.startsWith("/api/v1/admin/") -> "admin"
+                    path.startsWith("/api/v1/integrations/") -> "integration"
+                    else -> "public"
+                })
                 call.attributes.getOrNull(errorCodeKey)?.let { put("errorCode", it) }
+                call.attributes.getOrNull(providerNameKey)?.let { put("provider", it) }
+                call.attributes.getOrNull(providerFailureKey)?.let { put("providerFailure", it.name) }
             }
             audit.info(event.toString())
         }
@@ -50,6 +63,17 @@ fun Application.catalogModule(service: CatalogService, config: Configuration, li
             call.problem(failure)
         }
         status(HttpStatusCode.NotFound) { call,_ -> call.problem(CatalogFailure(FailureKind.NOTFOUND,"Маршрут не найден")) }
+        status(HttpStatusCode.MethodNotAllowed) { call,_ ->
+            val path = call.request.path().removePrefix("/api/v1").trimEnd('/')
+            val allowed = when {
+                path == "/admin/catalogs" || Regex("/admin/catalogs/[^/]+/publish").matches(path) -> "POST"
+                Regex("/admin/catalogs/[^/]+/skills").matches(path) -> "GET, POST"
+                Regex("/admin/catalogs/[^/]+/skills/[^/]+").matches(path) -> "GET, PUT, DELETE"
+                else -> "GET"
+            }
+            call.response.header(HttpHeaders.Allow, allowed)
+            call.problem(CatalogFailure(FailureKind.METHODNOTALLOWED,"HTTP-метод не поддерживается для этого маршрута"))
+        }
     }
     fun ApplicationCall.admin() {
         limiter.check("admin-peer:" + request.local.remoteHost, 120)
@@ -59,6 +83,9 @@ fun Application.catalogModule(service: CatalogService, config: Configuration, li
     fun ApplicationCall.public() { limiter.check("public:"+request.local.remoteHost,120) }
     routing {
         route("/api/v1") {
+            integrationRoutes(config, service.database, upstream) { call ->
+                limiter.check("integration-peer:" + call.request.local.remoteHost, 30)
+            }
             get("/catalog") { call.public();call.respond(withContext(Dispatchers.IO){service.latest()}) }
             val routes=linkedMapOf("occupations" to "occupations","skills" to "skills","jobs" to "jobs","inflation" to "inflation","cars/brands" to "car-brands","cars/models" to "car-models","tracks" to "tracks","race-configurations" to "race-configurations")
             for((path,name) in routes) {
@@ -125,7 +152,7 @@ private suspend fun ApplicationCall.result(result: CatalogResult, status: HttpSt
     result.revision?.let {response.header(HttpHeaders.ETag,it.etag)};respond(status,result.body)
 }
 private suspend fun ApplicationCall.problem(f: CatalogFailure) {
-    val status=when(f.kind) { FailureKind.BADREQUEST -> 400;FailureKind.UNAUTHORIZED -> 401;FailureKind.FORBIDDEN -> 403;FailureKind.NOTFOUND -> 404;FailureKind.CONFLICT -> 409;FailureKind.PRECONDITIONFAILED -> 412;FailureKind.VALIDATIONERROR -> 422;FailureKind.RATELIMITED -> 429;FailureKind.INTERNALERROR -> 500;FailureKind.UNAVAILABLE -> 503 }
+    val status=when(f.kind) { FailureKind.BADREQUEST -> 400;FailureKind.UNAUTHORIZED -> 401;FailureKind.FORBIDDEN -> 403;FailureKind.NOTFOUND -> 404;FailureKind.METHODNOTALLOWED -> 405;FailureKind.CONFLICT -> 409;FailureKind.PRECONDITIONFAILED -> 412;FailureKind.VALIDATIONERROR -> 422;FailureKind.RATELIMITED -> 429;FailureKind.INTERNALERROR -> 500;FailureKind.UNAVAILABLE -> 503 }
     val requestId=requestId()
     attributes.put(errorCodeKey, f.kind.name)
     if(status==401) response.header(HttpHeaders.WWWAuthenticate,"Bearer realm=\"catalog-admin\"")

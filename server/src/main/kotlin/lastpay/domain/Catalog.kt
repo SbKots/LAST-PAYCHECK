@@ -4,7 +4,7 @@ import kotlinx.serialization.json.*
 import java.math.BigDecimal
 import java.security.MessageDigest
 
-enum class FailureKind { BADREQUEST, UNAUTHORIZED, FORBIDDEN, NOTFOUND, CONFLICT, PRECONDITIONFAILED, VALIDATIONERROR, RATELIMITED, INTERNALERROR, UNAVAILABLE }
+enum class FailureKind { BADREQUEST, UNAUTHORIZED, FORBIDDEN, NOTFOUND, METHODNOTALLOWED, CONFLICT, PRECONDITIONFAILED, VALIDATIONERROR, RATELIMITED, INTERNALERROR, UNAVAILABLE }
 data class FieldIssue(val field: String, val message: String)
 class CatalogFailure(val kind: FailureKind, override val message: String, val issues: List<FieldIssue> = emptyList()) : RuntimeException(message)
 fun fail(kind: FailureKind, message: String, field: String? = null): Nothing =

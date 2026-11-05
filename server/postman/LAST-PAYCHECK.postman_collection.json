@@ -1,0 +1,2383 @@
+{
+  "info": {
+    "name": "LAST PAYCHECK — backend",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Практики 09–10: REST API, CRUD, единые ошибки, токен; внешние интеграции через сервер. Не выполняйте административные запросы на боевой базе без подготовки."
+  },
+  "item": [
+    {
+      "name": "Позитивные сценарии и CRUD",
+      "item": [
+        {
+          "name": "GET /catalog · Каталог опубликованной версии",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/catalog",
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "Последняя PUBLISHED по published_at DESC, version ASC."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"JSON Content-Type\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.match(/^application\\/json(?:;|$)/i));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Response fields\", () => pm.expect(body).to.include.all.keys([\"catalogVersion\", \"schemaVersion\", \"publishedAt\", \"contentSha256\", \"resources\", \"sources\"]));",
+                  "pm.collectionVariables.set(\"catalogVersion\", body.catalogVersion);"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/catalog",
+                "auth": {
+                  "type": "noauth"
+                },
+                "description": "Последняя PUBLISHED по published_at DESC, version ASC."
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"catalogVersion\": \"demo-1\",\n  \"schemaVersion\": \"1\",\n  \"publishedAt\": \"2026-11-04T11:17:14.552839Z\",\n  \"contentSha256\": \"a8f2ec06a2110e7e69e2302afa0f5decdf276781bf8cc3aed49a84a58fe71f04\",\n  \"resources\": [\n    \"occupations\",\n    \"skills\",\n    \"jobs\",\n    \"inflation\",\n    \"car-brands\",\n    \"car-models\",\n    \"tracks\",\n    \"race-configurations\"\n  ],\n  \"sources\": [\n    {\n      \"sha256\": \"5029869984303fd0e2b5cc0d5f30ef47b968f3c2a0f8e4fd680f4a288648596a\",\n      \"provider\": \"DEMO\",\n      \"fetchedAt\": \"2026-11-04T11:17:14.364611100Z\",\n      \"sourceVersion\": \"practice9-demo-v1\",\n      \"resource\": \"occupations\"\n    },\n    {\n      \"sha256\": \"d0fdb2862d2c54fcb7a070552b2250cd2f8ba79be19e3522112caea4ff8bda45\",\n      \"provider\": \"DEMO\",\n      \"fetchedAt\": \"2026-11-04T11:17:14.364611100Z\",\n      \"sourceVersion\": \"practice9-demo-v1\",\n      \"resource\": \"skills\"\n    },\n    {\n      \"sha256\": \"dde9420f4237fee1a78cb775af9a9c20a67e5b99485c9d511a7b8140ec6567b3\",\n      \"provider\": \"DEMO\",\n      \"fetchedAt\": \"2026-11-04T11:17:14.364611100Z\",\n      \"sourceVersion\": \"practice9-demo-v1\",\n      \"resource\": \"jobs\"\n    },\n    {\n      \"sha256\": \"3d34da217d7253286b0945d7f1c4128c0c4157da2d5116d838b633614ed83dcb\",\n      \"provider\": \"DEMO\",\n      \"fetchedAt\": \"2026-11-04T11:17:14.364611100Z\",\n      \"sourceVersion\": \"practice9-demo-v1\",\n      \"resource\": \"inflation\"\n    },\n    {\n      \"sha256\": \"00776de40ef5e0f0aaf7f13fbfffc6b4d46dbea061decc3b3537306c7ff35f07\",\n      \"provider\": \"DEMO\",\n      \"fetchedAt\": \"2026-11-04T11:17:14.364611100Z\",\n      \"sourceVersion\": \"practice9-demo-v1\",\n      \"resource\": \"car-brands\"\n    },\n    {\n      \"sha256\": \"a837044dfdb6b184c58c8112ae7b7f8bb6d9f0d31abddf39978b97d3358c165b\",\n      \"provider\": \"DEMO\",\n      \"fetchedAt\": \"2026-11-04T11:17:14.364611100Z\",\n      \"sourceVersion\": \"practice9-demo-v1\",\n      \"resource\": \"car-models\"\n    },\n    {\n      \"sha256\": \"ec8db3f99e39f4954b3d728e003ff9861d0bcb641a78512435b2cf587c7d7776\",\n      \"provider\": \"DEMO\",\n      \"fetchedAt\": \"2026-11-04T11:17:14.364611100Z\",\n      \"sourceVersion\": \"practice9-demo-v1\",\n      \"resource\": \"tracks\"\n    },\n    {\n      \"sha256\": \"0e1cc7cf21c7149c9fde3a6de3adc4f3bdcd104727c000b22080da5db38de13f\",\n      \"provider\": \"DEMO\",\n      \"fetchedAt\": \"2026-11-04T11:17:14.364611100Z\",\n      \"sourceVersion\": \"practice9-demo-v1\",\n      \"resource\": \"race-configurations\"\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "GET /occupations · Профессии",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/occupations?catalogVersion={{catalogVersion}}&page={{page}}&pageSize={{pageSize}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "Профессии"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"JSON Content-Type\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.match(/^application\\/json(?:;|$)/i));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Response fields\", () => pm.expect(body).to.include.all.keys([\"data\", \"meta\"]));",
+                  "pm.test(\"Page data and metadata\", () => { pm.expect(body.data).to.be.an(\"array\"); pm.expect(body.meta.total).to.be.a(\"number\"); });"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/occupations?catalogVersion={{catalogVersion}}&page={{page}}&pageSize={{pageSize}}",
+                "auth": {
+                  "type": "noauth"
+                },
+                "description": "Профессии"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": [\n    {\n      \"id\": \"warehouse\",\n      \"source\": \"DEMO\",\n      \"externalId\": null,\n      \"title\": \"Складская профессия\",\n      \"description\": \"Проектное описание\",\n      \"skills\": [\n        {\n          \"skillId\": \"logistics\",\n          \"importance\": null\n        }\n      ]\n    }\n  ],\n  \"meta\": {\n    \"catalogVersion\": \"demo-1\",\n    \"page\": 1,\n    \"pageSize\": 20,\n    \"total\": 1,\n    \"stale\": false,\n    \"fetchedAt\": \"2026-11-04T11:17:14.364611100Z\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "GET /skills · Навыки",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/skills?catalogVersion={{catalogVersion}}&page={{page}}&pageSize={{pageSize}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "Пример: GET /api/v1/skills?catalogVersion=demo-1&page=1&pageSize=20"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"JSON Content-Type\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.match(/^application\\/json(?:;|$)/i));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Response fields\", () => pm.expect(body).to.include.all.keys([\"data\", \"meta\"]));",
+                  "pm.test(\"Page data and metadata\", () => { pm.expect(body.data).to.be.an(\"array\"); pm.expect(body.meta.total).to.be.a(\"number\"); });"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/skills?catalogVersion={{catalogVersion}}&page={{page}}&pageSize={{pageSize}}",
+                "auth": {
+                  "type": "noauth"
+                },
+                "description": "Пример: GET /api/v1/skills?catalogVersion=demo-1&page=1&pageSize=20"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": [\n    {\n      \"id\": \"logistics\",\n      \"code\": \"logistics\",\n      \"title\": \"Логистика\",\n      \"description\": \"Учебный навык склада\",\n      \"source\": \"DEMO\",\n      \"externalId\": null\n    }\n  ],\n  \"meta\": {\n    \"catalogVersion\": \"demo-1\",\n    \"page\": 1,\n    \"pageSize\": 20,\n    \"total\": 1,\n    \"stale\": false,\n    \"fetchedAt\": \"2026-11-04T11:17:14.364611100Z\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "GET /jobs · Игровые должности",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/jobs?catalogVersion={{catalogVersion}}&page={{page}}&pageSize={{pageSize}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "Игровые должности"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"JSON Content-Type\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.match(/^application\\/json(?:;|$)/i));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Response fields\", () => pm.expect(body).to.include.all.keys([\"data\", \"meta\"]));",
+                  "pm.test(\"Page data and metadata\", () => { pm.expect(body.data).to.be.an(\"array\"); pm.expect(body.meta.total).to.be.a(\"number\"); });"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/jobs?catalogVersion={{catalogVersion}}&page={{page}}&pageSize={{pageSize}}",
+                "auth": {
+                  "type": "noauth"
+                },
+                "description": "Игровые должности"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": [\n    {\n      \"id\": \"warehouse-helper\",\n      \"occupationId\": \"warehouse\",\n      \"requiredSkillId\": \"logistics\",\n      \"title\": \"Помощник склада\",\n      \"requiredLevel\": 0,\n      \"durationHours\": 10.0,\n      \"basePayMinor\": 400,\n      \"bonusCapMinor\": 100,\n      \"taskPlan\": 40,\n      \"extraEnergyPerHour\": 2.0,\n      \"mechanic\": \"WAREHOUSE\"\n    },\n    {\n      \"id\": \"warehouse-picker\",\n      \"occupationId\": \"warehouse\",\n      \"requiredSkillId\": \"logistics\",\n      \"title\": \"Комплектовщик\",\n      \"requiredLevel\": 1,\n      \"durationHours\": 10.0,\n      \"basePayMinor\": 500,\n      \"bonusCapMinor\": 120,\n      \"taskPlan\": 45,\n      \"extraEnergyPerHour\": 3.0,\n      \"mechanic\": \"WAREHOUSE\"\n    },\n    {\n      \"id\": \"warehouse-senior\",\n      \"occupationId\": \"warehouse\",\n      \"requiredSkillId\": \"logistics\",\n      \"title\": \"Старший сортировщик\",\n      \"requiredLevel\": 2,\n      \"durationHours\": 10.0,\n      \"basePayMinor\": 600,\n      \"bonusCapMinor\": 150,\n      \"taskPlan\": 50,\n      \"extraEnergyPerHour\": 4.0,\n      \"mechanic\": \"WAREHOUSE\"\n    }\n  ],\n  \"meta\": {\n    \"catalogVersion\": \"demo-1\",\n    \"page\": 1,\n    \"pageSize\": 20,\n    \"total\": 3,\n    \"stale\": false,\n    \"fetchedAt\": \"2026-11-04T11:17:14.364611100Z\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "GET /inflation · Историческая инфляция",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/inflation?catalogVersion={{catalogVersion}}&country={{country}}&yearFrom={{yearFrom}}&yearTo={{yearTo}}&page={{page}}&pageSize={{pageSize}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "Пример: GET /api/v1/inflation?catalogVersion=demo-1&country=RUS&yearFrom=2020&yearTo=2020"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"JSON Content-Type\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.match(/^application\\/json(?:;|$)/i));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Response fields\", () => pm.expect(body).to.include.all.keys([\"data\", \"meta\"]));",
+                  "pm.test(\"Page data and metadata\", () => { pm.expect(body.data).to.be.an(\"array\"); pm.expect(body.meta.total).to.be.a(\"number\"); });"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/inflation?catalogVersion={{catalogVersion}}&country={{country}}&yearFrom={{yearFrom}}&yearTo={{yearTo}}&page={{page}}&pageSize={{pageSize}}",
+                "auth": {
+                  "type": "noauth"
+                },
+                "description": "Пример: GET /api/v1/inflation?catalogVersion=demo-1&country=RUS&yearFrom=2020&yearTo=2020"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": [\n    {\n      \"id\": \"demo-rus-2020\",\n      \"countryCode\": \"RUS\",\n      \"year\": 2020,\n      \"indicatorCode\": \"FP.CPI.TOTL.ZG\",\n      \"valuePercent\": 5.0,\n      \"source\": \"DEMO\",\n      \"fetchedAt\": \"2026-11-01T09:00:00Z\"\n    }\n  ],\n  \"meta\": {\n    \"catalogVersion\": \"demo-1\",\n    \"page\": 1,\n    \"pageSize\": 20,\n    \"total\": 1,\n    \"stale\": false,\n    \"fetchedAt\": \"2026-11-04T11:17:14.364611100Z\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "GET /cars/brands · Марки автомобилей",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/cars/brands?catalogVersion={{catalogVersion}}&page={{page}}&pageSize={{pageSize}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "Марки автомобилей"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"JSON Content-Type\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.match(/^application\\/json(?:;|$)/i));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Response fields\", () => pm.expect(body).to.include.all.keys([\"data\", \"meta\"]));",
+                  "pm.test(\"Page data and metadata\", () => { pm.expect(body.data).to.be.an(\"array\"); pm.expect(body.meta.total).to.be.a(\"number\"); });"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/cars/brands?catalogVersion={{catalogVersion}}&page={{page}}&pageSize={{pageSize}}",
+                "auth": {
+                  "type": "noauth"
+                },
+                "description": "Марки автомобилей"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": [\n    {\n      \"id\": \"demo\",\n      \"name\": \"Учебная марка\",\n      \"source\": \"DEMO\",\n      \"externalId\": null\n    }\n  ],\n  \"meta\": {\n    \"catalogVersion\": \"demo-1\",\n    \"page\": 1,\n    \"pageSize\": 20,\n    \"total\": 1,\n    \"stale\": false,\n    \"fetchedAt\": \"2026-11-04T11:17:14.364611100Z\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "GET /cars/models · Модели автомобилей",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/cars/models?catalogVersion={{catalogVersion}}&brandId={{brandId}}&page={{page}}&pageSize={{pageSize}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "Модели автомобилей"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"JSON Content-Type\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.match(/^application\\/json(?:;|$)/i));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Response fields\", () => pm.expect(body).to.include.all.keys([\"data\", \"meta\"]));",
+                  "pm.test(\"Page data and metadata\", () => { pm.expect(body.data).to.be.an(\"array\"); pm.expect(body.meta.total).to.be.a(\"number\"); });"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/cars/models?catalogVersion={{catalogVersion}}&brandId={{brandId}}&page={{page}}&pageSize={{pageSize}}",
+                "auth": {
+                  "type": "noauth"
+                },
+                "description": "Модели автомобилей"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": [\n    {\n      \"id\": \"city-hatch\",\n      \"brandId\": \"demo\",\n      \"name\": \"Городской хэтчбек\",\n      \"variant\": \"Учебный вариант\",\n      \"modelYear\": null,\n      \"source\": \"DEMO\",\n      \"externalId\": null,\n      \"specification\": null,\n      \"balance\": {\n        \"purchasePriceMinor\": 6000,\n        \"raceMaxSpeedKmh\": 140.0,\n        \"accelerationMps2\": 3.0,\n        \"handling\": 0.7,\n        \"tankLiters\": 40.0,\n        \"consumptionLPer100km\": 6.0,\n        \"repairPricePerPointMinor\": 5\n      }\n    },\n    {\n      \"id\": \"family-wagon\",\n      \"brandId\": \"demo\",\n      \"name\": \"Семейный универсал\",\n      \"variant\": \"Учебный вариант\",\n      \"modelYear\": null,\n      \"source\": \"DEMO\",\n      \"externalId\": null,\n      \"specification\": null,\n      \"balance\": {\n        \"purchasePriceMinor\": 9500,\n        \"raceMaxSpeedKmh\": 160.0,\n        \"accelerationMps2\": 3.0,\n        \"handling\": 0.7,\n        \"tankLiters\": 50.0,\n        \"consumptionLPer100km\": 7.5,\n        \"repairPricePerPointMinor\": 5\n      }\n    },\n    {\n      \"id\": \"sport-coupe\",\n      \"brandId\": \"demo\",\n      \"name\": \"Спортивное купе\",\n      \"variant\": \"Учебный вариант\",\n      \"modelYear\": null,\n      \"source\": \"DEMO\",\n      \"externalId\": null,\n      \"specification\": null,\n      \"balance\": {\n        \"purchasePriceMinor\": 14000,\n        \"raceMaxSpeedKmh\": 200.0,\n        \"accelerationMps2\": 3.0,\n        \"handling\": 0.7,\n        \"tankLiters\": 60.0,\n        \"consumptionLPer100km\": 10.0,\n        \"repairPricePerPointMinor\": 5\n      }\n    }\n  ],\n  \"meta\": {\n    \"catalogVersion\": \"demo-1\",\n    \"page\": 1,\n    \"pageSize\": 20,\n    \"total\": 3,\n    \"stale\": false,\n    \"fetchedAt\": \"2026-11-04T11:17:14.364611100Z\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "GET /tracks · Трассы",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/tracks?catalogVersion={{catalogVersion}}&page={{page}}&pageSize={{pageSize}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "Трассы"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"JSON Content-Type\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.match(/^application\\/json(?:;|$)/i));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Response fields\", () => pm.expect(body).to.include.all.keys([\"data\", \"meta\"]));",
+                  "pm.test(\"Page data and metadata\", () => { pm.expect(body.data).to.be.an(\"array\"); pm.expect(body.meta.total).to.be.a(\"number\"); });"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/tracks?catalogVersion={{catalogVersion}}&page={{page}}&pageSize={{pageSize}}",
+                "auth": {
+                  "type": "noauth"
+                },
+                "description": "Трассы"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": [\n    {\n      \"id\": \"night-delivery\",\n      \"title\": \"Ночная доставка\",\n      \"lengthM\": 1000,\n      \"assetKey\": \"tracks/night-delivery-v1\",\n      \"assetSha256\": \"0000000000000000000000000000000000000000000000000000000000000000\",\n      \"layoutRevision\": 1\n    }\n  ],\n  \"meta\": {\n    \"catalogVersion\": \"demo-1\",\n    \"page\": 1,\n    \"pageSize\": 20,\n    \"total\": 1,\n    \"stale\": false,\n    \"fetchedAt\": \"2026-11-04T11:17:14.364611100Z\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "GET /race-configurations · Конфигурации заездов",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/race-configurations?catalogVersion={{catalogVersion}}&trackId={{trackId}}&page={{page}}&pageSize={{pageSize}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "Конфигурации заездов"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"JSON Content-Type\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.match(/^application\\/json(?:;|$)/i));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Response fields\", () => pm.expect(body).to.include.all.keys([\"data\", \"meta\"]));",
+                  "pm.test(\"Page data and metadata\", () => { pm.expect(body.data).to.be.an(\"array\"); pm.expect(body.meta.total).to.be.a(\"number\"); });"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/race-configurations?catalogVersion={{catalogVersion}}&trackId={{trackId}}&page={{page}}&pageSize={{pageSize}}",
+                "auth": {
+                  "type": "noauth"
+                },
+                "description": "Конфигурации заездов"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": [\n    {\n      \"id\": \"night-standard\",\n      \"trackId\": \"night-delivery\",\n      \"title\": \"Учебный заезд\",\n      \"laps\": 1,\n      \"timeLimitSeconds\": 120,\n      \"entryFeeMinor\": 0,\n      \"finishRewardMinor\": 180,\n      \"requiredCarCondition\": 1\n    }\n  ],\n  \"meta\": {\n    \"catalogVersion\": \"demo-1\",\n    \"page\": 1,\n    \"pageSize\": 20,\n    \"total\": 1,\n    \"stale\": false,\n    \"fetchedAt\": \"2026-11-04T11:17:14.364611100Z\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "GET /occupations/{id} · Профессия по id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/occupations/warehouse?catalogVersion={{catalogVersion}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "Профессия по id"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"JSON Content-Type\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.match(/^application\\/json(?:;|$)/i));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Response fields\", () => pm.expect(body).to.include.all.keys([\"data\", \"catalogVersion\"]));"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/occupations/warehouse?catalogVersion={{catalogVersion}}",
+                "auth": {
+                  "type": "noauth"
+                },
+                "description": "Профессия по id"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": {\n    \"id\": \"warehouse\",\n    \"source\": \"DEMO\",\n    \"externalId\": null,\n    \"title\": \"Складская профессия\",\n    \"description\": \"Проектное описание\",\n    \"skills\": [\n      {\n        \"skillId\": \"logistics\",\n        \"importance\": null\n      }\n    ]\n  },\n  \"catalogVersion\": \"demo-1\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "GET /cars/models/{id} · Модель автомобиля по id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/cars/models/city-hatch?catalogVersion={{catalogVersion}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "Пример: GET /api/v1/cars/models/city-hatch?catalogVersion=demo-1"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"JSON Content-Type\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.match(/^application\\/json(?:;|$)/i));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Response fields\", () => pm.expect(body).to.include.all.keys([\"data\", \"catalogVersion\"]));"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/cars/models/city-hatch?catalogVersion={{catalogVersion}}",
+                "auth": {
+                  "type": "noauth"
+                },
+                "description": "Пример: GET /api/v1/cars/models/city-hatch?catalogVersion=demo-1"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": {\n    \"id\": \"city-hatch\",\n    \"brandId\": \"demo\",\n    \"name\": \"Городской хэтчбек\",\n    \"variant\": \"Учебный вариант\",\n    \"modelYear\": null,\n    \"source\": \"DEMO\",\n    \"externalId\": null,\n    \"specification\": null,\n    \"balance\": {\n      \"purchasePriceMinor\": 6000,\n      \"raceMaxSpeedKmh\": 140.0,\n      \"accelerationMps2\": 3.0,\n      \"handling\": 0.7,\n      \"tankLiters\": 40.0,\n      \"consumptionLPer100km\": 6.0,\n      \"repairPricePerPointMinor\": 5\n    }\n  },\n  \"catalogVersion\": \"demo-1\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "GET /tracks/{id} · Трасса по id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/tracks/night-delivery?catalogVersion={{catalogVersion}}",
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "Трасса по id"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"JSON Content-Type\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.match(/^application\\/json(?:;|$)/i));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Response fields\", () => pm.expect(body).to.include.all.keys([\"data\", \"catalogVersion\"]));"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/tracks/night-delivery?catalogVersion={{catalogVersion}}",
+                "auth": {
+                  "type": "noauth"
+                },
+                "description": "Трасса по id"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": {\n    \"id\": \"night-delivery\",\n    \"title\": \"Ночная доставка\",\n    \"lengthM\": 1000,\n    \"assetKey\": \"tracks/night-delivery-v1\",\n    \"assetSha256\": \"0000000000000000000000000000000000000000000000000000000000000000\",\n    \"layoutRevision\": 1\n  },\n  \"catalogVersion\": \"demo-1\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "POST /admin/catalogs · Создать черновик из опубликованной версии",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/admin/catalogs",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Пример: POST /api/v1/admin/catalogs",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"version\": \"{{draftVersion}}\",\n  \"baseVersion\": \"{{catalogVersion}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"draftVersion\", \"postman-\" + pm.variables.replaceIn(\"{{$guid}}\").replace(/-/g, \"\").slice(0, 16));",
+                  "pm.collectionVariables.unset(\"etag\");"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"JSON Content-Type\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.match(/^application\\/json(?:;|$)/i));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Response fields\", () => pm.expect(body).to.include.all.keys([\"catalogVersion\", \"status\", \"revision\"]));",
+                  "pm.test(\"Strong draft ETag\", () => pm.expect(pm.response.headers.get(\"ETag\")).to.match(/^\"rev-[1-9][0-9]*\"$/));",
+                  "pm.collectionVariables.set(\"etag\", pm.response.headers.get(\"ETag\"));",
+                  "pm.test(\"Location points to admin resource\", () => pm.expect(pm.response.headers.get(\"Location\")).to.match(/^\\/api\\/v1\\/admin\\/catalogs\\//));"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "201 Created",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/admin/catalogs",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{adminToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "description": "Пример: POST /api/v1/admin/catalogs",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"version\": \"{{draftVersion}}\",\n  \"baseVersion\": \"{{catalogVersion}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "ETag",
+                  "value": "\"rev-1\""
+                },
+                {
+                  "key": "Location",
+                  "value": "/api/v1/admin/catalogs/smoke-20261104111754-0fc9d4/skills"
+                }
+              ],
+              "body": "{\n  \"catalogVersion\": \"smoke-20261104111754-0fc9d4\",\n  \"status\": \"DRAFT\",\n  \"revision\": 1\n}"
+            }
+          ]
+        },
+        {
+          "name": "GET /admin/catalogs/{version}/skills · Навыки черновика",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/admin/catalogs/{{draftVersion}}/skills",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Навыки черновика"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"JSON Content-Type\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.match(/^application\\/json(?:;|$)/i));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Response fields\", () => pm.expect(body).to.include.all.keys([\"data\", \"meta\"]));",
+                  "pm.test(\"Page data and metadata\", () => { pm.expect(body.data).to.be.an(\"array\"); pm.expect(body.meta.total).to.be.a(\"number\"); });",
+                  "pm.test(\"Strong draft ETag\", () => pm.expect(pm.response.headers.get(\"ETag\")).to.match(/^\"rev-[1-9][0-9]*\"$/));"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/admin/catalogs/{{draftVersion}}/skills",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{adminToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "description": "Навыки черновика"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "ETag",
+                  "value": "\"rev-1\""
+                }
+              ],
+              "body": "{\n  \"data\": [\n    {\n      \"id\": \"logistics\",\n      \"code\": \"logistics\",\n      \"title\": \"Логистика\",\n      \"description\": \"Учебный навык склада\",\n      \"source\": \"DEMO\",\n      \"externalId\": null\n    }\n  ],\n  \"meta\": {\n    \"catalogVersion\": \"smoke-20261104111754-0fc9d4\",\n    \"page\": 1,\n    \"pageSize\": 20,\n    \"total\": 1,\n    \"stale\": false,\n    \"fetchedAt\": \"2026-11-04T11:17:14.364611100Z\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "POST /admin/catalogs/{version}/skills · Добавить навык в черновик",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "If-Match",
+                "value": "{{etag}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/admin/catalogs/{{draftVersion}}/skills",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Пример: POST /api/v1/admin/catalogs/demo-2/skills; If-Match: \"rev-1\"",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{skillId}}\",\n  \"code\": \"{{skillId}}\",\n  \"title\": \"Postman skill\",\n  \"description\": \"\",\n  \"source\": \"DEMO\",\n  \"externalId\": null\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"JSON Content-Type\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.match(/^application\\/json(?:;|$)/i));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Response fields\", () => pm.expect(body).to.include.all.keys([\"data\", \"catalogVersion\"]));",
+                  "pm.test(\"Strong draft ETag\", () => pm.expect(pm.response.headers.get(\"ETag\")).to.match(/^\"rev-[1-9][0-9]*\"$/));",
+                  "pm.collectionVariables.set(\"etag\", pm.response.headers.get(\"ETag\"));",
+                  "pm.test(\"Location points to admin resource\", () => pm.expect(pm.response.headers.get(\"Location\")).to.match(/^\\/api\\/v1\\/admin\\/catalogs\\//));"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "201 Created",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "If-Match",
+                    "value": "{{etag}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/admin/catalogs/{{draftVersion}}/skills",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{adminToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "description": "Пример: POST /api/v1/admin/catalogs/demo-2/skills; If-Match: \"rev-1\"",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"id\": \"{{skillId}}\",\n  \"code\": \"{{skillId}}\",\n  \"title\": \"Postman skill\",\n  \"description\": \"\",\n  \"source\": \"DEMO\",\n  \"externalId\": null\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "ETag",
+                  "value": "\"rev-2\""
+                },
+                {
+                  "key": "Location",
+                  "value": "/api/v1/admin/catalogs/smoke-20261104111754-0fc9d4/skills/smoke-skill"
+                }
+              ],
+              "body": "{\n  \"data\": {\n    \"id\": \"smoke-skill\",\n    \"code\": \"smoke-skill\",\n    \"title\": \"Учебная проверка CRUD\",\n    \"description\": \"DEMO\",\n    \"source\": \"DEMO\",\n    \"externalId\": null\n  },\n  \"catalogVersion\": \"smoke-20261104111754-0fc9d4\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "GET /admin/catalogs/{version}/skills/{id} · Навык черновика по id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/admin/catalogs/{{draftVersion}}/skills/{{skillId}}",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Навык черновика по id"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"JSON Content-Type\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.match(/^application\\/json(?:;|$)/i));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Response fields\", () => pm.expect(body).to.include.all.keys([\"data\", \"catalogVersion\"]));",
+                  "pm.test(\"Strong draft ETag\", () => pm.expect(pm.response.headers.get(\"ETag\")).to.match(/^\"rev-[1-9][0-9]*\"$/));"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/admin/catalogs/{{draftVersion}}/skills/{{skillId}}",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{adminToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "description": "Навык черновика по id"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "ETag",
+                  "value": "\"rev-2\""
+                }
+              ],
+              "body": "{\n  \"data\": {\n    \"id\": \"smoke-skill\",\n    \"code\": \"smoke-skill\",\n    \"title\": \"Учебная проверка CRUD\",\n    \"description\": \"DEMO\",\n    \"source\": \"DEMO\",\n    \"externalId\": null\n  },\n  \"catalogVersion\": \"smoke-20261104111754-0fc9d4\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "PUT /admin/catalogs/{version}/skills/{id} · Заменить навык черновика",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "If-Match",
+                "value": "{{etag}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/admin/catalogs/{{draftVersion}}/skills/{{skillId}}",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Заменить навык черновика",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"{{skillId}}\",\n  \"title\": \"Updated skill\",\n  \"description\": \"\",\n  \"source\": \"DEMO\",\n  \"externalId\": null\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"JSON Content-Type\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.match(/^application\\/json(?:;|$)/i));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Response fields\", () => pm.expect(body).to.include.all.keys([\"data\", \"catalogVersion\"]));",
+                  "pm.test(\"Strong draft ETag\", () => pm.expect(pm.response.headers.get(\"ETag\")).to.match(/^\"rev-[1-9][0-9]*\"$/));",
+                  "pm.collectionVariables.set(\"etag\", pm.response.headers.get(\"ETag\"));"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "If-Match",
+                    "value": "{{etag}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/admin/catalogs/{{draftVersion}}/skills/{{skillId}}",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{adminToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "description": "Заменить навык черновика",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"code\": \"{{skillId}}\",\n  \"title\": \"Updated skill\",\n  \"description\": \"\",\n  \"source\": \"DEMO\",\n  \"externalId\": null\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "ETag",
+                  "value": "\"rev-3\""
+                }
+              ],
+              "body": "{\n  \"data\": {\n    \"id\": \"smoke-skill\",\n    \"code\": \"smoke-skill\",\n    \"title\": \"Изменённый учебный навык\",\n    \"description\": \"DEMO\",\n    \"source\": \"DEMO\",\n    \"externalId\": null\n  },\n  \"catalogVersion\": \"smoke-20261104111754-0fc9d4\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "DELETE /admin/catalogs/{version}/skills/{id} · Удалить навык без зависимостей",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "If-Match",
+                "value": "{{etag}}"
+              }
+            ],
+            "url": "{{baseUrl}}/admin/catalogs/{{draftVersion}}/skills/{{skillId}}",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Удалить навык без зависимостей"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 204\", () => pm.response.to.have.status(204));",
+                  "pm.test(\"Empty body\", () => pm.expect(pm.response.text()).to.eql(\"\"));",
+                  "pm.test(\"Strong draft ETag\", () => pm.expect(pm.response.headers.get(\"ETag\")).to.match(/^\"rev-[1-9][0-9]*\"$/));",
+                  "pm.collectionVariables.set(\"etag\", pm.response.headers.get(\"ETag\"));"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "204 No Content",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "If-Match",
+                    "value": "{{etag}}"
+                  }
+                ],
+                "url": "{{baseUrl}}/admin/catalogs/{{draftVersion}}/skills/{{skillId}}",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{adminToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "description": "Удалить навык без зависимостей"
+              },
+              "status": "No Content",
+              "code": 204,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "ETag",
+                  "value": "\"rev-4\""
+                }
+              ],
+              "body": ""
+            }
+          ]
+        },
+        {
+          "name": "POST /admin/catalogs/{version}/publish · Опубликовать целостный каталог",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "If-Match",
+                "value": "{{etag}}"
+              }
+            ],
+            "url": "{{baseUrl}}/admin/catalogs/{{draftVersion}}/publish",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Проверяет 8 ресурсов, связи, 3 складские должности, баланс моделей и source_metadata. Повторная публикация — 409."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"JSON Content-Type\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.match(/^application\\/json(?:;|$)/i));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Response fields\", () => pm.expect(body).to.include.all.keys([\"catalogVersion\", \"schemaVersion\", \"publishedAt\", \"contentSha256\", \"resources\", \"sources\"]));"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "If-Match",
+                    "value": "{{etag}}"
+                  }
+                ],
+                "url": "{{baseUrl}}/admin/catalogs/{{draftVersion}}/publish",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{adminToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "description": "Проверяет 8 ресурсов, связи, 3 складские должности, баланс моделей и source_metadata. Повторная публикация — 409."
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"catalogVersion\": \"smoke-20261104111754-0fc9d4\",\n  \"schemaVersion\": \"1\",\n  \"publishedAt\": \"2026-11-04T11:17:56.689553Z\",\n  \"contentSha256\": \"75e1356f42756e98f490eb8ab3f2b7a45cab850ed6860c9fc3a061933f8c1835\",\n  \"resources\": [\n    \"occupations\",\n    \"skills\",\n    \"jobs\",\n    \"inflation\",\n    \"car-brands\",\n    \"car-models\",\n    \"tracks\",\n    \"race-configurations\"\n  ],\n  \"sources\": [\n    {\n      \"sha256\": \"5029869984303fd0e2b5cc0d5f30ef47b968f3c2a0f8e4fd680f4a288648596a\",\n      \"provider\": \"DEMO\",\n      \"fetchedAt\": \"2026-11-04T11:17:14.364611100Z\",\n      \"sourceVersion\": \"practice9-demo-v1\",\n      \"resource\": \"occupations\"\n    },\n    {\n      \"sha256\": \"d0fdb2862d2c54fcb7a070552b2250cd2f8ba79be19e3522112caea4ff8bda45\",\n      \"provider\": \"DEMO\",\n      \"fetchedAt\": \"2026-11-04T11:17:56.393415600Z\",\n      \"sourceVersion\": \"admin-curated\",\n      \"resource\": \"skills\"\n    },\n    {\n      \"sha256\": \"dde9420f4237fee1a78cb775af9a9c20a67e5b99485c9d511a7b8140ec6567b3\",\n      \"provider\": \"DEMO\",\n      \"fetchedAt\": \"2026-11-04T11:17:14.364611100Z\",\n      \"sourceVersion\": \"practice9-demo-v1\",\n      \"resource\": \"jobs\"\n    },\n    {\n      \"sha256\": \"3d34da217d7253286b0945d7f1c4128c0c4157da2d5116d838b633614ed83dcb\",\n      \"provider\": \"DEMO\",\n      \"fetchedAt\": \"2026-11-04T11:17:14.364611100Z\",\n      \"sourceVersion\": \"practice9-demo-v1\",\n      \"resource\": \"inflation\"\n    },\n    {\n      \"sha256\": \"00776de40ef5e0f0aaf7f13fbfffc6b4d46dbea061decc3b3537306c7ff35f07\",\n      \"provider\": \"DEMO\",\n      \"fetchedAt\": \"2026-11-04T11:17:14.364611100Z\",\n      \"sourceVersion\": \"practice9-demo-v1\",\n      \"resource\": \"car-brands\"\n    },\n    {\n      \"sha256\": \"a837044dfdb6b184c58c8112ae7b7f8bb6d9f0d31abddf39978b97d3358c165b\",\n      \"provider\": \"DEMO\",\n      \"fetchedAt\": \"2026-11-04T11:17:14.364611100Z\",\n      \"sourceVersion\": \"practice9-demo-v1\",\n      \"resource\": \"car-models\"\n    },\n    {\n      \"sha256\": \"ec8db3f99e39f4954b3d728e003ff9861d0bcb641a78512435b2cf587c7d7776\",\n      \"provider\": \"DEMO\",\n      \"fetchedAt\": \"2026-11-04T11:17:14.364611100Z\",\n      \"sourceVersion\": \"practice9-demo-v1\",\n      \"resource\": \"tracks\"\n    },\n    {\n      \"sha256\": \"0e1cc7cf21c7149c9fde3a6de3adc4f3bdcd104727c000b22080da5db38de13f\",\n      \"provider\": \"DEMO\",\n      \"fetchedAt\": \"2026-11-04T11:17:14.364611100Z\",\n      \"sourceVersion\": \"practice9-demo-v1\",\n      \"resource\": \"race-configurations\"\n    }\n  ]\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Негативные сценарии",
+      "item": [
+        {
+          "name": "GET /occupations → 400",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": "{{baseUrl}}/occupations"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"JSON Content-Type\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.match(/^application\\/json(?:;|$)/i));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Response fields\", () => pm.expect(body).to.include.all.keys([\"error\"]));",
+                  "pm.test(\"Unified error\", () => {",
+                  "  pm.expect(body.error.code).to.eql(\"BADREQUEST\");",
+                  "  pm.expect(body.error.message).to.be.a(\"string\").and.not.empty;",
+                  "  pm.expect(body.error.requestId).to.match(/^[0-9a-f-]{36}$/i);",
+                  "  pm.expect(body.error.details).to.be.an(\"array\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "400 Bad Request",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "auth": {
+                  "type": "noauth"
+                },
+                "url": "{{baseUrl}}/occupations"
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"BADREQUEST\",\n    \"message\": \"Пример сообщения об ошибке\",\n    \"requestId\": \"00000000-0000-4000-8000-000000000001\",\n    \"details\": []\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "GET /skills → 400",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": "{{baseUrl}}/skills"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"JSON Content-Type\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.match(/^application\\/json(?:;|$)/i));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Response fields\", () => pm.expect(body).to.include.all.keys([\"error\"]));",
+                  "pm.test(\"Unified error\", () => {",
+                  "  pm.expect(body.error.code).to.eql(\"BADREQUEST\");",
+                  "  pm.expect(body.error.message).to.be.a(\"string\").and.not.empty;",
+                  "  pm.expect(body.error.requestId).to.match(/^[0-9a-f-]{36}$/i);",
+                  "  pm.expect(body.error.details).to.be.an(\"array\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "400 Bad Request",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "auth": {
+                  "type": "noauth"
+                },
+                "url": "{{baseUrl}}/skills"
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"BADREQUEST\",\n    \"message\": \"Пример сообщения об ошибке\",\n    \"requestId\": \"00000000-0000-4000-8000-000000000001\",\n    \"details\": []\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "GET /jobs → 400",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": "{{baseUrl}}/jobs"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"JSON Content-Type\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.match(/^application\\/json(?:;|$)/i));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Response fields\", () => pm.expect(body).to.include.all.keys([\"error\"]));",
+                  "pm.test(\"Unified error\", () => {",
+                  "  pm.expect(body.error.code).to.eql(\"BADREQUEST\");",
+                  "  pm.expect(body.error.message).to.be.a(\"string\").and.not.empty;",
+                  "  pm.expect(body.error.requestId).to.match(/^[0-9a-f-]{36}$/i);",
+                  "  pm.expect(body.error.details).to.be.an(\"array\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "400 Bad Request",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "auth": {
+                  "type": "noauth"
+                },
+                "url": "{{baseUrl}}/jobs"
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"BADREQUEST\",\n    \"message\": \"Пример сообщения об ошибке\",\n    \"requestId\": \"00000000-0000-4000-8000-000000000001\",\n    \"details\": []\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "GET /inflation → 400",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": "{{baseUrl}}/inflation"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"JSON Content-Type\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.match(/^application\\/json(?:;|$)/i));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Response fields\", () => pm.expect(body).to.include.all.keys([\"error\"]));",
+                  "pm.test(\"Unified error\", () => {",
+                  "  pm.expect(body.error.code).to.eql(\"BADREQUEST\");",
+                  "  pm.expect(body.error.message).to.be.a(\"string\").and.not.empty;",
+                  "  pm.expect(body.error.requestId).to.match(/^[0-9a-f-]{36}$/i);",
+                  "  pm.expect(body.error.details).to.be.an(\"array\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "400 Bad Request",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "auth": {
+                  "type": "noauth"
+                },
+                "url": "{{baseUrl}}/inflation"
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"BADREQUEST\",\n    \"message\": \"Пример сообщения об ошибке\",\n    \"requestId\": \"00000000-0000-4000-8000-000000000001\",\n    \"details\": []\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "GET /cars/brands → 400",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": "{{baseUrl}}/cars/brands"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"JSON Content-Type\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.match(/^application\\/json(?:;|$)/i));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Response fields\", () => pm.expect(body).to.include.all.keys([\"error\"]));",
+                  "pm.test(\"Unified error\", () => {",
+                  "  pm.expect(body.error.code).to.eql(\"BADREQUEST\");",
+                  "  pm.expect(body.error.message).to.be.a(\"string\").and.not.empty;",
+                  "  pm.expect(body.error.requestId).to.match(/^[0-9a-f-]{36}$/i);",
+                  "  pm.expect(body.error.details).to.be.an(\"array\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "400 Bad Request",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "auth": {
+                  "type": "noauth"
+                },
+                "url": "{{baseUrl}}/cars/brands"
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"BADREQUEST\",\n    \"message\": \"Пример сообщения об ошибке\",\n    \"requestId\": \"00000000-0000-4000-8000-000000000001\",\n    \"details\": []\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "GET /cars/models → 400",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": "{{baseUrl}}/cars/models"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"JSON Content-Type\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.match(/^application\\/json(?:;|$)/i));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Response fields\", () => pm.expect(body).to.include.all.keys([\"error\"]));",
+                  "pm.test(\"Unified error\", () => {",
+                  "  pm.expect(body.error.code).to.eql(\"BADREQUEST\");",
+                  "  pm.expect(body.error.message).to.be.a(\"string\").and.not.empty;",
+                  "  pm.expect(body.error.requestId).to.match(/^[0-9a-f-]{36}$/i);",
+                  "  pm.expect(body.error.details).to.be.an(\"array\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "400 Bad Request",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "auth": {
+                  "type": "noauth"
+                },
+                "url": "{{baseUrl}}/cars/models"
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"BADREQUEST\",\n    \"message\": \"Пример сообщения об ошибке\",\n    \"requestId\": \"00000000-0000-4000-8000-000000000001\",\n    \"details\": []\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "GET /tracks → 400",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": "{{baseUrl}}/tracks"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"JSON Content-Type\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.match(/^application\\/json(?:;|$)/i));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Response fields\", () => pm.expect(body).to.include.all.keys([\"error\"]));",
+                  "pm.test(\"Unified error\", () => {",
+                  "  pm.expect(body.error.code).to.eql(\"BADREQUEST\");",
+                  "  pm.expect(body.error.message).to.be.a(\"string\").and.not.empty;",
+                  "  pm.expect(body.error.requestId).to.match(/^[0-9a-f-]{36}$/i);",
+                  "  pm.expect(body.error.details).to.be.an(\"array\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "400 Bad Request",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "auth": {
+                  "type": "noauth"
+                },
+                "url": "{{baseUrl}}/tracks"
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"BADREQUEST\",\n    \"message\": \"Пример сообщения об ошибке\",\n    \"requestId\": \"00000000-0000-4000-8000-000000000001\",\n    \"details\": []\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "GET /race-configurations → 400",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": "{{baseUrl}}/race-configurations"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"JSON Content-Type\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.match(/^application\\/json(?:;|$)/i));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Response fields\", () => pm.expect(body).to.include.all.keys([\"error\"]));",
+                  "pm.test(\"Unified error\", () => {",
+                  "  pm.expect(body.error.code).to.eql(\"BADREQUEST\");",
+                  "  pm.expect(body.error.message).to.be.a(\"string\").and.not.empty;",
+                  "  pm.expect(body.error.requestId).to.match(/^[0-9a-f-]{36}$/i);",
+                  "  pm.expect(body.error.details).to.be.an(\"array\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "400 Bad Request",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "auth": {
+                  "type": "noauth"
+                },
+                "url": "{{baseUrl}}/race-configurations"
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"BADREQUEST\",\n    \"message\": \"Пример сообщения об ошибке\",\n    \"requestId\": \"00000000-0000-4000-8000-000000000001\",\n    \"details\": []\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "GET /occupations/{id} → 404",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": "{{baseUrl}}/occupations/missing-postman?catalogVersion={{catalogVersion}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 404\", () => pm.response.to.have.status(404));",
+                  "pm.test(\"JSON Content-Type\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.match(/^application\\/json(?:;|$)/i));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Response fields\", () => pm.expect(body).to.include.all.keys([\"error\"]));",
+                  "pm.test(\"Unified error\", () => {",
+                  "  pm.expect(body.error.code).to.eql(\"NOTFOUND\");",
+                  "  pm.expect(body.error.message).to.be.a(\"string\").and.not.empty;",
+                  "  pm.expect(body.error.requestId).to.match(/^[0-9a-f-]{36}$/i);",
+                  "  pm.expect(body.error.details).to.be.an(\"array\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "404 Not Found",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "auth": {
+                  "type": "noauth"
+                },
+                "url": "{{baseUrl}}/occupations/missing-postman?catalogVersion={{catalogVersion}}"
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"NOTFOUND\",\n    \"message\": \"Пример сообщения об ошибке\",\n    \"requestId\": \"00000000-0000-4000-8000-000000000001\",\n    \"details\": []\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "GET /cars/models/{id} → 404",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": "{{baseUrl}}/cars/models/missing-postman?catalogVersion={{catalogVersion}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 404\", () => pm.response.to.have.status(404));",
+                  "pm.test(\"JSON Content-Type\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.match(/^application\\/json(?:;|$)/i));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Response fields\", () => pm.expect(body).to.include.all.keys([\"error\"]));",
+                  "pm.test(\"Unified error\", () => {",
+                  "  pm.expect(body.error.code).to.eql(\"NOTFOUND\");",
+                  "  pm.expect(body.error.message).to.be.a(\"string\").and.not.empty;",
+                  "  pm.expect(body.error.requestId).to.match(/^[0-9a-f-]{36}$/i);",
+                  "  pm.expect(body.error.details).to.be.an(\"array\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "404 Not Found",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "auth": {
+                  "type": "noauth"
+                },
+                "url": "{{baseUrl}}/cars/models/missing-postman?catalogVersion={{catalogVersion}}"
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"NOTFOUND\",\n    \"message\": \"Пример сообщения об ошибке\",\n    \"requestId\": \"00000000-0000-4000-8000-000000000001\",\n    \"details\": []\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "GET /tracks/{id} → 404",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": "{{baseUrl}}/tracks/missing-postman?catalogVersion={{catalogVersion}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 404\", () => pm.response.to.have.status(404));",
+                  "pm.test(\"JSON Content-Type\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.match(/^application\\/json(?:;|$)/i));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Response fields\", () => pm.expect(body).to.include.all.keys([\"error\"]));",
+                  "pm.test(\"Unified error\", () => {",
+                  "  pm.expect(body.error.code).to.eql(\"NOTFOUND\");",
+                  "  pm.expect(body.error.message).to.be.a(\"string\").and.not.empty;",
+                  "  pm.expect(body.error.requestId).to.match(/^[0-9a-f-]{36}$/i);",
+                  "  pm.expect(body.error.details).to.be.an(\"array\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "404 Not Found",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "auth": {
+                  "type": "noauth"
+                },
+                "url": "{{baseUrl}}/tracks/missing-postman?catalogVersion={{catalogVersion}}"
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"NOTFOUND\",\n    \"message\": \"Пример сообщения об ошибке\",\n    \"requestId\": \"00000000-0000-4000-8000-000000000001\",\n    \"details\": []\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "POST /admin/catalogs → 401",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": "{{baseUrl}}/admin/catalogs"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 401\", () => pm.response.to.have.status(401));",
+                  "pm.test(\"JSON Content-Type\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.match(/^application\\/json(?:;|$)/i));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Response fields\", () => pm.expect(body).to.include.all.keys([\"error\"]));",
+                  "pm.test(\"Unified error\", () => {",
+                  "  pm.expect(body.error.code).to.eql(\"UNAUTHORIZED\");",
+                  "  pm.expect(body.error.message).to.be.a(\"string\").and.not.empty;",
+                  "  pm.expect(body.error.requestId).to.match(/^[0-9a-f-]{36}$/i);",
+                  "  pm.expect(body.error.details).to.be.an(\"array\");",
+                  "});",
+                  "pm.test(\"Bearer challenge\", () => pm.expect(pm.response.headers.get(\"WWW-Authenticate\")).to.match(/^Bearer/i));"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "401 Unauthorized",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "auth": {
+                  "type": "noauth"
+                },
+                "url": "{{baseUrl}}/admin/catalogs"
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "WWW-Authenticate",
+                  "value": "Bearer realm=\"catalog-admin\""
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"UNAUTHORIZED\",\n    \"message\": \"Пример сообщения об ошибке\",\n    \"requestId\": \"00000000-0000-4000-8000-000000000001\",\n    \"details\": []\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "GET /admin/catalogs/{version}/skills → 401",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": "{{baseUrl}}/admin/catalogs/{{draftVersion}}/skills"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 401\", () => pm.response.to.have.status(401));",
+                  "pm.test(\"JSON Content-Type\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.match(/^application\\/json(?:;|$)/i));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Response fields\", () => pm.expect(body).to.include.all.keys([\"error\"]));",
+                  "pm.test(\"Unified error\", () => {",
+                  "  pm.expect(body.error.code).to.eql(\"UNAUTHORIZED\");",
+                  "  pm.expect(body.error.message).to.be.a(\"string\").and.not.empty;",
+                  "  pm.expect(body.error.requestId).to.match(/^[0-9a-f-]{36}$/i);",
+                  "  pm.expect(body.error.details).to.be.an(\"array\");",
+                  "});",
+                  "pm.test(\"Bearer challenge\", () => pm.expect(pm.response.headers.get(\"WWW-Authenticate\")).to.match(/^Bearer/i));"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "401 Unauthorized",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "auth": {
+                  "type": "noauth"
+                },
+                "url": "{{baseUrl}}/admin/catalogs/{{draftVersion}}/skills"
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "WWW-Authenticate",
+                  "value": "Bearer realm=\"catalog-admin\""
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"UNAUTHORIZED\",\n    \"message\": \"Пример сообщения об ошибке\",\n    \"requestId\": \"00000000-0000-4000-8000-000000000001\",\n    \"details\": []\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "POST /admin/catalogs/{version}/skills → 401",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": "{{baseUrl}}/admin/catalogs/{{draftVersion}}/skills"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 401\", () => pm.response.to.have.status(401));",
+                  "pm.test(\"JSON Content-Type\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.match(/^application\\/json(?:;|$)/i));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Response fields\", () => pm.expect(body).to.include.all.keys([\"error\"]));",
+                  "pm.test(\"Unified error\", () => {",
+                  "  pm.expect(body.error.code).to.eql(\"UNAUTHORIZED\");",
+                  "  pm.expect(body.error.message).to.be.a(\"string\").and.not.empty;",
+                  "  pm.expect(body.error.requestId).to.match(/^[0-9a-f-]{36}$/i);",
+                  "  pm.expect(body.error.details).to.be.an(\"array\");",
+                  "});",
+                  "pm.test(\"Bearer challenge\", () => pm.expect(pm.response.headers.get(\"WWW-Authenticate\")).to.match(/^Bearer/i));"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "401 Unauthorized",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "auth": {
+                  "type": "noauth"
+                },
+                "url": "{{baseUrl}}/admin/catalogs/{{draftVersion}}/skills"
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "WWW-Authenticate",
+                  "value": "Bearer realm=\"catalog-admin\""
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"UNAUTHORIZED\",\n    \"message\": \"Пример сообщения об ошибке\",\n    \"requestId\": \"00000000-0000-4000-8000-000000000001\",\n    \"details\": []\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "GET /admin/catalogs/{version}/skills/{id} → 401",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": "{{baseUrl}}/admin/catalogs/{{draftVersion}}/skills/{{skillId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 401\", () => pm.response.to.have.status(401));",
+                  "pm.test(\"JSON Content-Type\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.match(/^application\\/json(?:;|$)/i));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Response fields\", () => pm.expect(body).to.include.all.keys([\"error\"]));",
+                  "pm.test(\"Unified error\", () => {",
+                  "  pm.expect(body.error.code).to.eql(\"UNAUTHORIZED\");",
+                  "  pm.expect(body.error.message).to.be.a(\"string\").and.not.empty;",
+                  "  pm.expect(body.error.requestId).to.match(/^[0-9a-f-]{36}$/i);",
+                  "  pm.expect(body.error.details).to.be.an(\"array\");",
+                  "});",
+                  "pm.test(\"Bearer challenge\", () => pm.expect(pm.response.headers.get(\"WWW-Authenticate\")).to.match(/^Bearer/i));"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "401 Unauthorized",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "auth": {
+                  "type": "noauth"
+                },
+                "url": "{{baseUrl}}/admin/catalogs/{{draftVersion}}/skills/{{skillId}}"
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "WWW-Authenticate",
+                  "value": "Bearer realm=\"catalog-admin\""
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"UNAUTHORIZED\",\n    \"message\": \"Пример сообщения об ошибке\",\n    \"requestId\": \"00000000-0000-4000-8000-000000000001\",\n    \"details\": []\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "PUT /admin/catalogs/{version}/skills/{id} → 401",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": "{{baseUrl}}/admin/catalogs/{{draftVersion}}/skills/{{skillId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 401\", () => pm.response.to.have.status(401));",
+                  "pm.test(\"JSON Content-Type\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.match(/^application\\/json(?:;|$)/i));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Response fields\", () => pm.expect(body).to.include.all.keys([\"error\"]));",
+                  "pm.test(\"Unified error\", () => {",
+                  "  pm.expect(body.error.code).to.eql(\"UNAUTHORIZED\");",
+                  "  pm.expect(body.error.message).to.be.a(\"string\").and.not.empty;",
+                  "  pm.expect(body.error.requestId).to.match(/^[0-9a-f-]{36}$/i);",
+                  "  pm.expect(body.error.details).to.be.an(\"array\");",
+                  "});",
+                  "pm.test(\"Bearer challenge\", () => pm.expect(pm.response.headers.get(\"WWW-Authenticate\")).to.match(/^Bearer/i));"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "401 Unauthorized",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [],
+                "auth": {
+                  "type": "noauth"
+                },
+                "url": "{{baseUrl}}/admin/catalogs/{{draftVersion}}/skills/{{skillId}}"
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "WWW-Authenticate",
+                  "value": "Bearer realm=\"catalog-admin\""
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"UNAUTHORIZED\",\n    \"message\": \"Пример сообщения об ошибке\",\n    \"requestId\": \"00000000-0000-4000-8000-000000000001\",\n    \"details\": []\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "DELETE /admin/catalogs/{version}/skills/{id} → 401",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": "{{baseUrl}}/admin/catalogs/{{draftVersion}}/skills/{{skillId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 401\", () => pm.response.to.have.status(401));",
+                  "pm.test(\"JSON Content-Type\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.match(/^application\\/json(?:;|$)/i));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Response fields\", () => pm.expect(body).to.include.all.keys([\"error\"]));",
+                  "pm.test(\"Unified error\", () => {",
+                  "  pm.expect(body.error.code).to.eql(\"UNAUTHORIZED\");",
+                  "  pm.expect(body.error.message).to.be.a(\"string\").and.not.empty;",
+                  "  pm.expect(body.error.requestId).to.match(/^[0-9a-f-]{36}$/i);",
+                  "  pm.expect(body.error.details).to.be.an(\"array\");",
+                  "});",
+                  "pm.test(\"Bearer challenge\", () => pm.expect(pm.response.headers.get(\"WWW-Authenticate\")).to.match(/^Bearer/i));"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "401 Unauthorized",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "auth": {
+                  "type": "noauth"
+                },
+                "url": "{{baseUrl}}/admin/catalogs/{{draftVersion}}/skills/{{skillId}}"
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "WWW-Authenticate",
+                  "value": "Bearer realm=\"catalog-admin\""
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"UNAUTHORIZED\",\n    \"message\": \"Пример сообщения об ошибке\",\n    \"requestId\": \"00000000-0000-4000-8000-000000000001\",\n    \"details\": []\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "POST /admin/catalogs/{version}/publish → 401",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": "{{baseUrl}}/admin/catalogs/{{draftVersion}}/publish"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 401\", () => pm.response.to.have.status(401));",
+                  "pm.test(\"JSON Content-Type\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.match(/^application\\/json(?:;|$)/i));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Response fields\", () => pm.expect(body).to.include.all.keys([\"error\"]));",
+                  "pm.test(\"Unified error\", () => {",
+                  "  pm.expect(body.error.code).to.eql(\"UNAUTHORIZED\");",
+                  "  pm.expect(body.error.message).to.be.a(\"string\").and.not.empty;",
+                  "  pm.expect(body.error.requestId).to.match(/^[0-9a-f-]{36}$/i);",
+                  "  pm.expect(body.error.details).to.be.an(\"array\");",
+                  "});",
+                  "pm.test(\"Bearer challenge\", () => pm.expect(pm.response.headers.get(\"WWW-Authenticate\")).to.match(/^Bearer/i));"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "401 Unauthorized",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "auth": {
+                  "type": "noauth"
+                },
+                "url": "{{baseUrl}}/admin/catalogs/{{draftVersion}}/publish"
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "WWW-Authenticate",
+                  "value": "Bearer realm=\"catalog-admin\""
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"UNAUTHORIZED\",\n    \"message\": \"Пример сообщения об ошибке\",\n    \"requestId\": \"00000000-0000-4000-8000-000000000001\",\n    \"details\": []\n  }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Практика 10 — внешние API через backend",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const path = pm.request.url.getPath();",
+              "const provider = path.includes('/worldbank/') ? 'WORLD_BANK' : path.includes('/onet/') ? 'ONET' : 'CARS_BASE';",
+              "const negative = pm.info.requestName.includes('422');",
+              "const configuredStatus = provider === 'ONET' ? pm.environment.get('expectedOnetStatus') : pm.environment.get('expectedCarsStatus');",
+              "const expected = negative ? 422 : provider === 'WORLD_BANK' ? 200 : Number(configuredStatus || 503);",
+              "pm.test('Integration status', () => pm.response.to.have.status(expected));",
+              "pm.test('JSON Content-Type', () => pm.expect(pm.response.headers.get('Content-Type')).to.match(/^application\\/json(?:;|$)/i));",
+              "const body = pm.response.json();",
+              "if (expected === 200) {",
+              "  pm.test('Provider envelope', () => { pm.expect(body.provider).to.eql(provider); pm.expect(body.fromCache).to.be.a('boolean'); pm.expect(body.stale).to.be.a('boolean'); pm.expect(body.data).to.satisfy(value => value !== null && typeof value === 'object'); });",
+              "} else {",
+              "  pm.test('Error envelope', () => { pm.expect(body.error).to.have.all.keys('code', 'message', 'requestId', 'details'); pm.expect(body.error.code).to.eql(expected === 422 ? 'VALIDATIONERROR' : 'UNAVAILABLE'); pm.expect(body.error.details).to.be.an('array'); });",
+              "  if (expected === 503) pm.test('Retry-After', () => pm.expect(Number(pm.response.headers.get('Retry-After'))).to.be.greaterThan(0));",
+              "}"
+            ]
+          }
+        }
+      ],
+      "item": [
+        {
+          "name": "World Bank — инфляция",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/integrations/worldbank/inflation?country=RUS&yearFrom=2020&yearTo=2022"
+          },
+          "response": []
+        },
+        {
+          "name": "O*NET — профессии (требуется ONET_API_KEY)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/integrations/onet/occupations"
+          },
+          "response": []
+        },
+        {
+          "name": "O*NET — навыки профессии (требуется ONET_API_KEY)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/integrations/onet/skills/53-7062.00"
+          },
+          "response": []
+        },
+        {
+          "name": "CarsBase — марки (требуется CARS_API_TOKEN)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/integrations/cars/brands"
+          },
+          "response": []
+        },
+        {
+          "name": "CarsBase — модели (требуется CARS_API_TOKEN)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/integrations/cars/models?brandId=BMW&page=1&pageSize=10"
+          },
+          "response": []
+        },
+        {
+          "name": "World Bank — ошибка валидации 422",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/integrations/worldbank/inflation?country=RUS&yearFrom=2024&yearTo=2022"
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "catalogVersion",
+      "value": "demo-1"
+    },
+    {
+      "key": "draftVersion",
+      "value": ""
+    },
+    {
+      "key": "etag",
+      "value": ""
+    },
+    {
+      "key": "skillId",
+      "value": "postman-skill"
+    }
+  ]
+}

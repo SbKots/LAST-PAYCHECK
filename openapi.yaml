@@ -10,6 +10,8 @@ info:
     Инфляция: страна ISO alpha-3 без агрегатов, yearFrom ≤ yearTo. Формат/неизвестный параметр — 400, диапазон — 422.
     SHA-256 включает ресурсы и source_metadata; исключены revision, created_at, published_at и само content_sha256.
     Прогресс, деньги, гараж и результаты гонок хранятся в Room. Все примеры — DEMO.
+    Для неподдерживаемого метода существующего маршрута возвращается HTTP 405 с JSON Error и code METHODNOTALLOWED.
+    В SkillInput/SkillCreate title и ONET externalId должны содержать непробельный символ (как Kotlin isBlank); NUL в строках запрещён.
 servers:
   - url: https://last-paycheck.example/api/v1
     description: 'Проектный адрес; локальный стенд: http://127.0.0.1:8089/api/v1'
@@ -412,15 +414,15 @@ components:
       additionalProperties: false
       properties:
         code: {$ref: '#/components/schemas/Identifier'}
-        title: {type: string, minLength: 1, maxLength: 160}
-        description: {type: string, maxLength: 4000}
+        title: {type: string, minLength: 1, maxLength: 160, pattern: '^(?=[\s\S]*[^\u0009-\u000d\u001c-\u0020\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000])[^\u0000]*(?![\s\S])'}
+        description: {type: string, maxLength: 4000, pattern: '^[^\u0000]*(?![\s\S])'}
         source: {type: string, enum: [ONET, DEMO]}
-        externalId: {type: string, nullable: true, maxLength: 64}
+        externalId: {type: string, nullable: true, maxLength: 64, pattern: '^[^\u0000]*(?![\s\S])'}
       required: [code, title, description, source, externalId]
       oneOf:
         - properties:
             source: {enum: [ONET]}
-            externalId: {type: string, minLength: 1, maxLength: 64}
+            externalId: {type: string, minLength: 1, maxLength: 64, pattern: '^(?=[\s\S]*[^\u0009-\u000d\u001c-\u0020\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000])[^\u0000]*(?![\s\S])'}
         - properties:
             source: {enum: [DEMO]}
     SkillCreate:
@@ -429,15 +431,15 @@ components:
       properties:
         id: {$ref: '#/components/schemas/Identifier'}
         code: {$ref: '#/components/schemas/Identifier'}
-        title: {type: string, minLength: 1, maxLength: 160}
-        description: {type: string, maxLength: 4000}
+        title: {type: string, minLength: 1, maxLength: 160, pattern: '^(?=[\s\S]*[^\u0009-\u000d\u001c-\u0020\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000])[^\u0000]*(?![\s\S])'}
+        description: {type: string, maxLength: 4000, pattern: '^[^\u0000]*(?![\s\S])'}
         source: {type: string, enum: [ONET, DEMO]}
-        externalId: {type: string, nullable: true, maxLength: 64}
+        externalId: {type: string, nullable: true, maxLength: 64, pattern: '^[^\u0000]*(?![\s\S])'}
       required: [id, code, title, description, source, externalId]
       oneOf:
         - properties:
             source: {enum: [ONET]}
-            externalId: {type: string, minLength: 1, maxLength: 64}
+            externalId: {type: string, minLength: 1, maxLength: 64, pattern: '^(?=[\s\S]*[^\u0009-\u000d\u001c-\u0020\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000])[^\u0000]*(?![\s\S])'}
         - properties:
             source: {enum: [DEMO]}
     Skill: {$ref: '#/components/schemas/SkillCreate'}
@@ -483,7 +485,7 @@ components:
       additionalProperties: false
       properties:
         id: {$ref: '#/components/schemas/Identifier'}
-        countryCode: {type: string, pattern: '^[A-Z]{3}$'}
+        countryCode: {type: string, pattern: '^[A-Z]{3}(?![\s\S])'}
         year: {type: integer, format: int32, minimum: 1900, maximum: 2100}
         indicatorCode: {type: string, enum: [FP.CPI.TOTL.ZG]}
         valuePercent: {type: number, minimum: -100, exclusiveMinimum: true, maximum: 999999.999999, multipleOf: 1.0e-06}
@@ -543,7 +545,7 @@ components:
         title: {type: string, minLength: 1, maxLength: 160}
         lengthM: {type: integer, format: int32, minimum: 1, maximum: 2147483647}
         assetKey: {type: string, minLength: 1, maxLength: 120}
-        assetSha256: {type: string, pattern: '^[a-f0-9]{64}$'}
+        assetSha256: {type: string, pattern: '^[a-f0-9]{64}(?![\s\S])'}
         layoutRevision: {type: integer, format: int32, minimum: 1, maximum: 2147483647}
       required: [id, title, lengthM, assetKey, assetSha256, layoutRevision]
     RaceConfiguration:
@@ -566,7 +568,7 @@ components:
         catalogVersion: {$ref: '#/components/schemas/CatalogVersion'}
         schemaVersion: {type: string, enum: ['1']}
         publishedAt: {type: string, format: date-time}
-        contentSha256: {type: string, pattern: '^[a-f0-9]{64}$'}
+        contentSha256: {type: string, pattern: '^[a-f0-9]{64}(?![\s\S])'}
         resources:
           type: array
           items: {type: string, enum: [occupations, skills, jobs, inflation, car-brands, car-models, tracks, race-configurations]}
@@ -746,7 +748,7 @@ components:
         provider: {type: string, enum: [ONET, WORLD_BANK, CARS_BASE, DEMO]}
         fetchedAt: {type: string, format: date-time}
         sourceVersion: {type: string, nullable: true, maxLength: 120}
-        sha256: {type: string, pattern: '^[a-f0-9]{64}$'}
+        sha256: {type: string, pattern: '^[a-f0-9]{64}(?![\s\S])'}
     NullableCarSpecification:
       type: object
       additionalProperties: false
@@ -758,8 +760,8 @@ components:
         consumptionLPer100km: {type: number, minimum: 0, maximum: 100000, nullable: true}
       required: [massKg, powerKw, maxSpeedKmh, tankLiters, consumptionLPer100km]
       nullable: true
-    Identifier: {type: string, pattern: '^[a-z0-9][a-z0-9._-]{0,63}$', maxLength: 64}
-    CatalogVersion: {type: string, pattern: '^[a-z0-9][a-z0-9._-]{0,31}$', maxLength: 32}
+    Identifier: {type: string, pattern: '^[a-z0-9][a-z0-9._-]{0,63}(?![\s\S])', maxLength: 64}
+    CatalogVersion: {type: string, pattern: '^[a-z0-9][a-z0-9._-]{0,31}(?![\s\S])', maxLength: 32}
     Money: {type: integer, format: int64, minimum: 0, maximum: 9007199254740991}
   parameters:
     Version:
@@ -801,14 +803,14 @@ components:
       name: If-Match
       in: header
       required: true
-      schema: {type: string, pattern: '^"rev-[1-9][0-9]*"$'}
+      schema: {type: string, pattern: '^"rev-[1-9][0-9]*"(?![\s\S])'}
       description: ETag черновика. Отсутствие/форма — 400, устаревшая ревизия — 412.
       example: '"rev-1"'
     Country:
       name: country
       in: query
       required: true
-      schema: {type: string, pattern: '^[A-Z]{3}$'}
+      schema: {type: string, pattern: '^[A-Z]{3}(?![\s\S])'}
     YearFrom:
       name: yearFrom
       in: query
@@ -847,6 +849,14 @@ components:
         application/json: {schema: {$ref: '#/components/schemas/Error'}}
     NotFound:
       description: Версия или сущность не найдена.
+      content:
+        application/json: {schema: {$ref: '#/components/schemas/Error'}}
+    MethodNotAllowed:
+      description: HTTP 405 — метод не поддерживается для существующего маршрута; error.code = METHODNOTALLOWED.
+      headers:
+        Allow:
+          description: Разрешённые для маршрута HTTP-методы через запятую.
+          schema: {type: string}
       content:
         application/json: {schema: {$ref: '#/components/schemas/Error'}}
     Conflict:

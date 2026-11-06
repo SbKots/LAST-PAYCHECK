@@ -1,0 +1,170 @@
+[
+  {
+    "id": "NEG-01",
+    "operation": "GET /catalog",
+    "method": "POST",
+    "path": "/catalog",
+    "status": 405
+  },
+  {
+    "id": "NEG-02",
+    "operation": "GET /occupations",
+    "method": "GET",
+    "path": "/occupations",
+    "status": 400
+  },
+  {
+    "id": "NEG-03",
+    "operation": "GET /skills",
+    "method": "GET",
+    "path": "/skills",
+    "status": 400
+  },
+  {
+    "id": "NEG-04",
+    "operation": "GET /jobs",
+    "method": "GET",
+    "path": "/jobs",
+    "status": 400
+  },
+  {
+    "id": "NEG-05",
+    "operation": "GET /inflation",
+    "method": "GET",
+    "path": "/inflation",
+    "status": 400
+  },
+  {
+    "id": "NEG-06",
+    "operation": "GET /cars/brands",
+    "method": "GET",
+    "path": "/cars/brands",
+    "status": 400
+  },
+  {
+    "id": "NEG-07",
+    "operation": "GET /cars/models",
+    "method": "GET",
+    "path": "/cars/models",
+    "status": 400
+  },
+  {
+    "id": "NEG-08",
+    "operation": "GET /tracks",
+    "method": "GET",
+    "path": "/tracks",
+    "status": 400
+  },
+  {
+    "id": "NEG-09",
+    "operation": "GET /race-configurations",
+    "method": "GET",
+    "path": "/race-configurations",
+    "status": 400
+  },
+  {
+    "id": "NEG-10",
+    "operation": "GET /occupations/{id}",
+    "method": "GET",
+    "path": "/occupations/bad",
+    "status": 400
+  },
+  {
+    "id": "NEG-11",
+    "operation": "GET /cars/models/{id}",
+    "method": "GET",
+    "path": "/cars/models/bad",
+    "status": 400
+  },
+  {
+    "id": "NEG-12",
+    "operation": "GET /tracks/{id}",
+    "method": "GET",
+    "path": "/tracks/bad",
+    "status": 400
+  },
+  {
+    "id": "NEG-13",
+    "operation": "POST /admin/catalogs",
+    "method": "POST",
+    "path": "/admin/catalogs",
+    "status": 401
+  },
+  {
+    "id": "NEG-14",
+    "operation": "GET /admin/catalogs/{version}/skills",
+    "method": "GET",
+    "path": "/admin/catalogs/v/skills",
+    "status": 401
+  },
+  {
+    "id": "NEG-15",
+    "operation": "POST /admin/catalogs/{version}/skills",
+    "method": "POST",
+    "path": "/admin/catalogs/v/skills",
+    "status": 401
+  },
+  {
+    "id": "NEG-16",
+    "operation": "GET /admin/catalogs/{version}/skills/{id}",
+    "method": "GET",
+    "path": "/admin/catalogs/v/skills/bad",
+    "status": 401
+  },
+  {
+    "id": "NEG-17",
+    "operation": "PUT /admin/catalogs/{version}/skills/{id}",
+    "method": "PUT",
+    "path": "/admin/catalogs/v/skills/bad",
+    "status": 401
+  },
+  {
+    "id": "NEG-18",
+    "operation": "DELETE /admin/catalogs/{version}/skills/{id}",
+    "method": "DELETE",
+    "path": "/admin/catalogs/v/skills/bad",
+    "status": 401
+  },
+  {
+    "id": "NEG-19",
+    "operation": "POST /admin/catalogs/{version}/publish",
+    "method": "POST",
+    "path": "/admin/catalogs/v/publish",
+    "status": 401
+  },
+  {
+    "id": "NEG-20",
+    "operation": "GET /integrations/worldbank/inflation",
+    "method": "GET",
+    "path": "/integrations/worldbank/inflation",
+    "status": 400
+  },
+  {
+    "id": "NEG-21",
+    "operation": "GET /integrations/onet/occupations",
+    "method": "GET",
+    "path": "/integrations/onet/occupations?unexpected=1",
+    "status": 400
+  },
+  {
+    "id": "NEG-22",
+    "operation": "GET /integrations/onet/skills/{occupationCode}",
+    "method": "GET",
+    "path": "/integrations/onet/skills/bad",
+    "status": 422
+  },
+  {
+    "id": "NEG-23",
+    "operation": "GET /integrations/cars/brands",
+    "method": "GET",
+    "path": "/integrations/cars/brands?page=0",
+    "status": 422
+  },
+  {
+    "id": "NEG-24",
+    "operation": "GET /integrations/cars/models",
+    "method": "GET",
+    "path": "/integrations/cars/models?brandId=!",
+    "status": 422
+  }
+]

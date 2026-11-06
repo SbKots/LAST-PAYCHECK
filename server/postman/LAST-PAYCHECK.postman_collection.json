@@ -2,7 +2,7 @@
   "info": {
     "name": "LAST PAYCHECK — backend",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "description": "Практики 09–10: REST API, CRUD, единые ошибки, токен; внешние интеграции через сервер. Не выполняйте административные запросы на боевой базе без подготовки."
+    "description": "Практики 09–10: REST API, CRUD, единые ошибки, токен; внешние интеграции через сервер. Не выполняйте административные запросы на боевой базе без подготовки. Практика 11: негативные сценарии для всех 24 операций; Newman запускается только на отдельной тестовой БД."
   },
   "item": [
     {
@@ -2358,6 +2358,331 @@
             "url": "{{baseUrl}}/integrations/worldbank/inflation?country=RUS&yearFrom=2024&yearTo=2022"
           },
           "response": []
+        }
+      ]
+    },
+    {
+      "name": "Практика 11 — дополнительные негативные сценарии",
+      "item": [
+        {
+          "name": "NEG-01 POST /catalog",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/catalog",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 405', () => pm.response.to.have.status(405));",
+                  "const e=pm.response.json().error;",
+                  "pm.test('Error code', () => pm.expect(e.code).to.eql('METHODNOTALLOWED'));",
+                  "pm.test('Error fields', () => { pm.expect(e).to.have.all.keys('code','message','requestId','details'); pm.expect(e.requestId).to.be.a('string').and.not.empty; pm.expect(e.details).to.be.an('array'); });",
+                  "pm.test('Allow header', () => pm.expect(pm.response.headers.get('Allow')).to.include('GET'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "NEG-20 GET /integrations/worldbank/inflation",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/integrations/worldbank/inflation",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "const e=pm.response.json().error;",
+                  "pm.test('Error code', () => pm.expect(e.code).to.eql('BADREQUEST'));",
+                  "pm.test('Error fields', () => { pm.expect(e).to.have.all.keys('code','message','requestId','details'); pm.expect(e.requestId).to.be.a('string').and.not.empty; pm.expect(e.details).to.be.an('array'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "NEG-21 GET /integrations/onet/occupations?unexpected=1",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/integrations/onet/occupations?unexpected=1",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "const e=pm.response.json().error;",
+                  "pm.test('Error code', () => pm.expect(e.code).to.eql('BADREQUEST'));",
+                  "pm.test('Error fields', () => { pm.expect(e).to.have.all.keys('code','message','requestId','details'); pm.expect(e.requestId).to.be.a('string').and.not.empty; pm.expect(e.details).to.be.an('array'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "NEG-22 GET /integrations/onet/skills/bad",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/integrations/onet/skills/bad",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 422', () => pm.response.to.have.status(422));",
+                  "const e=pm.response.json().error;",
+                  "pm.test('Error code', () => pm.expect(e.code).to.eql('VALIDATIONERROR'));",
+                  "pm.test('Error fields', () => { pm.expect(e).to.have.all.keys('code','message','requestId','details'); pm.expect(e.requestId).to.be.a('string').and.not.empty; pm.expect(e.details).to.be.an('array'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "NEG-23 GET /integrations/cars/brands?page=0",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/integrations/cars/brands?page=0",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 422', () => pm.response.to.have.status(422));",
+                  "const e=pm.response.json().error;",
+                  "pm.test('Error code', () => pm.expect(e.code).to.eql('VALIDATIONERROR'));",
+                  "pm.test('Error fields', () => { pm.expect(e).to.have.all.keys('code','message','requestId','details'); pm.expect(e.requestId).to.be.a('string').and.not.empty; pm.expect(e.details).to.be.an('array'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "NEG-24 GET /integrations/cars/models?brandId=!",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/integrations/cars/models?brandId=!",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 422', () => pm.response.to.have.status(422));",
+                  "const e=pm.response.json().error;",
+                  "pm.test('Error code', () => pm.expect(e.code).to.eql('VALIDATIONERROR'));",
+                  "pm.test('Error fields', () => { pm.expect(e).to.have.all.keys('code','message','requestId','details'); pm.expect(e.requestId).to.be.a('string').and.not.empty; pm.expect(e.details).to.be.an('array'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "EXTRA-01 GET /skills?catalogVersion=demo-1&catalogVersion=demo-1",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/skills?catalogVersion=demo-1&catalogVersion=demo-1",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "const e=pm.response.json().error;",
+                  "pm.test('Error code', () => pm.expect(e.code).to.eql('BADREQUEST'));",
+                  "pm.test('Error fields', () => { pm.expect(e).to.have.all.keys('code','message','requestId','details'); pm.expect(e.requestId).to.be.a('string').and.not.empty; pm.expect(e.details).to.be.an('array'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "EXTRA-02 GET /skills?catalogVersion=demo-1&pageSize=101",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/skills?catalogVersion=demo-1&pageSize=101",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 422', () => pm.response.to.have.status(422));",
+                  "const e=pm.response.json().error;",
+                  "pm.test('Error code', () => pm.expect(e.code).to.eql('VALIDATIONERROR'));",
+                  "pm.test('Error fields', () => { pm.expect(e).to.have.all.keys('code','message','requestId','details'); pm.expect(e.requestId).to.be.a('string').and.not.empty; pm.expect(e.details).to.be.an('array'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "EXTRA-03 GET /occupations/BAD?catalogVersion=demo-1",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/occupations/BAD?catalogVersion=demo-1",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "const e=pm.response.json().error;",
+                  "pm.test('Error code', () => pm.expect(e.code).to.eql('BADREQUEST'));",
+                  "pm.test('Error fields', () => { pm.expect(e).to.have.all.keys('code','message','requestId','details'); pm.expect(e.requestId).to.be.a('string').and.not.empty; pm.expect(e.details).to.be.an('array'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "EXTRA-04 POST /admin/catalogs",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/admin/catalogs",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer deliberately-invalid-token"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+                  "const e=pm.response.json().error;",
+                  "pm.test('Error code', () => pm.expect(e.code).to.eql('UNAUTHORIZED'));",
+                  "pm.test('Error fields', () => { pm.expect(e).to.have.all.keys('code','message','requestId','details'); pm.expect(e.requestId).to.be.a('string').and.not.empty; pm.expect(e.details).to.be.an('array'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "EXTRA-05 POST /admin/catalogs",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/admin/catalogs",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "const e=pm.response.json().error;",
+                  "pm.test('Error code', () => pm.expect(e.code).to.eql('BADREQUEST'));",
+                  "pm.test('Error fields', () => { pm.expect(e).to.have.all.keys('code','message','requestId','details'); pm.expect(e.requestId).to.be.a('string').and.not.empty; pm.expect(e.details).to.be.an('array'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "EXTRA-06 PATCH /skills",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/skills",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 405', () => pm.response.to.have.status(405));",
+                  "const e=pm.response.json().error;",
+                  "pm.test('Error code', () => pm.expect(e.code).to.eql('METHODNOTALLOWED'));",
+                  "pm.test('Error fields', () => { pm.expect(e).to.have.all.keys('code','message','requestId','details'); pm.expect(e.requestId).to.be.a('string').and.not.empty; pm.expect(e.details).to.be.an('array'); });",
+                  "pm.test('Allow header', () => pm.expect(pm.response.headers.get('Allow')).to.include('GET'));"
+                ]
+              }
+            }
+          ]
         }
       ]
     }

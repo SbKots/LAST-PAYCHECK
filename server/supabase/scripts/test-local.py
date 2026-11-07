@@ -12,8 +12,9 @@ import psycopg
 from psycopg import sql
 import yaml
 from openapi_schema_validator import OAS30Validator
-ROOT=Path(__file__).resolve().parents[2]
-SB=ROOT/'supabase'; LOCAL=SB/'.local'
+SB=Path(__file__).resolve().parents[1]
+ROOT=SB.parents[1]
+LOCAL=SB/'.local'
 sys.path.insert(0,str(SB/'tests'))
 from sql_cases import run_sql
 

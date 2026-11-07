@@ -8,7 +8,7 @@
 
 Реальные Auth, RLS двух игроков, приватные сохранения, административные CRUD и
 исправление DELETE подтверждены HTTPS-проверками. Публикация тестового каталога
-не выполнялась; demo-1 активен. Доказательства: [evidence](evidence/README.md).
+не выполнялась; demo-1 активен. Доказательства: [evidence](evidence/index.md).
 
 ## Разделение данных
 
@@ -47,7 +47,7 @@
 неизменяемость публикаций, конфликты 409 и устаревшие ревизии 412. Передавать
 If-Match нужно в JSON, а не в стандартном заголовке PostgREST.
 
-Действующий контракт — [OpenAPI](../../openapi.yaml); доменные модели — supabase/contracts/catalog-models.yaml.
+Действующий контракт — [OpenAPI](../../openapi.yaml); доменные модели — server/supabase/contracts/catalog-models.yaml.
 ER-источники — [Mermaid](../diagrams/backend-er.mmd) и [draw.io](../diagrams/backend-er.drawio).
 
 Осознанные изменения транспорта:

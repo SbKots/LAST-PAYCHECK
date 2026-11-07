@@ -7,9 +7,9 @@
 Четыре миграции применены, providers развёрнута, `demo-1` остаётся активной.
 В рабочем backend нет Ktor, JDK или постоянно включённого ПК.
 
-- [HTTPS контракт OpenAPI](openapi.yaml), [24 операции](docs/supabase/operation-map.md).
+- [HTTPS контракт OpenAPI](openapi.yaml), [24 операции](docs/supabase/operation-map.md), [коллекция Postman](server/supabase/postman/LAST-PAYCHECK-Supabase.postman_collection.json).
 - [Структура таблиц](docs/supabase/data-dictionary.md), [архитектура](docs/supabase/architecture.md), [Auth и RLS](docs/supabase/security.md), [RPC](docs/supabase/rpc.md).
-- [Локальные тесты](docs/supabase/testing.md), [облачные доказательства](docs/supabase/evidence/README.md), [исправление DELETE](docs/supabase/delete-response-diagnosis.md).
+- [Локальные тесты](docs/supabase/testing.md), [облачные доказательства](docs/supabase/evidence/index.md), [исправление DELETE](docs/supabase/delete-response-diagnosis.md).
 - [Состояние развёртывания](docs/supabase/deployment.md), [Android](docs/supabase/android.md), [Free](docs/supabase/free-tier.md).
 - Отчёты Word: [№8](docs/08-backend.docx) и [№11](docs/11-server-testing.docx).
 - №9 сдаётся рабочим кодом, SQL-миграциями, API и тестами; №10 — интеграциями и Postman. Отдельные DOCX для №9 и №10 не требуются.
@@ -38,8 +38,8 @@ JWT клиента не передаётся в базу. Закрытые да�
 с `Retry-After: 60`, ограничение частоты — `429`. Для `catalog` установлено
 `verify_jwt = false`; настройки и проверка пользователей в `providers` не изменены.
 
-Локальные проверки: `deno task check` и `deno task test` из `supabase/`.
-Полный Docker-free прогон `supabase/scripts/test-local.py --disposable-postgres`
+Локальные проверки: `deno task check` и `deno task test` из `server/supabase/`.
+Полный Docker-free прогон `server/supabase/scripts/test-local.py --disposable-postgres`
 дополнительно проверяет браузерный GET с настоящими локальными PostgreSQL и PostgREST.
 
 **LAST PAYCHECK** — разрабатываемая 2D-игра для Android в жанре экономического симулятора жизни и выживания. Игрок начинает с небольшим запасом денег, арендуемым жильём и базовыми навыками. Чтобы прожить как можно больше игровых дней, он самостоятельно работает в мини-играх, покупает еду, отдыхает, учится и справляется с изменением стоимости жизни.
@@ -97,8 +97,16 @@ JWT клиента не передаётся в базу. Закрытые да�
 
 ## Проверка серверной части
 
-На отдельном локальном PostgreSQL запустить `python supabase/scripts/test-local.py --disposable-postgres`,
-затем `python supabase/scripts/test-mutation-responses.py --disposable-postgres`.
+Сервер расположен в `server/supabase/`. Из корня репозитория используйте Supabase
+CLI 3.0.0 с `--workdir server`. Например, список развёрнутых функций можно получить
+командой `supabase functions list --workdir server --remote=mmuytwyhdwttzxuredfm`.
+Команды развёртывания функций и проверки миграций описаны в [руководстве](docs/supabase/deployment.md).
+Миграции 001–004 сохраняются побайтно. Изменения схемы оформляются новыми миграциями.
+Запускайте пишущие тесты и `server/supabase/tests/bootstrap.sql` только на одноразовой локальной БД.
+Привилегированные ключи хранятся вне Git. Клиент использует открытый ключ проекта и свой JWT.
+
+На отдельном локальном PostgreSQL запустить `python server/supabase/scripts/test-local.py --disposable-postgres`,
+затем `python server/supabase/scripts/test-mutation-responses.py --disposable-postgres`.
 Настройка инструментов и ограничения — в [testing.md](docs/supabase/testing.md).
 Полный пишущий Newman допускается только на localhost; рабочее облако не используется.
 Workflow: `.github/workflows/supabase-tests.yml`; автоматического deploy нет.

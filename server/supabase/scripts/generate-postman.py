@@ -1,7 +1,8 @@
 """Regenerate the Supabase collection from the reviewed operation map; no credentials."""
 from pathlib import Path
 import json
-ROOT=Path(__file__).resolve().parents[2]
+SB=Path(__file__).resolve().parents[1]
+ROOT=SB.parents[1]
 mapping=json.loads((ROOT/'docs/supabase/operation-map.json').read_text(encoding='utf-8'))
 items=[]
 def add(name,path,body,status,auth=None,extra=None):
@@ -54,6 +55,6 @@ for r in mapping:
   else:p+='?brandId=!';status=422
   add(r['id']+' negative provider',p,None,status,'userJwt')
 collection=dict(info=dict(name='LAST PAYCHECK Supabase backend',schema='https://schema.getpostman.com/json/collection/v2.1.0/collection.json',description='24 migrated operations, positive and negative. Run only on an isolated test project. Provider successes require controlled fixtures or configured live providers.'),item=items,variable=[dict(key='draftVersion',value=''),dict(key='etag',value='')],event=[dict(listen='prerequest',script=dict(type='text/javascript',exec=["if(!pm.collectionVariables.get('draftVersion')) pm.collectionVariables.set('draftVersion','newman-'+Date.now());"]))])
-(ROOT/'supabase/postman/LAST-PAYCHECK-Supabase.postman_collection.json').write_text(json.dumps(collection,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
-(ROOT/'supabase/postman/local.postman_environment.json').write_text(json.dumps(dict(name='Supabase isolated test only',values=[dict(key=k,value=v,enabled=True,type='secret' if 'Jwt' in k else 'default') for k,v in dict(baseUrl='http://127.0.0.1:18121',publicKey='',adminJwt='',userJwt='').items()],_postman_variable_scope='environment'),indent=2)+'\n',encoding='utf-8')
+(SB/'postman/LAST-PAYCHECK-Supabase.postman_collection.json').write_text(json.dumps(collection,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+(SB/'postman/local.postman_environment.json').write_text(json.dumps(dict(name='Supabase isolated test only',values=[dict(key=k,value=v,enabled=True,type='secret' if 'Jwt' in k else 'default') for k,v in dict(baseUrl='http://127.0.0.1:18121',publicKey='',adminJwt='',userJwt='').items()],_postman_variable_scope='environment'),indent=2)+'\n',encoding='utf-8')
 print('Generated',len(items),'requests')

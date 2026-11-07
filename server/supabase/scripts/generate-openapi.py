@@ -3,8 +3,9 @@ import copy
 from pathlib import Path
 import yaml
 
-ROOT = Path(__file__).resolve().parents[2]
-models = yaml.safe_load((ROOT/'supabase/contracts/catalog-models.yaml').read_text(encoding='utf-8'))['schemas']
+SB = Path(__file__).resolve().parents[1]
+ROOT = SB.parents[1]
+models = yaml.safe_load((SB/'contracts/catalog-models.yaml').read_text(encoding='utf-8'))['schemas']
 schemas = copy.deepcopy(models)
 ref = lambda name: {'$ref': '#/components/schemas/'+name}
 def obj(properties, required=()):

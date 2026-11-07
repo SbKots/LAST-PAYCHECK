@@ -2,8 +2,9 @@
 import json,os
 from pathlib import Path
 import psycopg
-ROOT=Path(__file__).resolve().parents[2]
-result=json.loads((ROOT/'supabase/.local/results.json').read_text(encoding='utf-8'))
+SB=Path(__file__).resolve().parents[1]
+ROOT=SB.parents[1]
+result=json.loads((SB/'.local/results.json').read_text(encoding='utf-8'))
 assert result['passed'] and result['database'].startswith('lastpay_sb_')
 lines=['# Структура PostgreSQL Supabase','','Получено из отдельной локальной БД после применения миграций 001–004. Здесь только метаданные схемы, без пользовательских строк. Источник облачного развёртывания — те же неизменяемые SQL-файлы. auth.users управляется платформой и не включена в 18 таблиц приложения.','']
 with psycopg.connect(host='127.0.0.1',port=int(os.environ.get('TEST_PG_PORT','55432')),user='postgres',password=os.environ.get('TEST_PG_PASSWORD',''),dbname=result['database'],options='-c default_transaction_read_only=on') as c:

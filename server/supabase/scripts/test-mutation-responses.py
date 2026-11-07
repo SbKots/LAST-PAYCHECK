@@ -22,8 +22,7 @@ import uuid
 import psycopg
 from psycopg import sql
 
-ROOT = Path(__file__).resolve().parents[2]
-SB = ROOT / 'supabase'
+SB = Path(__file__).resolve().parents[1]
 LOCAL = SB / '.local'
 
 

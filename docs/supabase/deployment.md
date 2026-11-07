@@ -22,7 +22,7 @@ A назначен через закрытый реестр по отдельн�
 Облачная регрессия DELETE — 28/28 плюс исторические логи Envoy с attempts=1.
 demo-1 остаётся активной; тестовые черновики не опубликованы и автоматически не удаляются.
 World Bank — 200 с настоящими данными; O*NET/CarsBase — безопасный 503 без ключей.
-Подробности — [evidence](evidence/README.md).
+Подробности — [evidence](evidence/index.md).
 
 ## Проверка браузерного каталога
 
@@ -50,10 +50,23 @@ RLS на 14 таблицах `lastpay`, политику чтения сохра
 
 Применённые миграции не переписывать. Для нового SQL — отдельный файл, локальные
 тесты, read-only аудит проекта и dry-run. Запись в облако требует разрешения владельца.
-CLI 3.0.0 использует --remote, а не старый --linked. Пример подготовки из корня:
+Из корня репозитория передавайте CLI 3.0.0 рабочую папку `--workdir server`.
+CLI читает `server/supabase/config.toml`, миграции и функции из этого проекта.
+Для чтения состояния укажите ref явно, чтобы не зависеть от локальной привязки:
 
 ```powershell
-.\supabase\.local\cli\supabase.exe db push --remote=mmuytwyhdwttzxuredfm --dry-run --skip-vault
+supabase functions list --workdir server --remote=mmuytwyhdwttzxuredfm
+supabase config diff --workdir server --remote=mmuytwyhdwttzxuredfm
+supabase db push --workdir server --remote=mmuytwyhdwttzxuredfm --dry-run --skip-vault
+```
+
+После разрешения на развёртывание выполните только команду нужной функции.
+`--use-api` упаковывает исходники через Management API без локального Docker.
+Настройки `verify_jwt` берутся из конфигурации проекта.
+
+```powershell
+supabase functions deploy catalog --workdir server --remote=mmuytwyhdwttzxuredfm --use-api --yes
+supabase functions deploy providers --workdir server --remote=mmuytwyhdwttzxuredfm --use-api --yes
 ```
 
 При Connection terminated unexpectedly не считать dry-run пройденным, не менять VPN

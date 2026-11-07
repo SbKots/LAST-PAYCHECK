@@ -2,10 +2,11 @@
 from pathlib import Path
 import hashlib,heapq,html,json,re
 from xml.etree.ElementTree import Element,SubElement,ElementTree
-ROOT=next(p for p in Path(__file__).resolve().parents if (p/'supabase/migrations').is_dir())
+SB=Path(__file__).resolve().parents[1]
+ROOT=SB.parents[1]
 OUT=ROOT/'docs/diagrams'
-for name,digest in json.loads((ROOT/'supabase/contracts/migration-checksums.json').read_text()).items():
- assert hashlib.sha256((ROOT/'supabase/migrations'/name).read_bytes()).hexdigest()==digest
+for name,digest in json.loads((SB/'contracts/migration-checksums.json').read_text()).items():
+ assert hashlib.sha256((SB/'migrations'/name).read_bytes()).hexdigest()==digest
 tables={};fks=[]
 for block in (ROOT/'docs/supabase/data-dictionary.md').read_text(encoding='utf-8').split('## ')[1:]:
  name=block.splitlines()[0].strip()

@@ -5,7 +5,8 @@ from zipfile import ZipFile
 import yaml
 from openapi_spec_validator import validate_spec
 
-ROOT=Path(__file__).resolve().parents[2]
+SB=Path(__file__).resolve().parents[1]
+ROOT=SB.parents[1]
 def git(*args):return subprocess.check_output(['git',*args],cwd=ROOT)
 spec=yaml.safe_load((ROOT/'openapi.yaml').read_text(encoding='utf-8'))
 validate_spec(spec)
@@ -36,10 +37,9 @@ for line in objects:
     history_blobs+=1
     data=git('cat-file','blob',oid)
     assert not any(re.search(pattern,data) for pattern in patterns),'Potential secret in Git history; values suppressed'
-assert len(list((ROOT/'supabase/migrations').glob('*.sql')))==4
-locked=json.loads((ROOT/'supabase/contracts/migration-checksums.json').read_text())
-assert all(hashlib.sha256((ROOT/'supabase/migrations'/name).read_bytes()).hexdigest()==digest for name,digest in locked.items()),'Applied migration changed'
-for source in (ROOT/'supabase/scripts').glob('*'):
-    if source.suffix in ['.py','.cjs']:
-        assert ('server'+'/') not in source.read_text(encoding='utf-8'),str(source)+' depends on legacy directory'
+assert len(list((SB/'migrations').glob('*.sql')))==4
+locked=json.loads((SB/'contracts/migration-checksums.json').read_text())
+assert all(hashlib.sha256((SB/'migrations'/name).read_bytes()).hexdigest()==digest for name,digest in locked.items()),'Applied migration changed'
+assert not (ROOT/'server/build.gradle.kts').exists(), 'Legacy Ktor build found'
+assert not (ROOT/'supabase/config.toml').exists(), 'Duplicate Supabase project at repository root'
 print(json.dumps(dict(openapi='PASS',operationCoverage='24/24',migrationChecksums='4/4',sourceFiles=len(files),historyBlobs=history_blobs,secretPatterns='PASS; heuristic scan, not a proof for arbitrary password strings'),ensure_ascii=False))

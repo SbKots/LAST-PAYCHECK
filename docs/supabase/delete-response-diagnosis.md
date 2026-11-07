@@ -91,12 +91,12 @@ PostgREST локально не сжимает эти ответы, поэтом
 
 ## Регрессия и оставшиеся действия
 
-`supabase/scripts/test-mutation-responses.py --disposable-postgres` запускает
+`server/supabase/scripts/test-mutation-responses.py --disposable-postgres` запускает
 реальный PostgREST на 127.0.0.1 и новую случайную БД. Исходная ошибка проверяется
 до миграции 004. Повтор шлюза моделируется явно по правилу Envoy; сам Envoy
 локально не запускается. После миграции проверяются framing, receipt, ETag,
 SQL-состояние, ACL, конфликты и откаты. Отчёт без токенов —
-`supabase/.local/mutation-response-results.json`.
+`server/supabase/.local/mutation-response-results.json`.
 
 Фактические результаты 2026-11-06: регрессия на PostgREST 14.18 и 16.5 — по 99/99,
 полный локальный набор на 14.18 — 53 Deno-теста, 342 SQL/API-проверки и

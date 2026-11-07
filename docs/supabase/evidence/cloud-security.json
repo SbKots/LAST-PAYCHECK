@@ -1,0 +1,336 @@
+{
+  "testRun": "cloud-security-94fad74d8fae",
+  "checks": [
+    {
+      "check": "Auth A sign-in",
+      "status": 200,
+      "passed": true,
+      "result": "Permanent test-user session obtained in memory"
+    },
+    {
+      "check": "Auth B sign-in",
+      "status": 200,
+      "passed": true,
+      "result": "Distinct test-user session obtained in memory"
+    },
+    {
+      "check": "Auth A confirmed",
+      "status": 200,
+      "passed": true,
+      "result": "Confirmed permanent user"
+    },
+    {
+      "check": "Auth B confirmed",
+      "status": 200,
+      "passed": true,
+      "result": "Confirmed permanent user"
+    },
+    {
+      "check": "Read-only admin registry preflight",
+      "status": null,
+      "passed": true,
+      "result": "Both accounts must be non-admin; no trust in user_metadata"
+    },
+    {
+      "check": "Initial A own-save read",
+      "status": 200,
+      "passed": true,
+      "result": "Rows visible: 0"
+    },
+    {
+      "check": "Initial B own-save read",
+      "status": 200,
+      "passed": true,
+      "result": "Rows visible: 0"
+    },
+    {
+      "check": "A creates tagged test save",
+      "status": 200,
+      "passed": true,
+      "result": null
+    },
+    {
+      "check": "B creates tagged test save",
+      "status": 200,
+      "passed": true,
+      "result": null
+    },
+    {
+      "check": "A reads only own save",
+      "status": 200,
+      "passed": true,
+      "result": "Own rows: 1"
+    },
+    {
+      "check": "A cannot read other user's save",
+      "status": 200,
+      "passed": true,
+      "result": "Foreign rows: 0"
+    },
+    {
+      "check": "A provider_cache denied",
+      "status": 403,
+      "passed": true,
+      "result": "42501"
+    },
+    {
+      "check": "A private registry hidden",
+      "status": 406,
+      "passed": true,
+      "result": "PGRST106"
+    },
+    {
+      "check": "A underlying save table hidden",
+      "status": 406,
+      "passed": true,
+      "result": "PGRST106"
+    },
+    {
+      "check": "A cannot create draft",
+      "status": 403,
+      "passed": true,
+      "result": "FORBIDDEN"
+    },
+    {
+      "check": "A cannot update skill",
+      "status": 403,
+      "passed": true,
+      "result": "FORBIDDEN"
+    },
+    {
+      "check": "A cannot create skill",
+      "status": 403,
+      "passed": true,
+      "result": "FORBIDDEN"
+    },
+    {
+      "check": "A cannot delete skill",
+      "status": 403,
+      "passed": true,
+      "result": "FORBIDDEN"
+    },
+    {
+      "check": "A cannot publish catalog",
+      "status": 403,
+      "passed": true,
+      "result": "FORBIDDEN"
+    },
+    {
+      "check": "A metadata in request grants no admin",
+      "status": 403,
+      "passed": true,
+      "result": "FORBIDDEN"
+    },
+    {
+      "check": "A tampered JWT rejected",
+      "status": 401,
+      "passed": true,
+      "result": "PGRST301"
+    },
+    {
+      "check": "B reads only own save",
+      "status": 200,
+      "passed": true,
+      "result": "Own rows: 1"
+    },
+    {
+      "check": "B cannot read other user's save",
+      "status": 200,
+      "passed": true,
+      "result": "Foreign rows: 0"
+    },
+    {
+      "check": "B provider_cache denied",
+      "status": 403,
+      "passed": true,
+      "result": "42501"
+    },
+    {
+      "check": "B private registry hidden",
+      "status": 406,
+      "passed": true,
+      "result": "PGRST106"
+    },
+    {
+      "check": "B underlying save table hidden",
+      "status": 406,
+      "passed": true,
+      "result": "PGRST106"
+    },
+    {
+      "check": "B cannot create draft",
+      "status": 403,
+      "passed": true,
+      "result": "FORBIDDEN"
+    },
+    {
+      "check": "B cannot update skill",
+      "status": 403,
+      "passed": true,
+      "result": "FORBIDDEN"
+    },
+    {
+      "check": "B cannot create skill",
+      "status": 403,
+      "passed": true,
+      "result": "FORBIDDEN"
+    },
+    {
+      "check": "B cannot delete skill",
+      "status": 403,
+      "passed": true,
+      "result": "FORBIDDEN"
+    },
+    {
+      "check": "B cannot publish catalog",
+      "status": 403,
+      "passed": true,
+      "result": "FORBIDDEN"
+    },
+    {
+      "check": "B metadata in request grants no admin",
+      "status": 403,
+      "passed": true,
+      "result": "FORBIDDEN"
+    },
+    {
+      "check": "B tampered JWT rejected",
+      "status": 401,
+      "passed": true,
+      "result": "PGRST301"
+    },
+    {
+      "check": "A updates own test save rev1 to rev2",
+      "status": 200,
+      "passed": true,
+      "result": null
+    },
+    {
+      "check": "A server revision becomes 2",
+      "status": 200,
+      "passed": true,
+      "result": "Owner unchanged"
+    },
+    {
+      "check": "A stale revision rejected",
+      "status": 412,
+      "passed": true,
+      "result": "PRECONDITIONFAILED"
+    },
+    {
+      "check": "A stale write changed nothing",
+      "status": 200,
+      "passed": true,
+      "result": "revision=2, original test snapshot retained"
+    },
+    {
+      "check": "B updates own test save rev1 to rev2",
+      "status": 200,
+      "passed": true,
+      "result": null
+    },
+    {
+      "check": "B server revision becomes 2",
+      "status": 200,
+      "passed": true,
+      "result": "Owner unchanged"
+    },
+    {
+      "check": "B stale revision rejected",
+      "status": 412,
+      "passed": true,
+      "result": "PRECONDITIONFAILED"
+    },
+    {
+      "check": "B stale write changed nothing",
+      "status": 200,
+      "passed": true,
+      "result": "revision=2, original test snapshot retained"
+    },
+    {
+      "check": "A cannot select other owner in save_game",
+      "status": 400,
+      "passed": true,
+      "result": "BADREQUEST"
+    },
+    {
+      "check": "A direct modification of other save denied",
+      "status": 403,
+      "passed": true,
+      "result": "42501"
+    },
+    {
+      "check": "A direct modification of protected view denied",
+      "status": 403,
+      "passed": true,
+      "result": "42501"
+    },
+    {
+      "check": "A attack left other save unchanged",
+      "status": 200,
+      "passed": true,
+      "result": "Other owner revision and tagged snapshot intact"
+    },
+    {
+      "check": "B cannot select other owner in save_game",
+      "status": 400,
+      "passed": true,
+      "result": "BADREQUEST"
+    },
+    {
+      "check": "B direct modification of other save denied",
+      "status": 403,
+      "passed": true,
+      "result": "42501"
+    },
+    {
+      "check": "B direct modification of protected view denied",
+      "status": 403,
+      "passed": true,
+      "result": "42501"
+    },
+    {
+      "check": "B attack left other save unchanged",
+      "status": 200,
+      "passed": true,
+      "result": "Other owner revision and tagged snapshot intact"
+    },
+    {
+      "check": "Anonymous cannot read saves",
+      "status": 401,
+      "passed": true,
+      "result": "42501"
+    },
+    {
+      "check": "Anonymous cannot write save",
+      "status": 401,
+      "passed": true,
+      "result": "42501"
+    },
+    {
+      "check": "Invalid JWT cannot read saves",
+      "status": 401,
+      "passed": true,
+      "result": "PGRST301"
+    },
+    {
+      "check": "Auth A local logout",
+      "status": 204,
+      "passed": true,
+      "result": "Test session closed"
+    },
+    {
+      "check": "Auth B local logout",
+      "status": 204,
+      "passed": true,
+      "result": "Test session closed"
+    }
+  ],
+  "skipped": [
+    "409 conflict: administrative mutations require separate authorization; stale saves correctly use 412",
+    "Changing actual Auth user_metadata was not performed; request metadata, signature tampering, and deployed registry logic checked without user changes"
+  ],
+  "failed": 0,
+  "testDataLeft": "New tagged test saves are retained; no data deleted",
+  "noAdminAssignment": true
+}

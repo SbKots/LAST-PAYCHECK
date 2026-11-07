@@ -1,0 +1,85 @@
+# Состояние облачного развёртывания
+
+Проект last-paycheck, Frankfurt eu-central-1, Free; ref `mmuytwyhdwttzxuredfm`.
+API: https://mmuytwyhdwttzxuredfm.supabase.co
+Edge: https://mmuytwyhdwttzxuredfm.supabase.co/functions/v1/providers
+
+## Подтверждено 6 ноября 2026 года
+
+В истории schema_migrations присутствуют 202611060001, 202611060002, 202611060003,
+202611060004. Определения delete_skill/etag соответствуют исправлению 004;
+владельцы postgres и существующие ACL сохранены. providers развёрнута CLI 3.0.0
+через --use-api без локального Docker. База не сбрасывалась.
+
+Data API включён; exposed schemas: public и lastpay_api. lastpay и lastpay_private
+не открыты. Не использовать Dashboard для массового расширения SQL GRANT.
+В локальном config.toml нужен только lastpay_api; это не команда изменения hosted public.
+verify_jwt=false относится к устаревшему gateway verifier: рабочий handler проверяет
+каждый пользовательский JWT через настоящий Auth /user и отвергает anonymous sessions.
+
+Auth двух пользователей, RLS, ревизии сохранений и запреты admin проверены 54/54.
+A назначен через закрытый реестр по отдельному разрешению; B остаётся обычным пользователем.
+Облачная регрессия DELETE — 28/28 плюс исторические логи Envoy с attempts=1.
+demo-1 остаётся активной; тестовые черновики не опубликованы и автоматически не удаляются.
+World Bank — 200 с настоящими данными; O*NET/CarsBase — безопасный 503 без ключей.
+Подробности — [evidence](evidence/index.md).
+
+## Проверка браузерного каталога
+
+7 ноября 2026 года развёрнута только Edge Function `catalog` через CLI 3.0.0
+с `--use-api` и отключённой gateway-проверкой JWT. Публичный GET вернул HTTP 200
+и тот же манифест `demo-1` с восемью ресурсами, что и RPC `get_catalog`.
+OPTIONS вернул 204, POST — 405, параметры выбора черновика или сохранения — 400,
+подмаршрут сохранений — 404. Публичные RPC чтения каталога вернули 200, запрос
+сохранения без пользовательской сессии — 401, обращения к закрытым схемам — 406.
+
+Аудит PostgreSQL в режиме чтения подтвердил историю миграций 001–004, принудительный
+RLS на 14 таблицах `lastpay`, политику чтения сохранения владельцем и наличие
+исправлений DELETE и ETag. Функция `providers` при этом не переразвёртывалась.
+
+## Повторная проверка интеграций с пользовательским JWT
+
+Наличие `ONET_API_KEY` и `CARS_API_TOKEN` подтверждено по именам. Все пять маршрутов
+вернули HTTP 200. O*NET вернул 46 профессий и 35 навыков, CarsBase в деморежиме —
+50 марок и 67 моделей BMW, World Bank — три значения инфляции. Во всех пяти
+повторных ответах `fromCache=true` и `stale=false`, данные совпали.
+Неполный запрос вернул 400, вызов без JWT — 401. Вход и изоляция сохранений
+двух пользователей также подтверждены. Всего прошли 18 из 18 облачных проверок.
+
+## Последующие изменения
+
+Применённые миграции не переписывать. Для нового SQL — отдельный файл, локальные
+тесты, read-only аудит проекта и dry-run. Запись в облако требует разрешения владельца.
+Из корня репозитория передавайте CLI 3.0.0 рабочую папку `--workdir server`.
+CLI читает `server/supabase/config.toml`, миграции и функции из этого проекта.
+Для чтения состояния укажите ref явно, чтобы не зависеть от локальной привязки:
+
+```powershell
+supabase functions list --workdir server --remote=mmuytwyhdwttzxuredfm
+supabase config diff --workdir server --remote=mmuytwyhdwttzxuredfm
+supabase db push --workdir server --remote=mmuytwyhdwttzxuredfm --dry-run --skip-vault
+```
+
+После разрешения на развёртывание выполните только команду нужной функции.
+`--use-api` упаковывает исходники через Management API без локального Docker.
+Настройки `verify_jwt` берутся из конфигурации проекта.
+
+```powershell
+supabase functions deploy catalog --workdir server --remote=mmuytwyhdwttzxuredfm --use-api --yes
+supabase functions deploy providers --workdir server --remote=mmuytwyhdwttzxuredfm --use-api --yes
+```
+
+При Connection terminated unexpectedly не считать dry-run пройденным, не менять VPN
+автоматически. Если владелец решит запускать команду без VPN, он делает это вручную.
+Management API read-only SQL и HTTPS API в этой среде работали через VPN.
+Не выполнять reset, DROP SCHEMA, переигрывание seed или полный пишущий Newman в облаке.
+
+Повторный deploy providers допускается только по отдельной задаче и с --use-api.
+Не печатать CLI debug/сырые HTTP заголовки с credentials. Данные входа вводить локально,
+пароль/JWT/refresh_token держать только в памяти. В отчётах сохранять только безопасные поля.
+
+## Оставшиеся проверки
+
+Облачная положительная публикация требует отдельного разрешения: меняет активный каталог.
+GitHub Actions должен быть запущен после разрешённой публикации исходников.
+Android end-to-end, refresh/offline, нагрузка и максимальный payload пока не подтверждены.

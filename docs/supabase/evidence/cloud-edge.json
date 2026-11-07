@@ -1,0 +1,100 @@
+{
+  "projectRef": "mmuytwyhdwttzxuredfm",
+  "url": "https://mmuytwyhdwttzxuredfm.supabase.co/functions/v1/providers",
+  "deployment": "CLI 3.0.0 functions deploy providers --use-api succeeded",
+  "checks": [
+    {
+      "check": "CORS preflight",
+      "status": 204,
+      "expected": 204,
+      "contentType": null,
+      "corsOrigin": "*",
+      "corsMethods": "GET, OPTIONS",
+      "corsHeaders": "authorization, apikey, content-type",
+      "noCredentialLeak": true,
+      "passed": true
+    },
+    {
+      "check": "no apikey or JWT",
+      "status": 401,
+      "expected": 401,
+      "contentType": "application/json",
+      "corsOrigin": "*",
+      "body": {
+        "error": {
+          "code": "UNAUTHORIZED",
+          "message": "User Bearer token required",
+          "requestId": "e1f83f6e-1877-4376-a9af-1844f8bf4a23",
+          "details": []
+        }
+      },
+      "errorEnvelopeValid": true,
+      "wwwAuthenticate": "Bearer",
+      "noCredentialLeak": true,
+      "passed": true
+    },
+    {
+      "check": "publishable key without JWT",
+      "status": 401,
+      "expected": 401,
+      "contentType": "application/json",
+      "corsOrigin": "*",
+      "body": {
+        "error": {
+          "code": "UNAUTHORIZED",
+          "message": "User Bearer token required",
+          "requestId": "a982b0eb-c9b3-41a5-a72e-d795c57cc0e1",
+          "details": []
+        }
+      },
+      "errorEnvelopeValid": true,
+      "wwwAuthenticate": "Bearer",
+      "noCredentialLeak": true,
+      "passed": true
+    },
+    {
+      "check": "invalid Bearer JWT",
+      "status": 401,
+      "expected": 401,
+      "contentType": "application/json",
+      "corsOrigin": "*",
+      "body": {
+        "error": {
+          "code": "UNAUTHORIZED",
+          "message": "User session could not be verified",
+          "requestId": "514e23ef-9d33-48a6-ba1b-0748ee94635e",
+          "details": []
+        }
+      },
+      "errorEnvelopeValid": true,
+      "wwwAuthenticate": "Bearer",
+      "noCredentialLeak": true,
+      "passed": true
+    },
+    {
+      "check": "malformed Authorization",
+      "status": 401,
+      "expected": 401,
+      "contentType": "application/json",
+      "corsOrigin": "*",
+      "body": {
+        "error": {
+          "code": "UNAUTHORIZED",
+          "message": "User Bearer token required",
+          "requestId": "d69c77fb-20a6-4faf-bbc7-fe2aadf74582",
+          "details": []
+        }
+      },
+      "errorEnvelopeValid": true,
+      "wwwAuthenticate": "Bearer",
+      "noCredentialLeak": true,
+      "passed": true
+    }
+  ],
+  "passed": true,
+  "notRun": [
+    "Permanent user JWT: disabled provider 503 and cache/rate RPC path",
+    "Live upstream provider success"
+  ],
+  "scope": "No business/admin writes; no external provider keys added"
+}

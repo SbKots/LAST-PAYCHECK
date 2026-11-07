@@ -1,0 +1,2 @@
+# The applied migration checksums cover the original bytes, including line endings.
+migrations/*.sql -text whitespace=blank-at-eol,space-before-tab,cr-at-eol,-blank-at-eof

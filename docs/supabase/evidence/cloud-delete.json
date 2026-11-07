@@ -1,0 +1,326 @@
+{
+  "draftVersion": "delete-fix-20261106-56fa9eba",
+  "skillId": "test-delete-56fa9eba",
+  "finishedAtUtc": "2026-11-06T20:07:27.4505829Z",
+  "publicationCalled": false,
+  "checks": [
+    {
+      "check": "Four cloud migrations",
+      "status": null,
+      "passed": true,
+      "result": [
+        "202611060001",
+        "202611060002",
+        "202611060003",
+        "202611060004"
+      ]
+    },
+    {
+      "check": "Admin A and demo-1 baseline",
+      "status": null,
+      "passed": true,
+      "result": "Confirmed by read-only SQL"
+    },
+    {
+      "check": "New unique test draft absent",
+      "status": null,
+      "passed": true,
+      "result": "delete-fix-20261106-56fa9eba"
+    },
+    {
+      "check": "Real Auth A sign-in",
+      "status": 200,
+      "passed": true,
+      "result": "Existing permanent administrator; JWT in memory only"
+    },
+    {
+      "check": "Create separate test draft",
+      "status": 201,
+      "passed": true,
+      "result": {
+        "etag": "\"rev-1\"",
+        "contentEncoding": "",
+        "cacheControl": "no-store, no-transform, private",
+        "requestId": "01a1b279-0d94-797b-a4ad-1350ab1e53a5",
+        "envoyAttempts": "1",
+        "cfRay": "a566b94f3eb2380d-FRA"
+      }
+    },
+    {
+      "check": "Draft rev1 and strong ETag",
+      "status": 201,
+      "passed": true,
+      "result": "\"rev-1\""
+    },
+    {
+      "check": "Create unique test skill",
+      "status": 201,
+      "passed": true,
+      "result": {
+        "etag": "\"rev-2\"",
+        "contentEncoding": "",
+        "cacheControl": "no-store, no-transform, private",
+        "requestId": "01a1b279-0f3f-700b-9ecf-fb1bdf0ed4c7",
+        "envoyAttempts": "1",
+        "cfRay": "a566b951e952380d-FRA"
+      }
+    },
+    {
+      "check": "Create strong ETag rev2",
+      "status": 201,
+      "passed": true,
+      "result": "\"rev-2\""
+    },
+    {
+      "check": "Read before DELETE encoding=gzip, deflate, br",
+      "status": 200,
+      "passed": true,
+      "result": {
+        "etag": "\"rev-2\"",
+        "contentEncoding": "",
+        "cacheControl": "no-store, no-transform, private",
+        "requestId": "01a1b279-0fb4-780b-8e1b-86692a8af512",
+        "envoyAttempts": "1",
+        "cfRay": "a566b952a9f0380d-FRA"
+      }
+    },
+    {
+      "check": "Strong read ETag encoding=gzip, deflate, br",
+      "status": 200,
+      "passed": true,
+      "result": {
+        "etag": "\"rev-2\"",
+        "contentEncoding": "",
+        "cacheControl": "no-store, no-transform, private",
+        "requestId": "01a1b279-0fb4-780b-8e1b-86692a8af512",
+        "envoyAttempts": "1",
+        "cfRay": "a566b952a9f0380d-FRA"
+      }
+    },
+    {
+      "check": "Read before DELETE encoding=identity",
+      "status": 200,
+      "passed": true,
+      "result": {
+        "etag": "\"rev-2\"",
+        "contentEncoding": "",
+        "cacheControl": "no-store, no-transform, private",
+        "requestId": "01a1b279-102a-700a-a845-53741f9b81b0",
+        "envoyAttempts": "1",
+        "cfRay": "a566b9536aac380d-FRA"
+      }
+    },
+    {
+      "check": "Strong read ETag encoding=identity",
+      "status": 200,
+      "passed": true,
+      "result": {
+        "etag": "\"rev-2\"",
+        "contentEncoding": "",
+        "cacheControl": "no-store, no-transform, private",
+        "requestId": "01a1b279-102a-700a-a845-53741f9b81b0",
+        "envoyAttempts": "1",
+        "cfRay": "a566b9536aac380d-FRA"
+      }
+    },
+    {
+      "check": "SQL pre-delete state",
+      "status": null,
+      "passed": true,
+      "result": {
+        "digest": "21fff42bdd55a97b71389f490372c8133d9edea3b0ed03402d6b41406a0dfc10",
+        "probe_count": 1,
+        "revision": 2,
+        "status": "DRAFT",
+        "unpublished": true
+      }
+    },
+    {
+      "check": "DELETE with current strong revision",
+      "status": 200,
+      "passed": true,
+      "result": {
+        "etag": "\"rev-3\"",
+        "contentEncoding": "",
+        "cacheControl": "no-store, no-transform, private",
+        "requestId": "01a1b279-15c4-776e-9d37-21ccaa352a07",
+        "envoyAttempts": "1",
+        "cfRay": "a566b95c2b64380d-FRA"
+      }
+    },
+    {
+      "check": "Deletion JSON receipt and strong rev3",
+      "status": 200,
+      "passed": true,
+      "result": {
+        "receipt": {
+          "id": "test-delete-56fa9eba",
+          "deleted": true,
+          "catalogVersion": "delete-fix-20261106-56fa9eba"
+        },
+        "headers": {
+          "etag": "\"rev-3\"",
+          "contentEncoding": "",
+          "cacheControl": "no-store, no-transform, private",
+          "requestId": "01a1b279-15c4-776e-9d37-21ccaa352a07",
+          "envoyAttempts": "1",
+          "cfRay": "a566b95c2b64380d-FRA"
+        }
+      }
+    },
+    {
+      "check": "SQL DELETE committed once",
+      "status": null,
+      "passed": true,
+      "result": {
+        "digest": "26bfdadeb7408088adef2f0559fcceca9b796af88f7f8324e3df241c89ff2047",
+        "probe_count": 0,
+        "revision": 3,
+        "status": "DRAFT",
+        "unpublished": true
+      }
+    },
+    {
+      "check": "Success Envoy single upstream attempt",
+      "status": 200,
+      "passed": true,
+      "result": {
+        "etag": "\"rev-3\"",
+        "contentEncoding": "",
+        "cacheControl": "no-store, no-transform, private",
+        "requestId": "01a1b279-15c4-776e-9d37-21ccaa352a07",
+        "envoyAttempts": "1",
+        "cfRay": "a566b95c2b64380d-FRA"
+      }
+    },
+    {
+      "check": "Deleted skill absent through API",
+      "status": 404,
+      "passed": true,
+      "result": {
+        "etag": "",
+        "contentEncoding": "",
+        "cacheControl": "",
+        "requestId": "01a1b279-1b60-7de4-b6f5-ad2a1516c12b",
+        "envoyAttempts": "1",
+        "cfRay": "a566b9655c7e380d-FRA"
+      }
+    },
+    {
+      "check": "404 is safe NOTFOUND",
+      "status": 404,
+      "passed": true,
+      "result": "NOTFOUND"
+    },
+    {
+      "check": "Explicit stale DELETE",
+      "status": 412,
+      "passed": true,
+      "result": {
+        "etag": "",
+        "contentEncoding": "",
+        "cacheControl": "",
+        "requestId": "01a1b279-1bf2-70d0-9570-f37f7d8a4877",
+        "envoyAttempts": "1",
+        "cfRay": "a566b9663d51380d-FRA"
+      }
+    },
+    {
+      "check": "Stale response is PRECONDITIONFAILED",
+      "status": 412,
+      "passed": true,
+      "result": "PRECONDITIONFAILED"
+    },
+    {
+      "check": "Stale DELETE changed neither data nor revision",
+      "status": null,
+      "passed": true,
+      "result": {
+        "digest": "26bfdadeb7408088adef2f0559fcceca9b796af88f7f8324e3df241c89ff2047",
+        "probe_count": 0,
+        "revision": 3,
+        "status": "DRAFT",
+        "unpublished": true
+      }
+    },
+    {
+      "check": "Final read encoding=gzip, deflate, br",
+      "status": 200,
+      "passed": true,
+      "result": {
+        "etag": "\"rev-3\"",
+        "contentEncoding": "",
+        "cacheControl": "no-store, no-transform, private",
+        "requestId": "01a1b279-24b2-7599-b046-479525da8b4c",
+        "envoyAttempts": "1",
+        "cfRay": "a566b9743b99380d-FRA"
+      }
+    },
+    {
+      "check": "Final strong ETag encoding=gzip, deflate, br",
+      "status": 200,
+      "passed": true,
+      "result": {
+        "etag": "\"rev-3\"",
+        "contentEncoding": "",
+        "cacheControl": "no-store, no-transform, private",
+        "requestId": "01a1b279-24b2-7599-b046-479525da8b4c",
+        "envoyAttempts": "1",
+        "cfRay": "a566b9743b99380d-FRA"
+      }
+    },
+    {
+      "check": "Final read encoding=identity",
+      "status": 200,
+      "passed": true,
+      "result": {
+        "etag": "\"rev-3\"",
+        "contentEncoding": "",
+        "cacheControl": "no-store, no-transform, private",
+        "requestId": "01a1b279-2549-7eba-9500-fad27cfad672",
+        "envoyAttempts": "1",
+        "cfRay": "a566b9752cb3380d-FRA"
+      }
+    },
+    {
+      "check": "Final strong ETag encoding=identity",
+      "status": 200,
+      "passed": true,
+      "result": {
+        "etag": "\"rev-3\"",
+        "contentEncoding": "",
+        "cacheControl": "no-store, no-transform, private",
+        "requestId": "01a1b279-2549-7eba-9500-fad27cfad672",
+        "envoyAttempts": "1",
+        "cfRay": "a566b9752cb3380d-FRA"
+      }
+    },
+    {
+      "check": "Published demo-1 and player saves unchanged",
+      "status": null,
+      "passed": true,
+      "result": "Read-only digests identical; no publication"
+    },
+    {
+      "check": "Auth session logout",
+      "status": 204,
+      "passed": true,
+      "result": "Session closed"
+    }
+  ],
+  "failed": 0,
+  "envoyLogEvidence": [
+    {
+      "requestId": "01a1b279-15c4-776e-9d37-21ccaa352a07",
+      "httpStatus": 200,
+      "upstreamAttempts": 1,
+      "timestampUtc": "2026-11-06T20:07:22.308Z"
+    },
+    {
+      "requestId": "01a1b279-1bf2-70d0-9570-f37f7d8a4877",
+      "httpStatus": 412,
+      "upstreamAttempts": 1,
+      "timestampUtc": "2026-11-06T20:07:23.890Z"
+    }
+  ]
+}

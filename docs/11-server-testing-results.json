@@ -1,0 +1,40 @@
+{
+  "date": "2026-11-06",
+  "backend": "Supabase",
+  "branch": "feature/supabase-backend",
+  "legacyRecoveryCommit": "ba1380c",
+  "local": {
+    "unitTests": 53,
+    "sqlChecks": 67,
+    "apiAssertions": 298,
+    "operations": 24,
+    "negativeScenarios": 24,
+    "runnerChecks": 366,
+    "failed": 0,
+    "newmanRequests": 48,
+    "newmanAssertions": 144,
+    "mutationRegression": 99
+  },
+  "cloud": {
+    "projectRef": "mmuytwyhdwttzxuredfm",
+    "migrations": [
+      "202611060001",
+      "202611060002",
+      "202611060003",
+      "202611060004"
+    ],
+    "securityChecks": 54,
+    "deleteChecks": 28,
+    "deleteFailed": 0,
+    "envoyAttempts": 1,
+    "activeVersion": "demo-1",
+    "evidenceDirectory": "supabase/evidence",
+    "positivePublicationTested": false
+  },
+  "githubActions": "YAML actionlint PASS; GitHub execution not performed",
+  "limitations": [
+    "live ONET/CarsBase keys absent",
+    "cloud positive publication requires separate permission",
+    "Android E2E refresh offline and load not verified"
+  ]
+}

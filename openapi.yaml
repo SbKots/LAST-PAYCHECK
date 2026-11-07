@@ -1,609 +1,2272 @@
 openapi: 3.0.3
 info:
-  title: LAST PAYCHECK Reference Catalog API
-  version: 1.0.0
-  description: |-
-    Справочники LAST PAYCHECK. Публичные GET читают только PUBLISHED.
-    Черновик DRAFT создаётся копированием версии; публикация атомарна, PUBLISHED неизменяем.
-    Запись в DRAFT требует If-Match и увеличивает ревизию ETag: конфликт данных — 409, устаревшая ревизия — 412.
-    Списки сортируются по id, инфляция — по year и id; пустая страница возвращает 200.
-    Инфляция: страна ISO alpha-3 без агрегатов, yearFrom ≤ yearTo. Формат/неизвестный параметр — 400, диапазон — 422.
-    SHA-256 включает ресурсы и source_metadata; исключены revision, created_at, published_at и само content_sha256.
-    Прогресс, деньги, гараж и результаты гонок хранятся в Room. Все примеры — DEMO.
-    Для неподдерживаемого метода существующего маршрута возвращается HTTP 405 с JSON Error и code METHODNOTALLOWED.
-    В SkillInput/SkillCreate title и ONET externalId должны содержать непробельный символ (как Kotlin isBlank); NUL в строках запрещён.
+  title: LAST PAYCHECK Supabase API
+  version: 2.0.1
+  description: Текущий HTTPS-контракт Supabase. Все RPC используют JSON args и профиль
+    lastpay_api. Закрытые lastpay/lastpay_private не экспонируются. provider_cache
+    намеренно не включён в клиентский контракт. 24 исходные операции объединены в
+    RPC и пять маршрутов providers; save_game/user_save добавляют приватную синхронизацию.
+    Доменные и инфраструктурные ошибки имеют разные JSON-форматы.
 servers:
-  - url: https://last-paycheck.example/api/v1
-    description: 'Проектный адрес; локальный стенд: http://127.0.0.1:8089/api/v1'
-security: []
-tags:
-  - name: Справочники
-  - name: Администрирование
+- url: https://mmuytwyhdwttzxuredfm.supabase.co
+  description: Существующий проект last-paycheck Frankfurt Free
+security: &id001
+- PublicKey: []
 paths:
-  /catalog:
-    get:
+  /rest/v1/rpc/get_catalog:
+    post:
       operationId: get_catalog
-      tags: [Справочники]
-      summary: Каталог опубликованной версии
-      responses:
-        '200': {$ref: '#/components/responses/Catalog'}
-        '429': {$ref: '#/components/responses/RateLimited'}
-        '500': {$ref: '#/components/responses/InternalError'}
-        '503': {$ref: '#/components/responses/Unavailable'}
-      description: Последняя PUBLISHED по published_at DESC, version ASC.
-  /occupations:
-    get:
-      operationId: get_occupations
-      tags: [Справочники]
-      summary: Профессии
-      parameters: [{$ref: '#/components/parameters/Version'}, {$ref: '#/components/parameters/Page'}, {$ref: '#/components/parameters/PageSize'}]
-      responses:
-        '200':
-          description: Успешный ответ.
-          content:
-            application/json: {schema: {$ref: '#/components/schemas/OccupationPage'}}
-        '400': {$ref: '#/components/responses/BadRequest'}
-        '422': {$ref: '#/components/responses/ValidationError'}
-        '429': {$ref: '#/components/responses/RateLimited'}
-        '500': {$ref: '#/components/responses/InternalError'}
-        '503': {$ref: '#/components/responses/Unavailable'}
-        '404': {$ref: '#/components/responses/NotFound'}
-  /skills:
-    get:
-      operationId: get_skills
-      tags: [Справочники]
-      summary: Навыки
-      parameters: [{$ref: '#/components/parameters/Version'}, {$ref: '#/components/parameters/Page'}, {$ref: '#/components/parameters/PageSize'}]
-      responses:
-        '200':
-          description: Успешный ответ.
-          content:
-            application/json:
-              schema: {$ref: '#/components/schemas/SkillPage'}
-              examples:
-                demo: {$ref: '#/components/examples/SkillList'}
-        '400': {$ref: '#/components/responses/BadRequest'}
-        '422': {$ref: '#/components/responses/ValidationError'}
-        '429': {$ref: '#/components/responses/RateLimited'}
-        '500': {$ref: '#/components/responses/InternalError'}
-        '503': {$ref: '#/components/responses/Unavailable'}
-        '404': {$ref: '#/components/responses/NotFound'}
-      description: 'Пример: GET /api/v1/skills?catalogVersion=demo-1&page=1&pageSize=20'
-  /jobs:
-    get:
-      operationId: get_jobs
-      tags: [Справочники]
-      summary: Игровые должности
-      parameters: [{$ref: '#/components/parameters/Version'}, {$ref: '#/components/parameters/Page'}, {$ref: '#/components/parameters/PageSize'}]
-      responses:
-        '200':
-          description: Успешный ответ.
-          content:
-            application/json: {schema: {$ref: '#/components/schemas/JobPage'}}
-        '400': {$ref: '#/components/responses/BadRequest'}
-        '422': {$ref: '#/components/responses/ValidationError'}
-        '429': {$ref: '#/components/responses/RateLimited'}
-        '500': {$ref: '#/components/responses/InternalError'}
-        '503': {$ref: '#/components/responses/Unavailable'}
-        '404': {$ref: '#/components/responses/NotFound'}
-  /inflation:
-    get:
-      operationId: get_inflation
-      tags: [Справочники]
-      summary: Историческая инфляция
-      parameters:
-        - {$ref: '#/components/parameters/Version'}
-        - {$ref: '#/components/parameters/Page'}
-        - {$ref: '#/components/parameters/PageSize'}
-        - {$ref: '#/components/parameters/Country'}
-        - {$ref: '#/components/parameters/YearFrom'}
-        - {$ref: '#/components/parameters/YearTo'}
-      responses:
-        '200':
-          description: Успешный ответ.
-          content:
-            application/json:
-              schema: {$ref: '#/components/schemas/InflationObservationPage'}
-              examples:
-                demo: {$ref: '#/components/examples/InflationList'}
-        '400': {$ref: '#/components/responses/BadRequest'}
-        '422': {$ref: '#/components/responses/ValidationError'}
-        '429': {$ref: '#/components/responses/RateLimited'}
-        '500': {$ref: '#/components/responses/InternalError'}
-        '503': {$ref: '#/components/responses/Unavailable'}
-        '404': {$ref: '#/components/responses/NotFound'}
-      description: 'Пример: GET /api/v1/inflation?catalogVersion=demo-1&country=RUS&yearFrom=2020&yearTo=2020'
-  /cars/brands:
-    get:
-      operationId: get_cars_brands
-      tags: [Справочники]
-      summary: Марки автомобилей
-      parameters: [{$ref: '#/components/parameters/Version'}, {$ref: '#/components/parameters/Page'}, {$ref: '#/components/parameters/PageSize'}]
-      responses:
-        '200':
-          description: Успешный ответ.
-          content:
-            application/json: {schema: {$ref: '#/components/schemas/CarBrandPage'}}
-        '400': {$ref: '#/components/responses/BadRequest'}
-        '422': {$ref: '#/components/responses/ValidationError'}
-        '429': {$ref: '#/components/responses/RateLimited'}
-        '500': {$ref: '#/components/responses/InternalError'}
-        '503': {$ref: '#/components/responses/Unavailable'}
-        '404': {$ref: '#/components/responses/NotFound'}
-  /cars/models:
-    get:
-      operationId: get_cars_models
-      tags: [Справочники]
-      summary: Модели автомобилей
-      parameters: [{$ref: '#/components/parameters/Version'}, {$ref: '#/components/parameters/Page'}, {$ref: '#/components/parameters/PageSize'},
-        {$ref: '#/components/parameters/BrandId'}]
-      responses:
-        '200':
-          description: Успешный ответ.
-          content:
-            application/json: {schema: {$ref: '#/components/schemas/CarModelPage'}}
-        '400': {$ref: '#/components/responses/BadRequest'}
-        '422': {$ref: '#/components/responses/ValidationError'}
-        '429': {$ref: '#/components/responses/RateLimited'}
-        '500': {$ref: '#/components/responses/InternalError'}
-        '503': {$ref: '#/components/responses/Unavailable'}
-        '404': {$ref: '#/components/responses/NotFound'}
-  /tracks:
-    get:
-      operationId: get_tracks
-      tags: [Справочники]
-      summary: Трассы
-      parameters: [{$ref: '#/components/parameters/Version'}, {$ref: '#/components/parameters/Page'}, {$ref: '#/components/parameters/PageSize'}]
-      responses:
-        '200':
-          description: Успешный ответ.
-          content:
-            application/json: {schema: {$ref: '#/components/schemas/TrackPage'}}
-        '400': {$ref: '#/components/responses/BadRequest'}
-        '422': {$ref: '#/components/responses/ValidationError'}
-        '429': {$ref: '#/components/responses/RateLimited'}
-        '500': {$ref: '#/components/responses/InternalError'}
-        '503': {$ref: '#/components/responses/Unavailable'}
-        '404': {$ref: '#/components/responses/NotFound'}
-  /race-configurations:
-    get:
-      operationId: get_race_configurations
-      tags: [Справочники]
-      summary: Конфигурации заездов
-      parameters: [{$ref: '#/components/parameters/Version'}, {$ref: '#/components/parameters/Page'}, {$ref: '#/components/parameters/PageSize'},
-        {$ref: '#/components/parameters/TrackId'}]
-      responses:
-        '200':
-          description: Успешный ответ.
-          content:
-            application/json: {schema: {$ref: '#/components/schemas/RaceConfigurationPage'}}
-        '400': {$ref: '#/components/responses/BadRequest'}
-        '422': {$ref: '#/components/responses/ValidationError'}
-        '429': {$ref: '#/components/responses/RateLimited'}
-        '500': {$ref: '#/components/responses/InternalError'}
-        '503': {$ref: '#/components/responses/Unavailable'}
-        '404': {$ref: '#/components/responses/NotFound'}
-  /occupations/{id}:
-    get:
-      operationId: get_occupations_id
-      tags: [Справочники]
-      summary: Профессия по id
-      parameters: [{$ref: '#/components/parameters/Id'}, {$ref: '#/components/parameters/Version'}]
-      responses:
-        '200':
-          description: Успешный ответ.
-          content:
-            application/json: {schema: {$ref: '#/components/schemas/OccupationEnvelope'}}
-        '400': {$ref: '#/components/responses/BadRequest'}
-        '429': {$ref: '#/components/responses/RateLimited'}
-        '500': {$ref: '#/components/responses/InternalError'}
-        '503': {$ref: '#/components/responses/Unavailable'}
-        '404': {$ref: '#/components/responses/NotFound'}
-  /cars/models/{id}:
-    get:
-      operationId: get_cars_models_id
-      tags: [Справочники]
-      summary: Модель автомобиля по id
-      parameters: [{$ref: '#/components/parameters/Id'}, {$ref: '#/components/parameters/Version'}]
-      responses:
-        '200':
-          description: Успешный ответ.
-          content:
-            application/json:
-              schema: {$ref: '#/components/schemas/CarModelEnvelope'}
-              examples:
-                demo: {$ref: '#/components/examples/CarModelCard'}
-        '400': {$ref: '#/components/responses/BadRequest'}
-        '429': {$ref: '#/components/responses/RateLimited'}
-        '500': {$ref: '#/components/responses/InternalError'}
-        '503': {$ref: '#/components/responses/Unavailable'}
-        '404': {$ref: '#/components/responses/NotFound'}
-      description: 'Пример: GET /api/v1/cars/models/city-hatch?catalogVersion=demo-1'
-  /tracks/{id}:
-    get:
-      operationId: get_tracks_id
-      tags: [Справочники]
-      summary: Трасса по id
-      parameters: [{$ref: '#/components/parameters/Id'}, {$ref: '#/components/parameters/Version'}]
-      responses:
-        '200':
-          description: Успешный ответ.
-          content:
-            application/json: {schema: {$ref: '#/components/schemas/TrackEnvelope'}}
-        '400': {$ref: '#/components/responses/BadRequest'}
-        '429': {$ref: '#/components/responses/RateLimited'}
-        '500': {$ref: '#/components/responses/InternalError'}
-        '503': {$ref: '#/components/responses/Unavailable'}
-        '404': {$ref: '#/components/responses/NotFound'}
-  /admin/catalogs:
-    post:
-      operationId: post_admin_catalogs
-      tags: [Администрирование]
-      summary: Создать черновик из опубликованной версии
-      security: [{AdminBearer: []}]
-      responses:
-        '201':
-          description: Ресурс создан.
-          content:
-            application/json:
-              schema: {$ref: '#/components/schemas/Draft'}
-              examples:
-                demo: {$ref: '#/components/examples/CreatedDraft'}
-          headers:
-            ETag: {$ref: '#/components/headers/ETag'}
-            Location: {$ref: '#/components/headers/Location'}
-        '400': {$ref: '#/components/responses/BadRequest'}
-        '422': {$ref: '#/components/responses/ValidationError'}
-        '429': {$ref: '#/components/responses/RateLimited'}
-        '500': {$ref: '#/components/responses/InternalError'}
-        '503': {$ref: '#/components/responses/Unavailable'}
-        '401': {$ref: '#/components/responses/Unauthorized'}
-        '403': {$ref: '#/components/responses/Forbidden'}
-        '404': {$ref: '#/components/responses/NotFound'}
-        '409': {$ref: '#/components/responses/Conflict'}
+      summary: get_catalog
+      description: Последняя опубликованная версия; запрос также учитывается в лимите
+        чтений.
+      tags:
+      - Catalog
+      security: *id001
+      parameters: &id003
+      - name: Content-Profile
+        in: header
+        required: true
+        schema:
+          type: string
+          enum:
+          - lastpay_api
+      - &id015
+        name: Accept-Profile
+        in: header
+        required: true
+        schema:
+          type: string
+          enum:
+          - lastpay_api
       requestBody:
         required: true
         content:
           application/json:
-            schema: {$ref: '#/components/schemas/DraftCreate'}
-            examples:
-              demo: {$ref: '#/components/examples/NewDraft'}
-      description: 'Пример: POST /api/v1/admin/catalogs'
-  /admin/catalogs/{version}/skills:
-    get:
-      operationId: get_admin_catalogs_version_skills
-      tags: [Администрирование]
-      summary: Навыки черновика
-      security: [{AdminBearer: []}]
-      parameters: [{$ref: '#/components/parameters/DraftVersion'}, {$ref: '#/components/parameters/Page'}, {$ref: '#/components/parameters/PageSize'}]
+            schema:
+              type: object
+              properties:
+                args:
+                  type: object
+                  properties: {}
+                  additionalProperties: false
+              additionalProperties: false
+              required:
+              - args
       responses:
         '200':
-          description: Успешный ответ.
-          content:
-            application/json: {schema: {$ref: '#/components/schemas/SkillPage'}}
-          headers:
-            ETag: {$ref: '#/components/headers/ETag'}
-        '400': {$ref: '#/components/responses/BadRequest'}
-        '422': {$ref: '#/components/responses/ValidationError'}
-        '429': {$ref: '#/components/responses/RateLimited'}
-        '500': {$ref: '#/components/responses/InternalError'}
-        '503': {$ref: '#/components/responses/Unavailable'}
-        '401': {$ref: '#/components/responses/Unauthorized'}
-        '403': {$ref: '#/components/responses/Forbidden'}
-        '404': {$ref: '#/components/responses/NotFound'}
-        '409': {$ref: '#/components/responses/Conflict'}
-    post:
-      operationId: post_admin_catalogs_version_skills
-      tags: [Администрирование]
-      summary: Добавить навык в черновик
-      security: [{AdminBearer: []}]
-      parameters: [{$ref: '#/components/parameters/DraftVersion'}, {$ref: '#/components/parameters/IfMatch'}]
-      responses:
-        '201':
-          description: Ресурс создан.
+          description: Успешный JSON ответ
           content:
             application/json:
-              schema: {$ref: '#/components/schemas/SkillEnvelope'}
-              examples:
-                demo: {$ref: '#/components/examples/CreatedSkill'}
+              schema:
+                $ref: '#/components/schemas/Manifest'
           headers:
-            ETag: {$ref: '#/components/headers/ETag'}
-            Location: {$ref: '#/components/headers/Location'}
-        '400': {$ref: '#/components/responses/BadRequest'}
-        '422': {$ref: '#/components/responses/ValidationError'}
-        '429': {$ref: '#/components/responses/RateLimited'}
-        '500': {$ref: '#/components/responses/InternalError'}
-        '503': {$ref: '#/components/responses/Unavailable'}
-        '401': {$ref: '#/components/responses/Unauthorized'}
-        '403': {$ref: '#/components/responses/Forbidden'}
-        '404': {$ref: '#/components/responses/NotFound'}
-        '409': {$ref: '#/components/responses/Conflict'}
-        '412': {$ref: '#/components/responses/PreconditionFailed'}
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: {$ref: '#/components/schemas/SkillCreate'}
-            examples:
-              demo: {$ref: '#/components/examples/NewSkill'}
-      description: 'Пример: POST /api/v1/admin/catalogs/demo-2/skills; If-Match: "rev-1"'
-  /admin/catalogs/{version}/skills/{id}:
+            ETag:
+              description: Strong revision validator including quotes. Pass through
+                args.ifMatch; weak W/ is invalid.
+              schema:
+                type: string
+            Cache-Control:
+              schema:
+                type: string
+              description: 'Revision responses: private, no-store, no-transform'
+        '400':
+          description: Неверный формат
+          content:
+            application/json:
+              schema: &id002
+                oneOf:
+                - $ref: '#/components/schemas/Error'
+                - $ref: '#/components/schemas/PostgrestError'
+        '401':
+          description: Нет действительной сессии
+          content:
+            application/json:
+              schema: *id002
+        '403':
+          description: Нет доступа
+          content:
+            application/json:
+              schema: *id002
+        '404':
+          description: Не найдено
+          content:
+            application/json:
+              schema: *id002
+        '405':
+          description: Метод не поддерживается
+          content:
+            application/json:
+              schema: *id002
+        '409':
+          description: Конфликт данных или опубликованная версия
+          content:
+            application/json:
+              schema: *id002
+        '412':
+          description: Устаревшая ревизия
+          content:
+            application/json:
+              schema: *id002
+        '422':
+          description: Ошибка валидации
+          content:
+            application/json:
+              schema: *id002
+        '429':
+          description: Лимит запросов
+          content:
+            application/json:
+              schema: *id002
+        '500':
+          description: Внутренняя ошибка
+          content:
+            application/json:
+              schema: *id002
+        '503':
+          description: Источник недоступен
+          content:
+            application/json:
+              schema: *id002
+  /functions/v1/catalog:
     get:
-      operationId: get_admin_catalogs_version_skills_id
-      tags: [Администрирование]
-      summary: Навык черновика по id
-      security: [{AdminBearer: []}]
-      parameters: [{$ref: '#/components/parameters/DraftVersion'}, {$ref: '#/components/parameters/Id'}]
+      operationId: get_browser_catalog
+      summary: Манифест опубликованного каталога для браузера
+      description: Не принимает параметры запроса. Возвращает тот же манифест, что
+        и get_catalog. Заголовки apikey и Authorization не требуются.
+      tags:
+      - Catalog
+      security: []
       responses:
-        '200': {$ref: '#/components/responses/DraftSkill'}
-        '400': {$ref: '#/components/responses/BadRequest'}
-        '429': {$ref: '#/components/responses/RateLimited'}
-        '500': {$ref: '#/components/responses/InternalError'}
-        '503': {$ref: '#/components/responses/Unavailable'}
-        '401': {$ref: '#/components/responses/Unauthorized'}
-        '403': {$ref: '#/components/responses/Forbidden'}
-        '404': {$ref: '#/components/responses/NotFound'}
-        '409': {$ref: '#/components/responses/Conflict'}
-    put:
-      operationId: put_admin_catalogs_version_skills_id
-      tags: [Администрирование]
-      summary: Заменить навык черновика
-      security: [{AdminBearer: []}]
-      parameters: [{$ref: '#/components/parameters/DraftVersion'}, {$ref: '#/components/parameters/Id'}, {$ref: '#/components/parameters/IfMatch'}]
-      responses:
-        '200': {$ref: '#/components/responses/DraftSkill'}
-        '400': {$ref: '#/components/responses/BadRequest'}
-        '422': {$ref: '#/components/responses/ValidationError'}
-        '429': {$ref: '#/components/responses/RateLimited'}
-        '500': {$ref: '#/components/responses/InternalError'}
-        '503': {$ref: '#/components/responses/Unavailable'}
-        '401': {$ref: '#/components/responses/Unauthorized'}
-        '403': {$ref: '#/components/responses/Forbidden'}
-        '404': {$ref: '#/components/responses/NotFound'}
-        '409': {$ref: '#/components/responses/Conflict'}
-        '412': {$ref: '#/components/responses/PreconditionFailed'}
-      requestBody:
-        required: true
-        content:
-          application/json: {schema: {$ref: '#/components/schemas/SkillInput'}}
-    delete:
-      operationId: delete_admin_catalogs_version_skills_id
-      tags: [Администрирование]
-      summary: Удалить навык без зависимостей
-      security: [{AdminBearer: []}]
-      parameters: [{$ref: '#/components/parameters/DraftVersion'}, {$ref: '#/components/parameters/Id'}, {$ref: '#/components/parameters/IfMatch'}]
+        '200':
+          description: Успешный JSON ответ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Manifest'
+        '400':
+          description: Переданы параметры запроса
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Лимит запросов
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Каталог временно недоступен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    options:
+      operationId: browser_catalog_preflight
+      summary: Предварительный запрос CORS для браузерного каталога
+      tags:
+      - Catalog
+      security: []
       responses:
         '204':
-          description: Удалено; тело отсутствует.
-          headers:
-            ETag: {$ref: '#/components/headers/ETag'}
-        '400': {$ref: '#/components/responses/BadRequest'}
-        '429': {$ref: '#/components/responses/RateLimited'}
-        '500': {$ref: '#/components/responses/InternalError'}
-        '503': {$ref: '#/components/responses/Unavailable'}
-        '401': {$ref: '#/components/responses/Unauthorized'}
-        '403': {$ref: '#/components/responses/Forbidden'}
-        '404': {$ref: '#/components/responses/NotFound'}
-        '409': {$ref: '#/components/responses/Conflict'}
-        '412': {$ref: '#/components/responses/PreconditionFailed'}
-  /admin/catalogs/{version}/publish:
+          description: Предварительный запрос принят
+  /rest/v1/rpc/list_catalog:
     post:
-      operationId: post_admin_catalogs_version_publish
-      tags: [Администрирование]
-      summary: Опубликовать целостный каталог
-      security: [{AdminBearer: []}]
-      parameters: [{$ref: '#/components/parameters/DraftVersion'}, {$ref: '#/components/parameters/IfMatch'}]
+      operationId: list_catalog
+      summary: list_catalog
+      description: Восемь категорий. Для inflation обязательны country/yearFrom/yearTo.
+        brandId применим только к car-models, trackId к race-configurations. Фильтры
+        других ресурсов отклоняются.
+      tags:
+      - Catalog
+      security: *id001
+      parameters: *id003
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                args:
+                  $ref: '#/components/schemas/ListArgs'
+              additionalProperties: false
+              required:
+              - args
       responses:
-        '200': {$ref: '#/components/responses/Catalog'}
-        '400': {$ref: '#/components/responses/BadRequest'}
-        '422': {$ref: '#/components/responses/ValidationError'}
-        '429': {$ref: '#/components/responses/RateLimited'}
-        '500': {$ref: '#/components/responses/InternalError'}
-        '503': {$ref: '#/components/responses/Unavailable'}
-        '401': {$ref: '#/components/responses/Unauthorized'}
-        '403': {$ref: '#/components/responses/Forbidden'}
-        '404': {$ref: '#/components/responses/NotFound'}
-        '409': {$ref: '#/components/responses/Conflict'}
-        '412': {$ref: '#/components/responses/PreconditionFailed'}
-      description: Проверяет 8 ресурсов, связи, 3 складские должности, баланс моделей и source_metadata. Повторная публикация
-        — 409.
+        '200':
+          description: Успешный JSON ответ
+          content:
+            application/json:
+              schema:
+                anyOf:
+                - $ref: '#/components/schemas/OccupationPage'
+                - $ref: '#/components/schemas/SkillPage'
+                - $ref: '#/components/schemas/JobPage'
+                - $ref: '#/components/schemas/InflationObservationPage'
+                - $ref: '#/components/schemas/CarBrandPage'
+                - $ref: '#/components/schemas/CarModelPage'
+                - $ref: '#/components/schemas/TrackPage'
+                - $ref: '#/components/schemas/RaceConfigurationPage'
+          headers:
+            ETag:
+              description: Strong revision validator including quotes. Pass through
+                args.ifMatch; weak W/ is invalid.
+              schema:
+                type: string
+            Cache-Control:
+              schema:
+                type: string
+              description: 'Revision responses: private, no-store, no-transform'
+        '400':
+          description: Неверный формат
+          content:
+            application/json:
+              schema: &id004
+                oneOf:
+                - $ref: '#/components/schemas/Error'
+                - $ref: '#/components/schemas/PostgrestError'
+        '401':
+          description: Нет действительной сессии
+          content:
+            application/json:
+              schema: *id004
+        '403':
+          description: Нет доступа
+          content:
+            application/json:
+              schema: *id004
+        '404':
+          description: Не найдено
+          content:
+            application/json:
+              schema: *id004
+        '405':
+          description: Метод не поддерживается
+          content:
+            application/json:
+              schema: *id004
+        '409':
+          description: Конфликт данных или опубликованная версия
+          content:
+            application/json:
+              schema: *id004
+        '412':
+          description: Устаревшая ревизия
+          content:
+            application/json:
+              schema: *id004
+        '422':
+          description: Ошибка валидации
+          content:
+            application/json:
+              schema: *id004
+        '429':
+          description: Лимит запросов
+          content:
+            application/json:
+              schema: *id004
+        '500':
+          description: Внутренняя ошибка
+          content:
+            application/json:
+              schema: *id004
+        '503':
+          description: Источник недоступен
+          content:
+            application/json:
+              schema: *id004
+  /rest/v1/rpc/get_catalog_item:
+    post:
+      operationId: get_catalog_item
+      summary: get_catalog_item
+      description: ''
+      tags:
+      - Catalog
+      security: *id001
+      parameters: *id003
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                args:
+                  $ref: '#/components/schemas/ItemArgs'
+              additionalProperties: false
+              required:
+              - args
+      responses:
+        '200':
+          description: Успешный JSON ответ
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/OccupationEnvelope'
+                - $ref: '#/components/schemas/CarModelEnvelope'
+                - $ref: '#/components/schemas/TrackEnvelope'
+          headers:
+            ETag:
+              description: Strong revision validator including quotes. Pass through
+                args.ifMatch; weak W/ is invalid.
+              schema:
+                type: string
+            Cache-Control:
+              schema:
+                type: string
+              description: 'Revision responses: private, no-store, no-transform'
+        '400':
+          description: Неверный формат
+          content:
+            application/json:
+              schema: &id005
+                oneOf:
+                - $ref: '#/components/schemas/Error'
+                - $ref: '#/components/schemas/PostgrestError'
+        '401':
+          description: Нет действительной сессии
+          content:
+            application/json:
+              schema: *id005
+        '403':
+          description: Нет доступа
+          content:
+            application/json:
+              schema: *id005
+        '404':
+          description: Не найдено
+          content:
+            application/json:
+              schema: *id005
+        '405':
+          description: Метод не поддерживается
+          content:
+            application/json:
+              schema: *id005
+        '409':
+          description: Конфликт данных или опубликованная версия
+          content:
+            application/json:
+              schema: *id005
+        '412':
+          description: Устаревшая ревизия
+          content:
+            application/json:
+              schema: *id005
+        '422':
+          description: Ошибка валидации
+          content:
+            application/json:
+              schema: *id005
+        '429':
+          description: Лимит запросов
+          content:
+            application/json:
+              schema: *id005
+        '500':
+          description: Внутренняя ошибка
+          content:
+            application/json:
+              schema: *id005
+        '503':
+          description: Источник недоступен
+          content:
+            application/json:
+              schema: *id005
+  /rest/v1/rpc/list_draft_skills:
+    post:
+      operationId: list_draft_skills
+      summary: list_draft_skills
+      description: ''
+      tags:
+      - Admin
+      security: &id007
+      - PublicKey: []
+        UserJWT: []
+      parameters: *id003
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                args:
+                  $ref: '#/components/schemas/DraftListArgs'
+              additionalProperties: false
+              required:
+              - args
+      responses:
+        '200':
+          description: Успешный JSON ответ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SkillPage'
+          headers:
+            ETag:
+              description: Strong revision validator including quotes. Pass through
+                args.ifMatch; weak W/ is invalid.
+              schema:
+                type: string
+            Cache-Control:
+              schema:
+                type: string
+              description: 'Revision responses: private, no-store, no-transform'
+        '400':
+          description: Неверный формат
+          content:
+            application/json:
+              schema: &id006
+                oneOf:
+                - $ref: '#/components/schemas/Error'
+                - $ref: '#/components/schemas/PostgrestError'
+        '401':
+          description: Нет действительной сессии
+          content:
+            application/json:
+              schema: *id006
+        '403':
+          description: Нет доступа
+          content:
+            application/json:
+              schema: *id006
+        '404':
+          description: Не найдено
+          content:
+            application/json:
+              schema: *id006
+        '405':
+          description: Метод не поддерживается
+          content:
+            application/json:
+              schema: *id006
+        '409':
+          description: Конфликт данных или опубликованная версия
+          content:
+            application/json:
+              schema: *id006
+        '412':
+          description: Устаревшая ревизия
+          content:
+            application/json:
+              schema: *id006
+        '422':
+          description: Ошибка валидации
+          content:
+            application/json:
+              schema: *id006
+        '429':
+          description: Лимит запросов
+          content:
+            application/json:
+              schema: *id006
+        '500':
+          description: Внутренняя ошибка
+          content:
+            application/json:
+              schema: *id006
+        '503':
+          description: Источник недоступен
+          content:
+            application/json:
+              schema: *id006
+  /rest/v1/rpc/get_draft_skill:
+    post:
+      operationId: get_draft_skill
+      summary: get_draft_skill
+      description: ''
+      tags:
+      - Admin
+      security: *id007
+      parameters: *id003
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                args:
+                  $ref: '#/components/schemas/DraftItemArgs'
+              additionalProperties: false
+              required:
+              - args
+      responses:
+        '200':
+          description: Успешный JSON ответ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SkillEnvelope'
+          headers:
+            ETag:
+              description: Strong revision validator including quotes. Pass through
+                args.ifMatch; weak W/ is invalid.
+              schema:
+                type: string
+            Cache-Control:
+              schema:
+                type: string
+              description: 'Revision responses: private, no-store, no-transform'
+        '400':
+          description: Неверный формат
+          content:
+            application/json:
+              schema: &id008
+                oneOf:
+                - $ref: '#/components/schemas/Error'
+                - $ref: '#/components/schemas/PostgrestError'
+        '401':
+          description: Нет действительной сессии
+          content:
+            application/json:
+              schema: *id008
+        '403':
+          description: Нет доступа
+          content:
+            application/json:
+              schema: *id008
+        '404':
+          description: Не найдено
+          content:
+            application/json:
+              schema: *id008
+        '405':
+          description: Метод не поддерживается
+          content:
+            application/json:
+              schema: *id008
+        '409':
+          description: Конфликт данных или опубликованная версия
+          content:
+            application/json:
+              schema: *id008
+        '412':
+          description: Устаревшая ревизия
+          content:
+            application/json:
+              schema: *id008
+        '422':
+          description: Ошибка валидации
+          content:
+            application/json:
+              schema: *id008
+        '429':
+          description: Лимит запросов
+          content:
+            application/json:
+              schema: *id008
+        '500':
+          description: Внутренняя ошибка
+          content:
+            application/json:
+              schema: *id008
+        '503':
+          description: Источник недоступен
+          content:
+            application/json:
+              schema: *id008
+  /rest/v1/rpc/create_draft:
+    post:
+      operationId: create_draft
+      summary: create_draft
+      description: Только реестр admin_membership; копия опубликованной baseVersion.
+      tags:
+      - Admin
+      security: *id007
+      parameters: *id003
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                args:
+                  $ref: '#/components/schemas/CreateDraftArgs'
+              additionalProperties: false
+              required:
+              - args
+      responses:
+        '201':
+          description: Успешный JSON ответ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Draft'
+          headers:
+            ETag:
+              description: Strong revision validator including quotes. Pass through
+                args.ifMatch; weak W/ is invalid.
+              schema:
+                type: string
+            Cache-Control:
+              schema:
+                type: string
+              description: 'Revision responses: private, no-store, no-transform'
+        '400':
+          description: Неверный формат
+          content:
+            application/json:
+              schema: &id009
+                oneOf:
+                - $ref: '#/components/schemas/Error'
+                - $ref: '#/components/schemas/PostgrestError'
+        '401':
+          description: Нет действительной сессии
+          content:
+            application/json:
+              schema: *id009
+        '403':
+          description: Нет доступа
+          content:
+            application/json:
+              schema: *id009
+        '404':
+          description: Не найдено
+          content:
+            application/json:
+              schema: *id009
+        '405':
+          description: Метод не поддерживается
+          content:
+            application/json:
+              schema: *id009
+        '409':
+          description: Конфликт данных или опубликованная версия
+          content:
+            application/json:
+              schema: *id009
+        '412':
+          description: Устаревшая ревизия
+          content:
+            application/json:
+              schema: *id009
+        '422':
+          description: Ошибка валидации
+          content:
+            application/json:
+              schema: *id009
+        '429':
+          description: Лимит запросов
+          content:
+            application/json:
+              schema: *id009
+        '500':
+          description: Внутренняя ошибка
+          content:
+            application/json:
+              schema: *id009
+        '503':
+          description: Источник недоступен
+          content:
+            application/json:
+              schema: *id009
+  /rest/v1/rpc/create_skill:
+    post:
+      operationId: create_skill
+      summary: create_skill
+      description: ''
+      tags:
+      - Admin
+      security: *id007
+      parameters: *id003
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                args:
+                  $ref: '#/components/schemas/CreateSkillArgs'
+              additionalProperties: false
+              required:
+              - args
+      responses:
+        '201':
+          description: Успешный JSON ответ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SkillEnvelope'
+          headers:
+            ETag:
+              description: Strong revision validator including quotes. Pass through
+                args.ifMatch; weak W/ is invalid.
+              schema:
+                type: string
+            Cache-Control:
+              schema:
+                type: string
+              description: 'Revision responses: private, no-store, no-transform'
+        '400':
+          description: Неверный формат
+          content:
+            application/json:
+              schema: &id010
+                oneOf:
+                - $ref: '#/components/schemas/Error'
+                - $ref: '#/components/schemas/PostgrestError'
+        '401':
+          description: Нет действительной сессии
+          content:
+            application/json:
+              schema: *id010
+        '403':
+          description: Нет доступа
+          content:
+            application/json:
+              schema: *id010
+        '404':
+          description: Не найдено
+          content:
+            application/json:
+              schema: *id010
+        '405':
+          description: Метод не поддерживается
+          content:
+            application/json:
+              schema: *id010
+        '409':
+          description: Конфликт данных или опубликованная версия
+          content:
+            application/json:
+              schema: *id010
+        '412':
+          description: Устаревшая ревизия
+          content:
+            application/json:
+              schema: *id010
+        '422':
+          description: Ошибка валидации
+          content:
+            application/json:
+              schema: *id010
+        '429':
+          description: Лимит запросов
+          content:
+            application/json:
+              schema: *id010
+        '500':
+          description: Внутренняя ошибка
+          content:
+            application/json:
+              schema: *id010
+        '503':
+          description: Источник недоступен
+          content:
+            application/json:
+              schema: *id010
+  /rest/v1/rpc/update_skill:
+    post:
+      operationId: update_skill
+      summary: update_skill
+      description: ''
+      tags:
+      - Admin
+      security: *id007
+      parameters: *id003
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                args:
+                  $ref: '#/components/schemas/UpdateSkillArgs'
+              additionalProperties: false
+              required:
+              - args
+      responses:
+        '200':
+          description: Успешный JSON ответ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SkillEnvelope'
+          headers:
+            ETag:
+              description: Strong revision validator including quotes. Pass through
+                args.ifMatch; weak W/ is invalid.
+              schema:
+                type: string
+            Cache-Control:
+              schema:
+                type: string
+              description: 'Revision responses: private, no-store, no-transform'
+        '400':
+          description: Неверный формат
+          content:
+            application/json:
+              schema: &id011
+                oneOf:
+                - $ref: '#/components/schemas/Error'
+                - $ref: '#/components/schemas/PostgrestError'
+        '401':
+          description: Нет действительной сессии
+          content:
+            application/json:
+              schema: *id011
+        '403':
+          description: Нет доступа
+          content:
+            application/json:
+              schema: *id011
+        '404':
+          description: Не найдено
+          content:
+            application/json:
+              schema: *id011
+        '405':
+          description: Метод не поддерживается
+          content:
+            application/json:
+              schema: *id011
+        '409':
+          description: Конфликт данных или опубликованная версия
+          content:
+            application/json:
+              schema: *id011
+        '412':
+          description: Устаревшая ревизия
+          content:
+            application/json:
+              schema: *id011
+        '422':
+          description: Ошибка валидации
+          content:
+            application/json:
+              schema: *id011
+        '429':
+          description: Лимит запросов
+          content:
+            application/json:
+              schema: *id011
+        '500':
+          description: Внутренняя ошибка
+          content:
+            application/json:
+              schema: *id011
+        '503':
+          description: Источник недоступен
+          content:
+            application/json:
+              schema: *id011
+  /rest/v1/rpc/delete_skill:
+    post:
+      operationId: delete_skill
+      summary: delete_skill
+      description: После миграции 004 успешное удаление возвращает HTTP 200, JSON
+        receipt и новый сильный ETag. Не 204. Запрос со старой ревизией возвращает
+        412 без изменения данных.
+      tags:
+      - Admin
+      security: *id007
+      parameters: *id003
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                args:
+                  $ref: '#/components/schemas/DeleteSkillArgs'
+              additionalProperties: false
+              required:
+              - args
+      responses:
+        '200':
+          description: Успешный JSON ответ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteReceipt'
+          headers:
+            ETag:
+              description: Strong revision validator including quotes. Pass through
+                args.ifMatch; weak W/ is invalid.
+              schema:
+                type: string
+            Cache-Control:
+              schema:
+                type: string
+              description: 'Revision responses: private, no-store, no-transform'
+        '400':
+          description: Неверный формат
+          content:
+            application/json:
+              schema: &id012
+                oneOf:
+                - $ref: '#/components/schemas/Error'
+                - $ref: '#/components/schemas/PostgrestError'
+        '401':
+          description: Нет действительной сессии
+          content:
+            application/json:
+              schema: *id012
+        '403':
+          description: Нет доступа
+          content:
+            application/json:
+              schema: *id012
+        '404':
+          description: Не найдено
+          content:
+            application/json:
+              schema: *id012
+        '405':
+          description: Метод не поддерживается
+          content:
+            application/json:
+              schema: *id012
+        '409':
+          description: Конфликт данных или опубликованная версия
+          content:
+            application/json:
+              schema: *id012
+        '412':
+          description: Устаревшая ревизия
+          content:
+            application/json:
+              schema: *id012
+        '422':
+          description: Ошибка валидации
+          content:
+            application/json:
+              schema: *id012
+        '429':
+          description: Лимит запросов
+          content:
+            application/json:
+              schema: *id012
+        '500':
+          description: Внутренняя ошибка
+          content:
+            application/json:
+              schema: *id012
+        '503':
+          description: Источник недоступен
+          content:
+            application/json:
+              schema: *id012
+  /rest/v1/rpc/publish_catalog:
+    post:
+      operationId: publish_catalog
+      summary: publish_catalog
+      description: Публикация меняет активную версию. Облачные тесты публикации требуют
+        отдельного разрешения.
+      tags:
+      - Admin
+      security: *id007
+      parameters: *id003
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                args:
+                  $ref: '#/components/schemas/PublishArgs'
+              additionalProperties: false
+              required:
+              - args
+      responses:
+        '200':
+          description: Успешный JSON ответ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Manifest'
+          headers:
+            ETag:
+              description: Strong revision validator including quotes. Pass through
+                args.ifMatch; weak W/ is invalid.
+              schema:
+                type: string
+            Cache-Control:
+              schema:
+                type: string
+              description: 'Revision responses: private, no-store, no-transform'
+        '400':
+          description: Неверный формат
+          content:
+            application/json:
+              schema: &id013
+                oneOf:
+                - $ref: '#/components/schemas/Error'
+                - $ref: '#/components/schemas/PostgrestError'
+        '401':
+          description: Нет действительной сессии
+          content:
+            application/json:
+              schema: *id013
+        '403':
+          description: Нет доступа
+          content:
+            application/json:
+              schema: *id013
+        '404':
+          description: Не найдено
+          content:
+            application/json:
+              schema: *id013
+        '405':
+          description: Метод не поддерживается
+          content:
+            application/json:
+              schema: *id013
+        '409':
+          description: Конфликт данных или опубликованная версия
+          content:
+            application/json:
+              schema: *id013
+        '412':
+          description: Устаревшая ревизия
+          content:
+            application/json:
+              schema: *id013
+        '422':
+          description: Ошибка валидации
+          content:
+            application/json:
+              schema: *id013
+        '429':
+          description: Лимит запросов
+          content:
+            application/json:
+              schema: *id013
+        '500':
+          description: Внутренняя ошибка
+          content:
+            application/json:
+              schema: *id013
+        '503':
+          description: Источник недоступен
+          content:
+            application/json:
+              schema: *id013
+  /rest/v1/rpc/save_game:
+    post:
+      operationId: save_game
+      summary: save_game
+      description: Постоянный пользователь, только auth.uid(); назначать администратора
+        не требуется. Начальная expectedRevision=0, конфликт=412.
+      tags:
+      - Saves
+      security: *id007
+      parameters: *id003
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                args:
+                  $ref: '#/components/schemas/SaveArgs'
+              additionalProperties: false
+              required:
+              - args
+      responses:
+        '200':
+          description: Успешный JSON ответ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSave'
+          headers:
+            ETag:
+              description: Strong revision validator including quotes. Pass through
+                args.ifMatch; weak W/ is invalid.
+              schema:
+                type: string
+            Cache-Control:
+              schema:
+                type: string
+              description: 'Revision responses: private, no-store, no-transform'
+        '400':
+          description: Неверный формат
+          content:
+            application/json:
+              schema: &id014
+                oneOf:
+                - $ref: '#/components/schemas/Error'
+                - $ref: '#/components/schemas/PostgrestError'
+        '401':
+          description: Нет действительной сессии
+          content:
+            application/json:
+              schema: *id014
+        '403':
+          description: Нет доступа
+          content:
+            application/json:
+              schema: *id014
+        '404':
+          description: Не найдено
+          content:
+            application/json:
+              schema: *id014
+        '405':
+          description: Метод не поддерживается
+          content:
+            application/json:
+              schema: *id014
+        '409':
+          description: Конфликт данных или опубликованная версия
+          content:
+            application/json:
+              schema: *id014
+        '412':
+          description: Устаревшая ревизия
+          content:
+            application/json:
+              schema: *id014
+        '422':
+          description: Ошибка валидации
+          content:
+            application/json:
+              schema: *id014
+        '429':
+          description: Лимит запросов
+          content:
+            application/json:
+              schema: *id014
+        '500':
+          description: Внутренняя ошибка
+          content:
+            application/json:
+              schema: *id014
+        '503':
+          description: Источник недоступен
+          content:
+            application/json:
+              schema: *id014
+  /rest/v1/user_save:
+    get:
+      operationId: read_own_save
+      summary: Прочитать только своё сохранение
+      tags:
+      - Saves
+      security: *id007
+      parameters:
+      - *id015
+      responses:
+        '200':
+          description: Успешный JSON ответ
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserSave'
+        '400':
+          description: Неверный формат
+          content:
+            application/json:
+              schema: &id016
+                oneOf:
+                - $ref: '#/components/schemas/Error'
+                - $ref: '#/components/schemas/PostgrestError'
+        '401':
+          description: Нет действительной сессии
+          content:
+            application/json:
+              schema: *id016
+        '403':
+          description: Нет доступа
+          content:
+            application/json:
+              schema: *id016
+        '404':
+          description: Не найдено
+          content:
+            application/json:
+              schema: *id016
+        '405':
+          description: Метод не поддерживается
+          content:
+            application/json:
+              schema: *id016
+        '409':
+          description: Конфликт данных или опубликованная версия
+          content:
+            application/json:
+              schema: *id016
+        '412':
+          description: Устаревшая ревизия
+          content:
+            application/json:
+              schema: *id016
+        '422':
+          description: Ошибка валидации
+          content:
+            application/json:
+              schema: *id016
+        '429':
+          description: Лимит запросов
+          content:
+            application/json:
+              schema: *id016
+        '500':
+          description: Внутренняя ошибка
+          content:
+            application/json:
+              schema: *id016
+        '503':
+          description: Источник недоступен
+          content:
+            application/json:
+              schema: *id016
+  /functions/v1/providers/worldbank/inflation:
+    get:
+      operationId: providers_worldbank_inflation
+      summary: Provider /worldbank/inflation
+      tags:
+      - Providers
+      description: Permanent Supabase Auth JWT is verified by Auth /user in the handler.
+        Missing O*NET/CarsBase keys yield safe 503. World Bank requires no provider
+        key.
+      security: *id007
+      parameters:
+      - name: country
+        in: query
+        required: true
+        schema:
+          type: string
+          pattern: ^[A-Z]{3}$
+      - name: yearFrom
+        in: query
+        required: true
+        schema:
+          type: integer
+          minimum: 1900
+          maximum: 2100
+      - name: yearTo
+        in: query
+        required: true
+        schema:
+          type: integer
+          minimum: 1900
+          maximum: 2100
+      responses:
+        '200':
+          description: Успешный JSON ответ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProviderEnvelope'
+        '400':
+          description: Неверный формат
+          content:
+            application/json:
+              schema: &id017
+                oneOf:
+                - $ref: '#/components/schemas/Error'
+                - $ref: '#/components/schemas/PostgrestError'
+        '401':
+          description: Нет действительной сессии
+          content:
+            application/json:
+              schema: *id017
+        '403':
+          description: Нет доступа
+          content:
+            application/json:
+              schema: *id017
+        '404':
+          description: Не найдено
+          content:
+            application/json:
+              schema: *id017
+        '405':
+          description: Метод не поддерживается
+          content:
+            application/json:
+              schema: *id017
+        '409':
+          description: Конфликт данных или опубликованная версия
+          content:
+            application/json:
+              schema: *id017
+        '412':
+          description: Устаревшая ревизия
+          content:
+            application/json:
+              schema: *id017
+        '422':
+          description: Ошибка валидации
+          content:
+            application/json:
+              schema: *id017
+        '429':
+          description: Лимит запросов
+          content:
+            application/json:
+              schema: *id017
+        '500':
+          description: Внутренняя ошибка
+          content:
+            application/json:
+              schema: *id017
+        '503':
+          description: Источник недоступен
+          content:
+            application/json:
+              schema: *id017
+  /functions/v1/providers/onet/occupations:
+    get:
+      operationId: providers_onet_occupations
+      summary: Provider /onet/occupations
+      tags:
+      - Providers
+      description: Permanent Supabase Auth JWT is verified by Auth /user in the handler.
+        Missing O*NET/CarsBase keys yield safe 503. World Bank requires no provider
+        key.
+      security: *id007
+      parameters: []
+      responses:
+        '200':
+          description: Успешный JSON ответ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProviderEnvelope'
+        '400':
+          description: Неверный формат
+          content:
+            application/json:
+              schema: &id018
+                oneOf:
+                - $ref: '#/components/schemas/Error'
+                - $ref: '#/components/schemas/PostgrestError'
+        '401':
+          description: Нет действительной сессии
+          content:
+            application/json:
+              schema: *id018
+        '403':
+          description: Нет доступа
+          content:
+            application/json:
+              schema: *id018
+        '404':
+          description: Не найдено
+          content:
+            application/json:
+              schema: *id018
+        '405':
+          description: Метод не поддерживается
+          content:
+            application/json:
+              schema: *id018
+        '409':
+          description: Конфликт данных или опубликованная версия
+          content:
+            application/json:
+              schema: *id018
+        '412':
+          description: Устаревшая ревизия
+          content:
+            application/json:
+              schema: *id018
+        '422':
+          description: Ошибка валидации
+          content:
+            application/json:
+              schema: *id018
+        '429':
+          description: Лимит запросов
+          content:
+            application/json:
+              schema: *id018
+        '500':
+          description: Внутренняя ошибка
+          content:
+            application/json:
+              schema: *id018
+        '503':
+          description: Источник недоступен
+          content:
+            application/json:
+              schema: *id018
+  /functions/v1/providers/onet/skills/{occupationCode}:
+    get:
+      operationId: providers_onet_skills
+      summary: Provider /onet/skills/{occupationCode}
+      tags:
+      - Providers
+      description: Permanent Supabase Auth JWT is verified by Auth /user in the handler.
+        Missing O*NET/CarsBase keys yield safe 503. World Bank requires no provider
+        key.
+      security: *id007
+      parameters:
+      - name: occupationCode
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[0-9]{2}-[0-9]{4}\.[0-9]{2}$
+      responses:
+        '200':
+          description: Успешный JSON ответ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProviderEnvelope'
+        '400':
+          description: Неверный формат
+          content:
+            application/json:
+              schema: &id019
+                oneOf:
+                - $ref: '#/components/schemas/Error'
+                - $ref: '#/components/schemas/PostgrestError'
+        '401':
+          description: Нет действительной сессии
+          content:
+            application/json:
+              schema: *id019
+        '403':
+          description: Нет доступа
+          content:
+            application/json:
+              schema: *id019
+        '404':
+          description: Не найдено
+          content:
+            application/json:
+              schema: *id019
+        '405':
+          description: Метод не поддерживается
+          content:
+            application/json:
+              schema: *id019
+        '409':
+          description: Конфликт данных или опубликованная версия
+          content:
+            application/json:
+              schema: *id019
+        '412':
+          description: Устаревшая ревизия
+          content:
+            application/json:
+              schema: *id019
+        '422':
+          description: Ошибка валидации
+          content:
+            application/json:
+              schema: *id019
+        '429':
+          description: Лимит запросов
+          content:
+            application/json:
+              schema: *id019
+        '500':
+          description: Внутренняя ошибка
+          content:
+            application/json:
+              schema: *id019
+        '503':
+          description: Источник недоступен
+          content:
+            application/json:
+              schema: *id019
+  /functions/v1/providers/cars/brands:
+    get:
+      operationId: providers_cars_brands
+      summary: Provider /cars/brands
+      tags:
+      - Providers
+      description: Permanent Supabase Auth JWT is verified by Auth /user in the handler.
+        Missing O*NET/CarsBase keys yield safe 503. World Bank requires no provider
+        key.
+      security: *id007
+      parameters:
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 1000000
+          default: 1
+      - name: pageSize
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 1000
+          default: 1000
+      responses:
+        '200':
+          description: Успешный JSON ответ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProviderEnvelope'
+        '400':
+          description: Неверный формат
+          content:
+            application/json:
+              schema: &id020
+                oneOf:
+                - $ref: '#/components/schemas/Error'
+                - $ref: '#/components/schemas/PostgrestError'
+        '401':
+          description: Нет действительной сессии
+          content:
+            application/json:
+              schema: *id020
+        '403':
+          description: Нет доступа
+          content:
+            application/json:
+              schema: *id020
+        '404':
+          description: Не найдено
+          content:
+            application/json:
+              schema: *id020
+        '405':
+          description: Метод не поддерживается
+          content:
+            application/json:
+              schema: *id020
+        '409':
+          description: Конфликт данных или опубликованная версия
+          content:
+            application/json:
+              schema: *id020
+        '412':
+          description: Устаревшая ревизия
+          content:
+            application/json:
+              schema: *id020
+        '422':
+          description: Ошибка валидации
+          content:
+            application/json:
+              schema: *id020
+        '429':
+          description: Лимит запросов
+          content:
+            application/json:
+              schema: *id020
+        '500':
+          description: Внутренняя ошибка
+          content:
+            application/json:
+              schema: *id020
+        '503':
+          description: Источник недоступен
+          content:
+            application/json:
+              schema: *id020
+  /functions/v1/providers/cars/models:
+    get:
+      operationId: providers_cars_models
+      summary: Provider /cars/models
+      tags:
+      - Providers
+      description: Permanent Supabase Auth JWT is verified by Auth /user in the handler.
+        Missing O*NET/CarsBase keys yield safe 503. World Bank requires no provider
+        key.
+      security: *id007
+      parameters:
+      - name: brandId
+        in: query
+        required: false
+        schema:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,64}$
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 1000000
+          default: 1
+      - name: pageSize
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 1000
+          default: 1000
+      responses:
+        '200':
+          description: Успешный JSON ответ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProviderEnvelope'
+        '400':
+          description: Неверный формат
+          content:
+            application/json:
+              schema: &id021
+                oneOf:
+                - $ref: '#/components/schemas/Error'
+                - $ref: '#/components/schemas/PostgrestError'
+        '401':
+          description: Нет действительной сессии
+          content:
+            application/json:
+              schema: *id021
+        '403':
+          description: Нет доступа
+          content:
+            application/json:
+              schema: *id021
+        '404':
+          description: Не найдено
+          content:
+            application/json:
+              schema: *id021
+        '405':
+          description: Метод не поддерживается
+          content:
+            application/json:
+              schema: *id021
+        '409':
+          description: Конфликт данных или опубликованная версия
+          content:
+            application/json:
+              schema: *id021
+        '412':
+          description: Устаревшая ревизия
+          content:
+            application/json:
+              schema: *id021
+        '422':
+          description: Ошибка валидации
+          content:
+            application/json:
+              schema: *id021
+        '429':
+          description: Лимит запросов
+          content:
+            application/json:
+              schema: *id021
+        '500':
+          description: Внутренняя ошибка
+          content:
+            application/json:
+              schema: *id021
+        '503':
+          description: Источник недоступен
+          content:
+            application/json:
+              schema: *id021
 components:
+  securitySchemes:
+    PublicKey:
+      type: apiKey
+      in: header
+      name: apikey
+      description: Only publishable/anon key; never service_role/secret
+    UserJWT:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   schemas:
     SkillInput:
       type: object
       additionalProperties: false
       properties:
-        code: {$ref: '#/components/schemas/Identifier'}
-        title: {type: string, minLength: 1, maxLength: 160, pattern: '^(?=[\s\S]*[^\u0009-\u000d\u001c-\u0020\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000])[^\u0000]*(?![\s\S])'}
-        description: {type: string, maxLength: 4000, pattern: '^[^\u0000]*(?![\s\S])'}
-        source: {type: string, enum: [ONET, DEMO]}
-        externalId: {type: string, nullable: true, maxLength: 64, pattern: '^[^\u0000]*(?![\s\S])'}
-      required: [code, title, description, source, externalId]
+        code:
+          $ref: '#/components/schemas/Identifier'
+        title:
+          type: string
+          minLength: 1
+          maxLength: 160
+          pattern: ^(?=[\s\S]*[^\u0009-\u000d\u001c-\u0020\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000])[^\u0000]*(?![\s\S])
+        description:
+          type: string
+          maxLength: 4000
+          pattern: ^[^\u0000]*(?![\s\S])
+        source:
+          type: string
+          enum:
+          - ONET
+          - DEMO
+        externalId:
+          type: string
+          nullable: true
+          maxLength: 64
+          pattern: ^[^\u0000]*(?![\s\S])
+      required:
+      - code
+      - title
+      - description
+      - source
+      - externalId
       oneOf:
-        - properties:
-            source: {enum: [ONET]}
-            externalId: {type: string, minLength: 1, maxLength: 64, pattern: '^(?=[\s\S]*[^\u0009-\u000d\u001c-\u0020\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000])[^\u0000]*(?![\s\S])'}
-        - properties:
-            source: {enum: [DEMO]}
+      - properties:
+          source:
+            enum:
+            - ONET
+          externalId:
+            type: string
+            minLength: 1
+            maxLength: 64
+            pattern: ^(?=[\s\S]*[^\u0009-\u000d\u001c-\u0020\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000])[^\u0000]*(?![\s\S])
+      - properties:
+          source:
+            enum:
+            - DEMO
     SkillCreate:
       type: object
       additionalProperties: false
       properties:
-        id: {$ref: '#/components/schemas/Identifier'}
-        code: {$ref: '#/components/schemas/Identifier'}
-        title: {type: string, minLength: 1, maxLength: 160, pattern: '^(?=[\s\S]*[^\u0009-\u000d\u001c-\u0020\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000])[^\u0000]*(?![\s\S])'}
-        description: {type: string, maxLength: 4000, pattern: '^[^\u0000]*(?![\s\S])'}
-        source: {type: string, enum: [ONET, DEMO]}
-        externalId: {type: string, nullable: true, maxLength: 64, pattern: '^[^\u0000]*(?![\s\S])'}
-      required: [id, code, title, description, source, externalId]
+        id:
+          $ref: '#/components/schemas/Identifier'
+        code:
+          $ref: '#/components/schemas/Identifier'
+        title:
+          type: string
+          minLength: 1
+          maxLength: 160
+          pattern: ^(?=[\s\S]*[^\u0009-\u000d\u001c-\u0020\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000])[^\u0000]*(?![\s\S])
+        description:
+          type: string
+          maxLength: 4000
+          pattern: ^[^\u0000]*(?![\s\S])
+        source:
+          type: string
+          enum:
+          - ONET
+          - DEMO
+        externalId:
+          type: string
+          nullable: true
+          maxLength: 64
+          pattern: ^[^\u0000]*(?![\s\S])
+      required:
+      - id
+      - code
+      - title
+      - description
+      - source
+      - externalId
       oneOf:
-        - properties:
-            source: {enum: [ONET]}
-            externalId: {type: string, minLength: 1, maxLength: 64, pattern: '^(?=[\s\S]*[^\u0009-\u000d\u001c-\u0020\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000])[^\u0000]*(?![\s\S])'}
-        - properties:
-            source: {enum: [DEMO]}
-    Skill: {$ref: '#/components/schemas/SkillCreate'}
+      - properties:
+          source:
+            enum:
+            - ONET
+          externalId:
+            type: string
+            minLength: 1
+            maxLength: 64
+            pattern: ^(?=[\s\S]*[^\u0009-\u000d\u001c-\u0020\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000])[^\u0000]*(?![\s\S])
+      - properties:
+          source:
+            enum:
+            - DEMO
+    Skill:
+      $ref: '#/components/schemas/SkillCreate'
     Occupation:
       type: object
       additionalProperties: false
       properties:
-        id: {$ref: '#/components/schemas/Identifier'}
-        title: {type: string, minLength: 1, maxLength: 160}
-        description: {type: string, maxLength: 4000}
-        source: {type: string, enum: [ONET, DEMO]}
-        externalId: {type: string, nullable: true, maxLength: 64}
+        id:
+          $ref: '#/components/schemas/Identifier'
+        title:
+          type: string
+          minLength: 1
+          maxLength: 160
+        description:
+          type: string
+          maxLength: 4000
+        source:
+          type: string
+          enum:
+          - ONET
+          - DEMO
+        externalId:
+          type: string
+          nullable: true
+          maxLength: 64
         skills:
           type: array
           items:
             type: object
             additionalProperties: false
             properties:
-              skillId: {$ref: '#/components/schemas/Identifier'}
-              importance: {type: number, minimum: 0, maximum: 100, nullable: true, multipleOf: 0.01}
-            required: [skillId, importance]
+              skillId:
+                $ref: '#/components/schemas/Identifier'
+              importance:
+                type: number
+                minimum: 0
+                maximum: 100
+                nullable: true
+                multipleOf: 0.01
+            required:
+            - skillId
+            - importance
           maxItems: 1000
-      required: [id, title, description, source, externalId, skills]
+      required:
+      - id
+      - title
+      - description
+      - source
+      - externalId
+      - skills
     Job:
       type: object
       additionalProperties: false
       properties:
-        id: {$ref: '#/components/schemas/Identifier'}
-        occupationId: {type: string, nullable: true, maxLength: 64}
-        requiredSkillId: {$ref: '#/components/schemas/Identifier'}
-        title: {type: string, minLength: 1, maxLength: 160}
-        requiredLevel: {type: integer, format: int32, minimum: 0, maximum: 100}
-        durationHours: {type: number, minimum: 0.01, maximum: 24, nullable: false, multipleOf: 0.01}
-        basePayMinor: {$ref: '#/components/schemas/Money'}
-        bonusCapMinor: {$ref: '#/components/schemas/Money'}
-        taskPlan: {type: integer, format: int32, minimum: 1, maximum: 2147483647}
-        extraEnergyPerHour: {type: number, minimum: 0, maximum: 100, nullable: false, multipleOf: 0.01}
-        mechanic: {type: string, enum: [WAREHOUSE]}
-      required: [id, occupationId, requiredSkillId, title, requiredLevel, durationHours, basePayMinor, bonusCapMinor,
-        taskPlan, extraEnergyPerHour, mechanic]
+        id:
+          $ref: '#/components/schemas/Identifier'
+        occupationId:
+          type: string
+          nullable: true
+          maxLength: 64
+        requiredSkillId:
+          $ref: '#/components/schemas/Identifier'
+        title:
+          type: string
+          minLength: 1
+          maxLength: 160
+        requiredLevel:
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 100
+        durationHours:
+          type: number
+          minimum: 0.01
+          maximum: 24
+          nullable: false
+          multipleOf: 0.01
+        basePayMinor:
+          $ref: '#/components/schemas/Money'
+        bonusCapMinor:
+          $ref: '#/components/schemas/Money'
+        taskPlan:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 2147483647
+        extraEnergyPerHour:
+          type: number
+          minimum: 0
+          maximum: 100
+          nullable: false
+          multipleOf: 0.01
+        mechanic:
+          type: string
+          enum:
+          - WAREHOUSE
+      required:
+      - id
+      - occupationId
+      - requiredSkillId
+      - title
+      - requiredLevel
+      - durationHours
+      - basePayMinor
+      - bonusCapMinor
+      - taskPlan
+      - extraEnergyPerHour
+      - mechanic
     InflationObservation:
       type: object
       additionalProperties: false
       properties:
-        id: {$ref: '#/components/schemas/Identifier'}
-        countryCode: {type: string, pattern: '^[A-Z]{3}(?![\s\S])'}
-        year: {type: integer, format: int32, minimum: 1900, maximum: 2100}
-        indicatorCode: {type: string, enum: [FP.CPI.TOTL.ZG]}
-        valuePercent: {type: number, minimum: -100, exclusiveMinimum: true, maximum: 999999.999999, multipleOf: 1.0e-06}
-        source: {type: string, enum: [WORLD_BANK, DEMO]}
-        fetchedAt: {type: string, format: date-time}
-      required: [id, countryCode, year, indicatorCode, valuePercent, source, fetchedAt]
+        id:
+          $ref: '#/components/schemas/Identifier'
+        countryCode:
+          type: string
+          pattern: ^[A-Z]{3}(?![\s\S])
+        year:
+          type: integer
+          format: int32
+          minimum: 1900
+          maximum: 2100
+        indicatorCode:
+          type: string
+          enum:
+          - FP.CPI.TOTL.ZG
+        valuePercent:
+          type: number
+          minimum: -100
+          exclusiveMinimum: true
+          maximum: 999999.999999
+          multipleOf: 1.0e-06
+        source:
+          type: string
+          enum:
+          - WORLD_BANK
+          - DEMO
+        fetchedAt:
+          type: string
+          format: date-time
+      required:
+      - id
+      - countryCode
+      - year
+      - indicatorCode
+      - valuePercent
+      - source
+      - fetchedAt
     CarBrand:
       type: object
       additionalProperties: false
       properties:
-        id: {$ref: '#/components/schemas/Identifier'}
-        name: {type: string, minLength: 1, maxLength: 100}
-        source: {type: string, enum: [CARS_BASE, DEMO]}
-        externalId: {type: string, nullable: true, maxLength: 64}
-      required: [id, name, source, externalId]
+        id:
+          $ref: '#/components/schemas/Identifier'
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        source:
+          type: string
+          enum:
+          - CARS_BASE
+          - DEMO
+        externalId:
+          type: string
+          nullable: true
+          maxLength: 64
+      required:
+      - id
+      - name
+      - source
+      - externalId
     CarSpecification:
       type: object
       additionalProperties: false
       properties:
-        massKg: {type: number, minimum: 0, maximum: 999999.99, nullable: true, exclusiveMinimum: true, multipleOf: 0.01}
-        powerKw: {type: number, minimum: 0, maximum: 999999.99, nullable: true, exclusiveMinimum: true, multipleOf: 0.01}
-        maxSpeedKmh: {type: number, minimum: 0, maximum: 9999.99, nullable: true, exclusiveMinimum: true, multipleOf: 0.01}
-        tankLiters: {type: number, minimum: 0, maximum: 9999.99, nullable: true, exclusiveMinimum: true, multipleOf: 0.01}
-        consumptionLPer100km: {type: number, minimum: 0, maximum: 9999.99, nullable: true, multipleOf: 0.01}
-      required: [massKg, powerKw, maxSpeedKmh, tankLiters, consumptionLPer100km]
+        massKg:
+          type: number
+          minimum: 0
+          maximum: 999999.99
+          nullable: true
+          exclusiveMinimum: true
+          multipleOf: 0.01
+        powerKw:
+          type: number
+          minimum: 0
+          maximum: 999999.99
+          nullable: true
+          exclusiveMinimum: true
+          multipleOf: 0.01
+        maxSpeedKmh:
+          type: number
+          minimum: 0
+          maximum: 9999.99
+          nullable: true
+          exclusiveMinimum: true
+          multipleOf: 0.01
+        tankLiters:
+          type: number
+          minimum: 0
+          maximum: 9999.99
+          nullable: true
+          exclusiveMinimum: true
+          multipleOf: 0.01
+        consumptionLPer100km:
+          type: number
+          minimum: 0
+          maximum: 9999.99
+          nullable: true
+          multipleOf: 0.01
+      required:
+      - massKg
+      - powerKw
+      - maxSpeedKmh
+      - tankLiters
+      - consumptionLPer100km
     CarBalance:
       type: object
       additionalProperties: false
       properties:
-        purchasePriceMinor: {type: integer, format: int64, minimum: 1, maximum: 9007199254740991}
-        raceMaxSpeedKmh: {type: number, minimum: 0.01, maximum: 9999.99, nullable: false, multipleOf: 0.01}
-        accelerationMps2: {type: number, minimum: 0.001, maximum: 999.999, nullable: false, multipleOf: 0.001}
-        handling: {type: number, minimum: 0.001, maximum: 1, nullable: false, multipleOf: 0.001}
-        tankLiters: {type: number, minimum: 0.01, maximum: 9999.99, nullable: false, multipleOf: 0.01}
-        consumptionLPer100km: {type: number, minimum: 0, maximum: 9999.99, nullable: false, multipleOf: 0.01}
-        repairPricePerPointMinor: {$ref: '#/components/schemas/Money'}
-      required: [purchasePriceMinor, raceMaxSpeedKmh, accelerationMps2, handling, tankLiters, consumptionLPer100km, repairPricePerPointMinor]
+        purchasePriceMinor:
+          type: integer
+          format: int64
+          minimum: 1
+          maximum: 9007199254740991
+        raceMaxSpeedKmh:
+          type: number
+          minimum: 0.01
+          maximum: 9999.99
+          nullable: false
+          multipleOf: 0.01
+        accelerationMps2:
+          type: number
+          minimum: 0.001
+          maximum: 999.999
+          nullable: false
+          multipleOf: 0.001
+        handling:
+          type: number
+          minimum: 0.001
+          maximum: 1
+          nullable: false
+          multipleOf: 0.001
+        tankLiters:
+          type: number
+          minimum: 0.01
+          maximum: 9999.99
+          nullable: false
+          multipleOf: 0.01
+        consumptionLPer100km:
+          type: number
+          minimum: 0
+          maximum: 9999.99
+          nullable: false
+          multipleOf: 0.01
+        repairPricePerPointMinor:
+          $ref: '#/components/schemas/Money'
+      required:
+      - purchasePriceMinor
+      - raceMaxSpeedKmh
+      - accelerationMps2
+      - handling
+      - tankLiters
+      - consumptionLPer100km
+      - repairPricePerPointMinor
     CarModel:
       type: object
       additionalProperties: false
       properties:
-        id: {$ref: '#/components/schemas/Identifier'}
-        brandId: {$ref: '#/components/schemas/Identifier'}
-        name: {type: string, minLength: 1, maxLength: 120}
-        variant: {type: string, minLength: 1, maxLength: 120}
-        modelYear: {type: integer, minimum: 1886, maximum: 2100, nullable: true}
-        source: {type: string, enum: [CARS_BASE, DEMO]}
-        externalId: {type: string, nullable: true, maxLength: 64}
-        specification: {$ref: '#/components/schemas/NullableCarSpecification'}
-        balance: {$ref: '#/components/schemas/CarBalance'}
-      required: [id, brandId, name, variant, modelYear, source, externalId, specification, balance]
+        id:
+          $ref: '#/components/schemas/Identifier'
+        brandId:
+          $ref: '#/components/schemas/Identifier'
+        name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        variant:
+          type: string
+          minLength: 1
+          maxLength: 120
+        modelYear:
+          type: integer
+          minimum: 1886
+          maximum: 2100
+          nullable: true
+        source:
+          type: string
+          enum:
+          - CARS_BASE
+          - DEMO
+        externalId:
+          type: string
+          nullable: true
+          maxLength: 64
+        specification:
+          $ref: '#/components/schemas/NullableCarSpecification'
+        balance:
+          $ref: '#/components/schemas/CarBalance'
+      required:
+      - id
+      - brandId
+      - name
+      - variant
+      - modelYear
+      - source
+      - externalId
+      - specification
+      - balance
     Track:
       type: object
       additionalProperties: false
       properties:
-        id: {$ref: '#/components/schemas/Identifier'}
-        title: {type: string, minLength: 1, maxLength: 160}
-        lengthM: {type: integer, format: int32, minimum: 1, maximum: 2147483647}
-        assetKey: {type: string, minLength: 1, maxLength: 120}
-        assetSha256: {type: string, pattern: '^[a-f0-9]{64}(?![\s\S])'}
-        layoutRevision: {type: integer, format: int32, minimum: 1, maximum: 2147483647}
-      required: [id, title, lengthM, assetKey, assetSha256, layoutRevision]
+        id:
+          $ref: '#/components/schemas/Identifier'
+        title:
+          type: string
+          minLength: 1
+          maxLength: 160
+        lengthM:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 2147483647
+        assetKey:
+          type: string
+          minLength: 1
+          maxLength: 120
+        assetSha256:
+          type: string
+          pattern: ^[a-f0-9]{64}(?![\s\S])
+        layoutRevision:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 2147483647
+      required:
+      - id
+      - title
+      - lengthM
+      - assetKey
+      - assetSha256
+      - layoutRevision
     RaceConfiguration:
       type: object
       additionalProperties: false
       properties:
-        id: {$ref: '#/components/schemas/Identifier'}
-        trackId: {$ref: '#/components/schemas/Identifier'}
-        title: {type: string, minLength: 1, maxLength: 160}
-        laps: {type: integer, format: int32, minimum: 1, maximum: 100}
-        timeLimitSeconds: {type: integer, format: int32, minimum: 1, maximum: 2147483647}
-        entryFeeMinor: {$ref: '#/components/schemas/Money'}
-        finishRewardMinor: {$ref: '#/components/schemas/Money'}
-        requiredCarCondition: {type: integer, format: int32, minimum: 0, maximum: 100}
-      required: [id, trackId, title, laps, timeLimitSeconds, entryFeeMinor, finishRewardMinor, requiredCarCondition]
+        id:
+          $ref: '#/components/schemas/Identifier'
+        trackId:
+          $ref: '#/components/schemas/Identifier'
+        title:
+          type: string
+          minLength: 1
+          maxLength: 160
+        laps:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 100
+        timeLimitSeconds:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 2147483647
+        entryFeeMinor:
+          $ref: '#/components/schemas/Money'
+        finishRewardMinor:
+          $ref: '#/components/schemas/Money'
+        requiredCarCondition:
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 100
+      required:
+      - id
+      - trackId
+      - title
+      - laps
+      - timeLimitSeconds
+      - entryFeeMinor
+      - finishRewardMinor
+      - requiredCarCondition
     Manifest:
       type: object
       additionalProperties: false
       properties:
-        catalogVersion: {$ref: '#/components/schemas/CatalogVersion'}
-        schemaVersion: {type: string, enum: ['1']}
-        publishedAt: {type: string, format: date-time}
-        contentSha256: {type: string, pattern: '^[a-f0-9]{64}(?![\s\S])'}
+        catalogVersion:
+          $ref: '#/components/schemas/CatalogVersion'
+        schemaVersion:
+          type: string
+          enum:
+          - '1'
+        publishedAt:
+          type: string
+          format: date-time
+        contentSha256:
+          type: string
+          pattern: ^[a-f0-9]{64}(?![\s\S])
         resources:
           type: array
-          items: {type: string, enum: [occupations, skills, jobs, inflation, car-brands, car-models, tracks, race-configurations]}
+          items:
+            type: string
+            enum:
+            - occupations
+            - skills
+            - jobs
+            - inflation
+            - car-brands
+            - car-models
+            - tracks
+            - race-configurations
           minItems: 8
           maxItems: 8
           uniqueItems: true
-        sources: {type: array, minItems: 8, maxItems: 8, items: {$ref: '#/components/schemas/SourceMetadata'}, description: Одна
-            запись на ресурс; уникальность проверяется при публикации.}
-      required: [catalogVersion, schemaVersion, publishedAt, contentSha256, resources, sources]
+        sources:
+          type: array
+          minItems: 8
+          maxItems: 8
+          items:
+            $ref: '#/components/schemas/SourceMetadata'
+          description: Одна запись на ресурс; уникальность проверяется при публикации.
+      required:
+      - catalogVersion
+      - schemaVersion
+      - publishedAt
+      - contentSha256
+      - resources
+      - sources
     DraftCreate:
       type: object
       additionalProperties: false
       properties:
-        version: {$ref: '#/components/schemas/CatalogVersion'}
-        baseVersion: {$ref: '#/components/schemas/CatalogVersion'}
-      required: [version, baseVersion]
+        version:
+          $ref: '#/components/schemas/CatalogVersion'
+        baseVersion:
+          $ref: '#/components/schemas/CatalogVersion'
+      required:
+      - version
+      - baseVersion
     Draft:
       type: object
       additionalProperties: false
       properties:
-        catalogVersion: {$ref: '#/components/schemas/CatalogVersion'}
-        status: {type: string, enum: [DRAFT, PUBLISHED]}
-        revision: {type: integer, format: int64, minimum: 1}
-      required: [catalogVersion, status, revision]
+        catalogVersion:
+          $ref: '#/components/schemas/CatalogVersion'
+        status:
+          type: string
+          enum:
+          - DRAFT
+          - PUBLISHED
+        revision:
+          type: integer
+          format: int64
+          minimum: 1
+      required:
+      - catalogVersion
+      - status
+      - revision
     PageMeta:
       type: object
       additionalProperties: false
       properties:
-        catalogVersion: {$ref: '#/components/schemas/CatalogVersion'}
-        page: {type: integer, format: int32, minimum: 1, maximum: 1000000}
-        pageSize: {type: integer, format: int32, minimum: 1, maximum: 100}
-        total: {type: integer, format: int32, minimum: 0, maximum: 2147483647}
-        stale: {type: boolean, description: Истёк TTL хотя бы одного источника снимка.}
-        fetchedAt: {type: string, format: date-time, description: Минимальный fetchedAt источников снимка.}
-      required: [catalogVersion, page, pageSize, total, stale, fetchedAt]
+        catalogVersion:
+          $ref: '#/components/schemas/CatalogVersion'
+        page:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 1000000
+        pageSize:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 100
+        total:
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 2147483647
+        stale:
+          type: boolean
+          description: Истёк TTL хотя бы одного источника снимка.
+        fetchedAt:
+          type: string
+          format: date-time
+          description: Минимальный fetchedAt источников снимка.
+      required:
+      - catalogVersion
+      - page
+      - pageSize
+      - total
+      - stale
+      - fetchedAt
     Error:
       type: object
       additionalProperties: false
@@ -612,392 +2275,560 @@ components:
           type: object
           additionalProperties: false
           properties:
-            code: {type: string, minLength: 1, maxLength: 64}
-            message: {type: string, minLength: 1, maxLength: 300}
-            requestId: {type: string, format: uuid}
+            code:
+              type: string
+              minLength: 1
+              maxLength: 64
+            message:
+              type: string
+              minLength: 1
+              maxLength: 300
+            requestId:
+              type: string
+              format: uuid
             details:
               type: array
               items:
                 type: object
                 additionalProperties: false
                 properties:
-                  field: {type: string, minLength: 1, maxLength: 120}
-                  message: {type: string, minLength: 1, maxLength: 300}
-                required: [field, message]
+                  field:
+                    type: string
+                    minLength: 1
+                    maxLength: 120
+                  message:
+                    type: string
+                    minLength: 1
+                    maxLength: 300
+                required:
+                - field
+                - message
               maxItems: 100
-          required: [code, message, requestId, details]
-      required: [error]
+          required:
+          - code
+          - message
+          - requestId
+          - details
+      required:
+      - error
     SkillPage:
       type: object
       additionalProperties: false
       properties:
-        data: {type: array, items: {$ref: '#/components/schemas/Skill'}, maxItems: 100}
-        meta: {$ref: '#/components/schemas/PageMeta'}
-      required: [data, meta]
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Skill'
+          maxItems: 100
+        meta:
+          $ref: '#/components/schemas/PageMeta'
+      required:
+      - data
+      - meta
     SkillEnvelope:
       type: object
       additionalProperties: false
       properties:
-        data: {$ref: '#/components/schemas/Skill'}
-        catalogVersion: {$ref: '#/components/schemas/CatalogVersion'}
-      required: [data, catalogVersion]
+        data:
+          $ref: '#/components/schemas/Skill'
+        catalogVersion:
+          $ref: '#/components/schemas/CatalogVersion'
+      required:
+      - data
+      - catalogVersion
     OccupationPage:
       type: object
       additionalProperties: false
       properties:
-        data: {type: array, items: {$ref: '#/components/schemas/Occupation'}, maxItems: 100}
-        meta: {$ref: '#/components/schemas/PageMeta'}
-      required: [data, meta]
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Occupation'
+          maxItems: 100
+        meta:
+          $ref: '#/components/schemas/PageMeta'
+      required:
+      - data
+      - meta
     OccupationEnvelope:
       type: object
       additionalProperties: false
       properties:
-        data: {$ref: '#/components/schemas/Occupation'}
-        catalogVersion: {$ref: '#/components/schemas/CatalogVersion'}
-      required: [data, catalogVersion]
+        data:
+          $ref: '#/components/schemas/Occupation'
+        catalogVersion:
+          $ref: '#/components/schemas/CatalogVersion'
+      required:
+      - data
+      - catalogVersion
     JobPage:
       type: object
       additionalProperties: false
       properties:
-        data: {type: array, items: {$ref: '#/components/schemas/Job'}, maxItems: 100}
-        meta: {$ref: '#/components/schemas/PageMeta'}
-      required: [data, meta]
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Job'
+          maxItems: 100
+        meta:
+          $ref: '#/components/schemas/PageMeta'
+      required:
+      - data
+      - meta
     JobEnvelope:
       type: object
       additionalProperties: false
       properties:
-        data: {$ref: '#/components/schemas/Job'}
-        catalogVersion: {$ref: '#/components/schemas/CatalogVersion'}
-      required: [data, catalogVersion]
+        data:
+          $ref: '#/components/schemas/Job'
+        catalogVersion:
+          $ref: '#/components/schemas/CatalogVersion'
+      required:
+      - data
+      - catalogVersion
     InflationObservationPage:
       type: object
       additionalProperties: false
       properties:
-        data: {type: array, items: {$ref: '#/components/schemas/InflationObservation'}, maxItems: 100}
-        meta: {$ref: '#/components/schemas/PageMeta'}
-      required: [data, meta]
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/InflationObservation'
+          maxItems: 100
+        meta:
+          $ref: '#/components/schemas/PageMeta'
+      required:
+      - data
+      - meta
     InflationObservationEnvelope:
       type: object
       additionalProperties: false
       properties:
-        data: {$ref: '#/components/schemas/InflationObservation'}
-        catalogVersion: {$ref: '#/components/schemas/CatalogVersion'}
-      required: [data, catalogVersion]
+        data:
+          $ref: '#/components/schemas/InflationObservation'
+        catalogVersion:
+          $ref: '#/components/schemas/CatalogVersion'
+      required:
+      - data
+      - catalogVersion
     CarBrandPage:
       type: object
       additionalProperties: false
       properties:
-        data: {type: array, items: {$ref: '#/components/schemas/CarBrand'}, maxItems: 100}
-        meta: {$ref: '#/components/schemas/PageMeta'}
-      required: [data, meta]
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/CarBrand'
+          maxItems: 100
+        meta:
+          $ref: '#/components/schemas/PageMeta'
+      required:
+      - data
+      - meta
     CarBrandEnvelope:
       type: object
       additionalProperties: false
       properties:
-        data: {$ref: '#/components/schemas/CarBrand'}
-        catalogVersion: {$ref: '#/components/schemas/CatalogVersion'}
-      required: [data, catalogVersion]
+        data:
+          $ref: '#/components/schemas/CarBrand'
+        catalogVersion:
+          $ref: '#/components/schemas/CatalogVersion'
+      required:
+      - data
+      - catalogVersion
     CarModelPage:
       type: object
       additionalProperties: false
       properties:
-        data: {type: array, items: {$ref: '#/components/schemas/CarModel'}, maxItems: 100}
-        meta: {$ref: '#/components/schemas/PageMeta'}
-      required: [data, meta]
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/CarModel'
+          maxItems: 100
+        meta:
+          $ref: '#/components/schemas/PageMeta'
+      required:
+      - data
+      - meta
     CarModelEnvelope:
       type: object
       additionalProperties: false
       properties:
-        data: {$ref: '#/components/schemas/CarModel'}
-        catalogVersion: {$ref: '#/components/schemas/CatalogVersion'}
-      required: [data, catalogVersion]
+        data:
+          $ref: '#/components/schemas/CarModel'
+        catalogVersion:
+          $ref: '#/components/schemas/CatalogVersion'
+      required:
+      - data
+      - catalogVersion
     TrackPage:
       type: object
       additionalProperties: false
       properties:
-        data: {type: array, items: {$ref: '#/components/schemas/Track'}, maxItems: 100}
-        meta: {$ref: '#/components/schemas/PageMeta'}
-      required: [data, meta]
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Track'
+          maxItems: 100
+        meta:
+          $ref: '#/components/schemas/PageMeta'
+      required:
+      - data
+      - meta
     TrackEnvelope:
       type: object
       additionalProperties: false
       properties:
-        data: {$ref: '#/components/schemas/Track'}
-        catalogVersion: {$ref: '#/components/schemas/CatalogVersion'}
-      required: [data, catalogVersion]
+        data:
+          $ref: '#/components/schemas/Track'
+        catalogVersion:
+          $ref: '#/components/schemas/CatalogVersion'
+      required:
+      - data
+      - catalogVersion
     RaceConfigurationPage:
       type: object
       additionalProperties: false
       properties:
-        data: {type: array, items: {$ref: '#/components/schemas/RaceConfiguration'}, maxItems: 100}
-        meta: {$ref: '#/components/schemas/PageMeta'}
-      required: [data, meta]
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/RaceConfiguration'
+          maxItems: 100
+        meta:
+          $ref: '#/components/schemas/PageMeta'
+      required:
+      - data
+      - meta
     RaceConfigurationEnvelope:
       type: object
       additionalProperties: false
       properties:
-        data: {$ref: '#/components/schemas/RaceConfiguration'}
-        catalogVersion: {$ref: '#/components/schemas/CatalogVersion'}
-      required: [data, catalogVersion]
+        data:
+          $ref: '#/components/schemas/RaceConfiguration'
+        catalogVersion:
+          $ref: '#/components/schemas/CatalogVersion'
+      required:
+      - data
+      - catalogVersion
     SourceMetadata:
       type: object
       additionalProperties: false
-      required: [resource, provider, fetchedAt, sourceVersion, sha256]
+      required:
+      - resource
+      - provider
+      - fetchedAt
+      - sourceVersion
+      - sha256
       properties:
-        resource: {type: string, enum: [occupations, skills, jobs, inflation, car-brands, car-models, tracks, race-configurations]}
-        provider: {type: string, enum: [ONET, WORLD_BANK, CARS_BASE, DEMO]}
-        fetchedAt: {type: string, format: date-time}
-        sourceVersion: {type: string, nullable: true, maxLength: 120}
-        sha256: {type: string, pattern: '^[a-f0-9]{64}(?![\s\S])'}
+        resource:
+          type: string
+          enum:
+          - occupations
+          - skills
+          - jobs
+          - inflation
+          - car-brands
+          - car-models
+          - tracks
+          - race-configurations
+        provider:
+          type: string
+          enum:
+          - ONET
+          - WORLD_BANK
+          - CARS_BASE
+          - DEMO
+        fetchedAt:
+          type: string
+          format: date-time
+        sourceVersion:
+          type: string
+          nullable: true
+          maxLength: 120
+        sha256:
+          type: string
+          pattern: ^[a-f0-9]{64}(?![\s\S])
     NullableCarSpecification:
       type: object
       additionalProperties: false
       properties:
-        massKg: {type: number, minimum: 0, maximum: 100000, nullable: true, exclusiveMinimum: true}
-        powerKw: {type: number, minimum: 0, maximum: 100000, nullable: true, exclusiveMinimum: true}
-        maxSpeedKmh: {type: number, minimum: 0, maximum: 100000, nullable: true, exclusiveMinimum: true}
-        tankLiters: {type: number, minimum: 0, maximum: 100000, nullable: true, exclusiveMinimum: true}
-        consumptionLPer100km: {type: number, minimum: 0, maximum: 100000, nullable: true}
-      required: [massKg, powerKw, maxSpeedKmh, tankLiters, consumptionLPer100km]
+        massKg:
+          type: number
+          minimum: 0
+          maximum: 100000
+          nullable: true
+          exclusiveMinimum: true
+        powerKw:
+          type: number
+          minimum: 0
+          maximum: 100000
+          nullable: true
+          exclusiveMinimum: true
+        maxSpeedKmh:
+          type: number
+          minimum: 0
+          maximum: 100000
+          nullable: true
+          exclusiveMinimum: true
+        tankLiters:
+          type: number
+          minimum: 0
+          maximum: 100000
+          nullable: true
+          exclusiveMinimum: true
+        consumptionLPer100km:
+          type: number
+          minimum: 0
+          maximum: 100000
+          nullable: true
+      required:
+      - massKg
+      - powerKw
+      - maxSpeedKmh
+      - tankLiters
+      - consumptionLPer100km
       nullable: true
-    Identifier: {type: string, pattern: '^[a-z0-9][a-z0-9._-]{0,63}(?![\s\S])', maxLength: 64}
-    CatalogVersion: {type: string, pattern: '^[a-z0-9][a-z0-9._-]{0,31}(?![\s\S])', maxLength: 32}
-    Money: {type: integer, format: int64, minimum: 0, maximum: 9007199254740991}
-  parameters:
-    Version:
-      name: catalogVersion
-      in: query
-      required: true
-      schema: {$ref: '#/components/schemas/CatalogVersion'}
-      description: Опубликованная версия из /catalog.
-      example: demo-1
-    Page:
-      name: page
-      in: query
-      required: false
-      schema: {type: integer, format: int32, minimum: 1, maximum: 1000000, default: 1}
-      description: Номер страницы, начиная с 1.
-      example: 1
-    PageSize:
-      name: pageSize
-      in: query
-      required: false
-      schema: {type: integer, format: int32, minimum: 1, maximum: 100, default: 20}
-      description: Размер страницы.
-      example: 20
-    Id:
-      name: id
-      in: path
-      required: true
-      schema: {$ref: '#/components/schemas/Identifier'}
-      description: Стабильный идентификатор.
-      example: logistics
-    DraftVersion:
-      name: version
-      in: path
-      required: true
-      schema: {$ref: '#/components/schemas/CatalogVersion'}
-      description: Версия DRAFT; PUBLISHED изменять нельзя.
-      example: demo-2
-    IfMatch:
-      name: If-Match
-      in: header
-      required: true
-      schema: {type: string, pattern: '^"rev-[1-9][0-9]*"(?![\s\S])'}
-      description: ETag черновика. Отсутствие/форма — 400, устаревшая ревизия — 412.
-      example: '"rev-1"'
-    Country:
-      name: country
-      in: query
-      required: true
-      schema: {type: string, pattern: '^[A-Z]{3}(?![\s\S])'}
-    YearFrom:
-      name: yearFrom
-      in: query
-      required: true
-      schema: {type: integer, format: int32, minimum: 1900, maximum: 2100}
-    YearTo:
-      name: yearTo
-      in: query
-      required: true
-      schema: {type: integer, format: int32, minimum: 1900, maximum: 2100}
-    BrandId:
-      name: brandId
-      in: query
-      required: false
-      schema: {$ref: '#/components/schemas/Identifier'}
-    TrackId:
-      name: trackId
-      in: query
-      required: false
-      schema: {$ref: '#/components/schemas/Identifier'}
-  responses:
-    BadRequest:
-      description: Некорректный запрос или If-Match.
-      content:
-        application/json: {schema: {$ref: '#/components/schemas/Error'}}
-    Unauthorized:
-      description: Отсутствующий или неверный Bearer.
-      content:
-        application/json: {schema: {$ref: '#/components/schemas/Error'}}
-      headers:
-        WWW-Authenticate:
-          schema: {type: string}
-    Forbidden:
-      description: Недостаточно прав catalog:write.
-      content:
-        application/json: {schema: {$ref: '#/components/schemas/Error'}}
-    NotFound:
-      description: Версия или сущность не найдена.
-      content:
-        application/json: {schema: {$ref: '#/components/schemas/Error'}}
-    MethodNotAllowed:
-      description: HTTP 405 — метод не поддерживается для существующего маршрута; error.code = METHODNOTALLOWED.
-      headers:
-        Allow:
-          description: Разрешённые для маршрута HTTP-методы через запятую.
-          schema: {type: string}
-      content:
-        application/json: {schema: {$ref: '#/components/schemas/Error'}}
-    Conflict:
-      description: Конфликт UNIQUE/FK или изменение PUBLISHED.
-      content:
-        application/json: {schema: {$ref: '#/components/schemas/Error'}}
-    PreconditionFailed:
-      description: Устаревшая ревизия If-Match.
-      content:
-        application/json: {schema: {$ref: '#/components/schemas/Error'}}
-    ValidationError:
-      description: Нарушены ограничения данных.
-      content:
-        application/json: {schema: {$ref: '#/components/schemas/Error'}}
-    RateLimited:
-      description: Превышен лимит запросов.
-      content:
-        application/json: {schema: {$ref: '#/components/schemas/Error'}}
-      headers:
-        Retry-After:
-          schema: {type: integer, format: int32, minimum: 1, maximum: 86400}
-          description: Задержка в секундах
-    InternalError:
-      description: Внутренняя ошибка.
-      content:
-        application/json: {schema: {$ref: '#/components/schemas/Error'}}
-    Unavailable:
-      description: Нет доступного каталога или недоступна БД.
-      content:
-        application/json: {schema: {$ref: '#/components/schemas/Error'}}
-      headers:
-        Retry-After:
-          schema: {type: integer, format: int32, minimum: 1, maximum: 86400}
-          description: Задержка в секундах
-    Catalog:
-      description: Успешный ответ.
-      content:
-        application/json: {schema: {$ref: '#/components/schemas/Manifest'}}
-    DraftSkill:
-      description: Успешный ответ.
-      content:
-        application/json: {schema: {$ref: '#/components/schemas/SkillEnvelope'}}
-      headers:
-        ETag: {$ref: '#/components/headers/ETag'}
-  securitySchemes:
-    AdminBearer: {type: http, scheme: bearer, bearerFormat: opaque, description: 'Отдельный административный токен 256
-        бит из серверного окружения; права catalog:write. Не выдаётся Android. Provisioning/ротация вне публичного API;
-        нет /login игрока. HTTPS, хеш токена на сервере, отзыв заменой/отключением записи allowlist в окружении. Не ключ
-        O*NET.'}
-  headers:
-    ETag:
-      description: Ревизия черновика увеличивается после записи; перечитайте после 412.
-      schema: {type: string}
-    Location:
-      description: Путь созданного ресурса.
-      schema: {type: string}
-  examples:
-    SkillList:
-      summary: Навыки
-      value:
+    Identifier:
+      type: string
+      pattern: ^[a-z0-9][a-z0-9._-]{0,63}(?![\s\S])
+      maxLength: 64
+    CatalogVersion:
+      type: string
+      pattern: ^[a-z0-9][a-z0-9._-]{0,31}(?![\s\S])
+      maxLength: 32
+    Money:
+      type: integer
+      format: int64
+      minimum: 0
+      maximum: 9007199254740991
+    ListArgs:
+      type: object
+      properties:
+        resource:
+          type: string
+          enum:
+          - occupations
+          - skills
+          - jobs
+          - inflation
+          - car-brands
+          - car-models
+          - tracks
+          - race-configurations
+        catalogVersion: &id023
+          $ref: '#/components/schemas/CatalogVersion'
+        page:
+          type: integer
+          minimum: 1
+          maximum: 1000000
+          default: 1
+        pageSize:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+        country:
+          type: string
+          pattern: ^[A-Z]{3}$
+        yearFrom:
+          type: integer
+          minimum: 1900
+          maximum: 2100
+        yearTo:
+          type: integer
+          minimum: 1900
+          maximum: 2100
+        brandId: &id022
+          $ref: '#/components/schemas/Identifier'
+        trackId: *id022
+      additionalProperties: false
+      required:
+      - resource
+      - catalogVersion
+    ItemArgs:
+      type: object
+      properties:
+        resource:
+          type: string
+          enum:
+          - occupations
+          - car-models
+          - tracks
+        catalogVersion: *id023
+        id: *id022
+      additionalProperties: false
+      required:
+      - resource
+      - catalogVersion
+      - id
+    DraftListArgs:
+      type: object
+      properties:
+        catalogVersion: *id023
+        page:
+          type: integer
+          minimum: 1
+          maximum: 1000000
+        pageSize:
+          type: integer
+          minimum: 1
+          maximum: 100
+      additionalProperties: false
+      required:
+      - catalogVersion
+    DraftItemArgs:
+      type: object
+      properties:
+        catalogVersion: *id023
+        id: *id022
+      additionalProperties: false
+      required:
+      - catalogVersion
+      - id
+    CreateDraftArgs:
+      type: object
+      properties:
+        version: *id023
+        baseVersion: *id023
+      additionalProperties: false
+      required:
+      - version
+      - baseVersion
+    CreateSkillArgs:
+      type: object
+      properties:
+        version: *id023
+        ifMatch: &id024
+          type: string
+          pattern: ^"rev-[1-9][0-9]*"$
+          example: '"rev-2"'
+        body:
+          $ref: '#/components/schemas/SkillCreate'
+      additionalProperties: false
+      required:
+      - version
+      - ifMatch
+      - body
+    UpdateSkillArgs:
+      type: object
+      properties:
+        version: *id023
+        id: *id022
+        ifMatch: *id024
+        body:
+          $ref: '#/components/schemas/SkillInput'
+      additionalProperties: false
+      required:
+      - version
+      - id
+      - ifMatch
+      - body
+    DeleteSkillArgs:
+      type: object
+      properties:
+        version: *id023
+        id: *id022
+        ifMatch: *id024
+      additionalProperties: false
+      required:
+      - version
+      - id
+      - ifMatch
+    PublishArgs:
+      type: object
+      properties:
+        version: *id023
+        ifMatch: *id024
+      additionalProperties: false
+      required:
+      - version
+      - ifMatch
+    DeleteReceipt:
+      type: object
+      properties:
+        deleted:
+          type: boolean
+          enum:
+          - true
+        id: *id022
+        catalogVersion: *id023
+      additionalProperties: false
+      required:
+      - deleted
+      - id
+      - catalogVersion
+    SaveArgs:
+      type: object
+      properties:
+        snapshot:
+          type: object
+          additionalProperties: true
+          description: JSON snapshot, at most 256 KiB serialized
+        expectedRevision:
+          type: integer
+          minimum: 0
+          maximum: 2147483647
+      additionalProperties: false
+      required:
+      - snapshot
+      - expectedRevision
+    UserSave:
+      type: object
+      properties:
+        user_id:
+          type: string
+          format: uuid
+        snapshot:
+          type: object
+          additionalProperties: true
+        revision:
+          type: integer
+          minimum: 1
+        updated_at:
+          type: string
+          format: date-time
+      additionalProperties: false
+      required:
+      - user_id
+      - snapshot
+      - revision
+      - updated_at
+    PostgrestError:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          nullable: true
+        hint:
+          nullable: true
+      required:
+      - code
+      - message
+    ProviderEnvelope:
+      type: object
+      required:
+      - provider
+      - fromCache
+      - stale
+      - data
+      properties:
+        provider:
+          type: string
+          enum:
+          - WORLD_BANK
+          - ONET
+          - CARS_BASE
+        fromCache:
+          type: boolean
+        stale:
+          type: boolean
         data:
-          - id: logistics
-            code: logistics
-            title: Логистика
-            description: Учебный навык склада
-            source: DEMO
-            externalId: null
-        meta:
-          catalogVersion: demo-1
-          page: 1
-          pageSize: 20
-          total: 1
-          stale: false
-          fetchedAt: '2026-11-01T09:00:00Z'
-    InflationList:
-      summary: Историческая инфляция
-      value:
-        data:
-          - id: demo-rus-2020
-            countryCode: RUS
-            year: 2020
-            indicatorCode: FP.CPI.TOTL.ZG
-            valuePercent: 5
-            source: DEMO
-            fetchedAt: '2026-11-01T09:00:00Z'
-        meta:
-          catalogVersion: demo-1
-          page: 1
-          pageSize: 20
-          total: 1
-          stale: false
-          fetchedAt: '2026-11-01T09:00:00Z'
-    CarModelCard:
-      summary: Модель автомобиля по id
-      value:
-        data:
-          id: city-hatch
-          brandId: demo
-          name: Городской хэтчбек
-          variant: Учебный вариант
-          modelYear: null
-          source: DEMO
-          externalId: null
-          specification: null
-          balance:
-            purchasePriceMinor: 6000
-            raceMaxSpeedKmh: 140
-            accelerationMps2: 3
-            handling: 0.7
-            tankLiters: 40
-            consumptionLPer100km: 6
-            repairPricePerPointMinor: 5
-        catalogVersion: demo-1
-    CreatedDraft:
-      summary: Создать черновик из опубликованной версии
-      value:
-        catalogVersion: demo-2
-        status: DRAFT
-        revision: 1
-    NewDraft:
-      summary: Тело запроса
-      value:
-        version: demo-2
-        baseVersion: demo-1
-    CreatedSkill:
-      summary: Добавить навык в черновик
-      value:
-        data:
-          id: safe-driving
-          code: safe-driving
-          title: Безопасное вождение
-          description: Проектный справочный навык
-          source: DEMO
-          externalId: null
-        catalogVersion: demo-2
-    NewSkill:
-      summary: Тело запроса
-      value:
-        id: safe-driving
-        code: safe-driving
-        title: Безопасное вождение
-        description: Проектный справочный навык
-        source: DEMO
-        externalId: null
+          oneOf:
+          - type: object
+            additionalProperties: true
+          - type: array
+            items: {}

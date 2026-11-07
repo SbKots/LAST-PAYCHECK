@@ -1,0 +1,13 @@
+project_id = "last-paycheck"
+[api]
+enabled = true
+schemas = ["lastpay_api"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+[functions.providers]
+# Validate every user JWT through Auth /user inside the handler. Supports asymmetric JWTs.
+# This disables only the legacy gateway verifier, not application authentication.
+verify_jwt = false
+[functions.catalog]
+# Public published-catalog manifest; the handler calls Data API with an anon/public key only.
+verify_jwt = false

@@ -26,18 +26,19 @@
 
 ## Внешние API
 
-- **O*NET Web Services** — справочник профессий и профессиональных навыков
-- **World Bank Indicators API** — исторические показатели инфляции для экономических сценариев
-- **Cars Base** — марки и модели для будущей автомобильной системы
+- **O*NET Web Services** — справочник профессий и профессиональных навыков.
+- **World Bank Indicators API** — исторические показатели инфляции для экономических сценариев.
+- **Cars Base** — марки и модели для будущей автомобильной системы.
 
 ## Технологии и архитектура
 
 - **Android:** Kotlin, Jetpack Compose, Material 3; Compose Canvas для 2D-мини-игр.
 - **Архитектура:** Clean Architecture (`domain`, `data`, `presentation`), MVVM, Hilt, Coroutines и StateFlow.
 - **Данные:** Retrofit/OkHttp, Room и DataStore.
-- **Сервер:** Kotlin Ktor и PostgreSQL.
+- **Сервер:** Supabase (PostgreSQL, Auth, Data API/RPC и Edge Functions).
+- **Серверное API:** игровые справочники, пользовательские сохранения, разграничение прав доступа и интеграция с внешними сервисами.
 - **Аппаратные функции:** акселерометр для управления грузом в мини-игре склада и позже — автомобилем; вибрация для обратной связи. Предусмотрено сенсорное управление без датчика.
-- **Качество:** JUnit, MockK, Kover, KDoc; Gradle Kotlin DSL и Version Catalog.
+- **Качество:** JUnit, MockK, Kover, KDoc; Gradle Kotlin DSL и Version Catalog. Для серверной части — Deno, PostgreSQL и автоматизированные тесты GitHub Actions.
 
 ## Дизайн-система
 
@@ -48,5 +49,3 @@
 [**Открыть кликабельный прототип**](https://www.figma.com/proto/oOHCUZt978tpolEvQ53YtG/Untitled?node-id=2-25953&starting-point-node-id=2-25953&scaling=scale-down&content-scaling=fixed)
 
 Макеты интерфейса представлены в **светлой и тёмной темах**, в портретной и альбомной ориентациях для смартфонов. Для автосалона также добавлены планшетные варианты.
-
-

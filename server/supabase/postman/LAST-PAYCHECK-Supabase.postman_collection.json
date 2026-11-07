@@ -1,0 +1,2274 @@
+{
+  "info": {
+    "name": "LAST PAYCHECK Supabase backend",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "24 migrated operations, positive and negative. Run only on an isolated test project. Provider successes require controlled fixtures or configured live providers."
+  },
+  "item": [
+    {
+      "name": "OP-01 success get_catalog",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/rest/v1/rpc/get_catalog",
+        "header": [
+          {
+            "key": "apikey",
+            "value": "{{publicKey}}"
+          },
+          {
+            "key": "Content-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Accept-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"args\": {}}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('JSON Content-Type', () => pm.expect(pm.response.headers.get('Content-Type')).to.match(/^application\\/json/i));",
+              "pm.test('Response body', () => pm.expect(body).to.be.an('object'));",
+              "const etag=pm.response.headers.get('ETag'); if(etag) pm.collectionVariables.set('etag',JSON.stringify(etag).slice(1,-1));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "OP-02 success list_catalog",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/rest/v1/rpc/list_catalog",
+        "header": [
+          {
+            "key": "apikey",
+            "value": "{{publicKey}}"
+          },
+          {
+            "key": "Content-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Accept-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"args\": {\"resource\": \"occupations\", \"catalogVersion\": \"demo-1\"}}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('JSON Content-Type', () => pm.expect(pm.response.headers.get('Content-Type')).to.match(/^application\\/json/i));",
+              "pm.test('Response body', () => pm.expect(body).to.be.an('object'));",
+              "const etag=pm.response.headers.get('ETag'); if(etag) pm.collectionVariables.set('etag',JSON.stringify(etag).slice(1,-1));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "OP-03 success list_catalog",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/rest/v1/rpc/list_catalog",
+        "header": [
+          {
+            "key": "apikey",
+            "value": "{{publicKey}}"
+          },
+          {
+            "key": "Content-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Accept-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"args\": {\"resource\": \"skills\", \"catalogVersion\": \"demo-1\"}}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('JSON Content-Type', () => pm.expect(pm.response.headers.get('Content-Type')).to.match(/^application\\/json/i));",
+              "pm.test('Response body', () => pm.expect(body).to.be.an('object'));",
+              "const etag=pm.response.headers.get('ETag'); if(etag) pm.collectionVariables.set('etag',JSON.stringify(etag).slice(1,-1));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "OP-04 success list_catalog",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/rest/v1/rpc/list_catalog",
+        "header": [
+          {
+            "key": "apikey",
+            "value": "{{publicKey}}"
+          },
+          {
+            "key": "Content-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Accept-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"args\": {\"resource\": \"jobs\", \"catalogVersion\": \"demo-1\"}}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('JSON Content-Type', () => pm.expect(pm.response.headers.get('Content-Type')).to.match(/^application\\/json/i));",
+              "pm.test('Response body', () => pm.expect(body).to.be.an('object'));",
+              "const etag=pm.response.headers.get('ETag'); if(etag) pm.collectionVariables.set('etag',JSON.stringify(etag).slice(1,-1));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "OP-05 success list_catalog",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/rest/v1/rpc/list_catalog",
+        "header": [
+          {
+            "key": "apikey",
+            "value": "{{publicKey}}"
+          },
+          {
+            "key": "Content-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Accept-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"args\": {\"resource\": \"inflation\", \"catalogVersion\": \"demo-1\", \"country\": \"RUS\", \"yearFrom\": 2020, \"yearTo\": 2020}}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('JSON Content-Type', () => pm.expect(pm.response.headers.get('Content-Type')).to.match(/^application\\/json/i));",
+              "pm.test('Response body', () => pm.expect(body).to.be.an('object'));",
+              "const etag=pm.response.headers.get('ETag'); if(etag) pm.collectionVariables.set('etag',JSON.stringify(etag).slice(1,-1));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "OP-06 success list_catalog",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/rest/v1/rpc/list_catalog",
+        "header": [
+          {
+            "key": "apikey",
+            "value": "{{publicKey}}"
+          },
+          {
+            "key": "Content-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Accept-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"args\": {\"resource\": \"car-brands\", \"catalogVersion\": \"demo-1\"}}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('JSON Content-Type', () => pm.expect(pm.response.headers.get('Content-Type')).to.match(/^application\\/json/i));",
+              "pm.test('Response body', () => pm.expect(body).to.be.an('object'));",
+              "const etag=pm.response.headers.get('ETag'); if(etag) pm.collectionVariables.set('etag',JSON.stringify(etag).slice(1,-1));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "OP-07 success list_catalog",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/rest/v1/rpc/list_catalog",
+        "header": [
+          {
+            "key": "apikey",
+            "value": "{{publicKey}}"
+          },
+          {
+            "key": "Content-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Accept-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"args\": {\"resource\": \"car-models\", \"catalogVersion\": \"demo-1\"}}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('JSON Content-Type', () => pm.expect(pm.response.headers.get('Content-Type')).to.match(/^application\\/json/i));",
+              "pm.test('Response body', () => pm.expect(body).to.be.an('object'));",
+              "const etag=pm.response.headers.get('ETag'); if(etag) pm.collectionVariables.set('etag',JSON.stringify(etag).slice(1,-1));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "OP-08 success list_catalog",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/rest/v1/rpc/list_catalog",
+        "header": [
+          {
+            "key": "apikey",
+            "value": "{{publicKey}}"
+          },
+          {
+            "key": "Content-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Accept-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"args\": {\"resource\": \"tracks\", \"catalogVersion\": \"demo-1\"}}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('JSON Content-Type', () => pm.expect(pm.response.headers.get('Content-Type')).to.match(/^application\\/json/i));",
+              "pm.test('Response body', () => pm.expect(body).to.be.an('object'));",
+              "const etag=pm.response.headers.get('ETag'); if(etag) pm.collectionVariables.set('etag',JSON.stringify(etag).slice(1,-1));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "OP-09 success list_catalog",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/rest/v1/rpc/list_catalog",
+        "header": [
+          {
+            "key": "apikey",
+            "value": "{{publicKey}}"
+          },
+          {
+            "key": "Content-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Accept-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"args\": {\"resource\": \"race-configurations\", \"catalogVersion\": \"demo-1\"}}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('JSON Content-Type', () => pm.expect(pm.response.headers.get('Content-Type')).to.match(/^application\\/json/i));",
+              "pm.test('Response body', () => pm.expect(body).to.be.an('object'));",
+              "const etag=pm.response.headers.get('ETag'); if(etag) pm.collectionVariables.set('etag',JSON.stringify(etag).slice(1,-1));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "OP-10 success get_catalog_item",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/rest/v1/rpc/get_catalog_item",
+        "header": [
+          {
+            "key": "apikey",
+            "value": "{{publicKey}}"
+          },
+          {
+            "key": "Content-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Accept-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"args\": {\"resource\": \"occupations\", \"catalogVersion\": \"demo-1\", \"id\": \"warehouse\"}}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('JSON Content-Type', () => pm.expect(pm.response.headers.get('Content-Type')).to.match(/^application\\/json/i));",
+              "pm.test('Response body', () => pm.expect(body).to.be.an('object'));",
+              "const etag=pm.response.headers.get('ETag'); if(etag) pm.collectionVariables.set('etag',JSON.stringify(etag).slice(1,-1));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "OP-11 success get_catalog_item",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/rest/v1/rpc/get_catalog_item",
+        "header": [
+          {
+            "key": "apikey",
+            "value": "{{publicKey}}"
+          },
+          {
+            "key": "Content-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Accept-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"args\": {\"resource\": \"car-models\", \"catalogVersion\": \"demo-1\", \"id\": \"city-hatch\"}}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('JSON Content-Type', () => pm.expect(pm.response.headers.get('Content-Type')).to.match(/^application\\/json/i));",
+              "pm.test('Response body', () => pm.expect(body).to.be.an('object'));",
+              "const etag=pm.response.headers.get('ETag'); if(etag) pm.collectionVariables.set('etag',JSON.stringify(etag).slice(1,-1));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "OP-12 success get_catalog_item",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/rest/v1/rpc/get_catalog_item",
+        "header": [
+          {
+            "key": "apikey",
+            "value": "{{publicKey}}"
+          },
+          {
+            "key": "Content-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Accept-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"args\": {\"resource\": \"tracks\", \"catalogVersion\": \"demo-1\", \"id\": \"night-delivery\"}}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('JSON Content-Type', () => pm.expect(pm.response.headers.get('Content-Type')).to.match(/^application\\/json/i));",
+              "pm.test('Response body', () => pm.expect(body).to.be.an('object'));",
+              "const etag=pm.response.headers.get('ETag'); if(etag) pm.collectionVariables.set('etag',JSON.stringify(etag).slice(1,-1));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "OP-13 success create_draft",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/rest/v1/rpc/create_draft",
+        "header": [
+          {
+            "key": "apikey",
+            "value": "{{publicKey}}"
+          },
+          {
+            "key": "Content-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Accept-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{adminJwt}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"args\": {\"version\": \"{{draftVersion}}\", \"baseVersion\": \"demo-1\"}}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+              "const body = pm.response.json();",
+              "pm.test('JSON Content-Type', () => pm.expect(pm.response.headers.get('Content-Type')).to.match(/^application\\/json/i));",
+              "pm.test('Response body', () => pm.expect(body).to.be.an('object'));",
+              "const etag=pm.response.headers.get('ETag'); if(etag) pm.collectionVariables.set('etag',JSON.stringify(etag).slice(1,-1));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "OP-14 success list_draft_skills",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/rest/v1/rpc/list_draft_skills",
+        "header": [
+          {
+            "key": "apikey",
+            "value": "{{publicKey}}"
+          },
+          {
+            "key": "Content-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Accept-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{adminJwt}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"args\": {\"catalogVersion\": \"{{draftVersion}}\"}}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('JSON Content-Type', () => pm.expect(pm.response.headers.get('Content-Type')).to.match(/^application\\/json/i));",
+              "pm.test('Response body', () => pm.expect(body).to.be.an('object'));",
+              "const etag=pm.response.headers.get('ETag'); if(etag) pm.collectionVariables.set('etag',JSON.stringify(etag).slice(1,-1));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "OP-15 success create_skill",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/rest/v1/rpc/create_skill",
+        "header": [
+          {
+            "key": "apikey",
+            "value": "{{publicKey}}"
+          },
+          {
+            "key": "Content-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Accept-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{adminJwt}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"args\": {\"version\": \"{{draftVersion}}\", \"ifMatch\": \"{{etag}}\", \"body\": {\"code\": \"newman-skill\", \"title\": \"Newman\", \"description\": \"\", \"source\": \"DEMO\", \"externalId\": null, \"id\": \"newman-skill\"}}}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+              "const body = pm.response.json();",
+              "pm.test('JSON Content-Type', () => pm.expect(pm.response.headers.get('Content-Type')).to.match(/^application\\/json/i));",
+              "pm.test('Response body', () => pm.expect(body).to.be.an('object'));",
+              "const etag=pm.response.headers.get('ETag'); if(etag) pm.collectionVariables.set('etag',JSON.stringify(etag).slice(1,-1));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "OP-16 success get_draft_skill",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/rest/v1/rpc/get_draft_skill",
+        "header": [
+          {
+            "key": "apikey",
+            "value": "{{publicKey}}"
+          },
+          {
+            "key": "Content-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Accept-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{adminJwt}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"args\": {\"catalogVersion\": \"{{draftVersion}}\", \"id\": \"newman-skill\"}}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('JSON Content-Type', () => pm.expect(pm.response.headers.get('Content-Type')).to.match(/^application\\/json/i));",
+              "pm.test('Response body', () => pm.expect(body).to.be.an('object'));",
+              "const etag=pm.response.headers.get('ETag'); if(etag) pm.collectionVariables.set('etag',JSON.stringify(etag).slice(1,-1));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "OP-17 success update_skill",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/rest/v1/rpc/update_skill",
+        "header": [
+          {
+            "key": "apikey",
+            "value": "{{publicKey}}"
+          },
+          {
+            "key": "Content-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Accept-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{adminJwt}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"args\": {\"version\": \"{{draftVersion}}\", \"ifMatch\": \"{{etag}}\", \"id\": \"newman-skill\", \"body\": {\"code\": \"newman-skill\", \"title\": \"Newman\", \"description\": \"\", \"source\": \"DEMO\", \"externalId\": null}}}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('JSON Content-Type', () => pm.expect(pm.response.headers.get('Content-Type')).to.match(/^application\\/json/i));",
+              "pm.test('Response body', () => pm.expect(body).to.be.an('object'));",
+              "const etag=pm.response.headers.get('ETag'); if(etag) pm.collectionVariables.set('etag',JSON.stringify(etag).slice(1,-1));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "OP-18 success delete_skill",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/rest/v1/rpc/delete_skill",
+        "header": [
+          {
+            "key": "apikey",
+            "value": "{{publicKey}}"
+          },
+          {
+            "key": "Content-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Accept-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{adminJwt}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"args\": {\"version\": \"{{draftVersion}}\", \"ifMatch\": \"{{etag}}\", \"id\": \"newman-skill\"}}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('JSON Content-Type', () => pm.expect(pm.response.headers.get('Content-Type')).to.match(/^application\\/json/i));",
+              "pm.test('Response body', () => pm.expect(body).to.be.an('object'));",
+              "const etag=pm.response.headers.get('ETag'); if(etag) pm.collectionVariables.set('etag',JSON.stringify(etag).slice(1,-1));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "OP-19 success publish_catalog",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/rest/v1/rpc/publish_catalog",
+        "header": [
+          {
+            "key": "apikey",
+            "value": "{{publicKey}}"
+          },
+          {
+            "key": "Content-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Accept-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{adminJwt}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"args\": {\"version\": \"{{draftVersion}}\", \"ifMatch\": \"{{etag}}\"}}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('JSON Content-Type', () => pm.expect(pm.response.headers.get('Content-Type')).to.match(/^application\\/json/i));",
+              "pm.test('Response body', () => pm.expect(body).to.be.an('object'));",
+              "const etag=pm.response.headers.get('ETag'); if(etag) pm.collectionVariables.set('etag',JSON.stringify(etag).slice(1,-1));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "OP-20 success provider",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/functions/v1/providers/worldbank/inflation?country=RUS&yearFrom=2020&yearTo=2022",
+        "header": [
+          {
+            "key": "apikey",
+            "value": "{{publicKey}}"
+          },
+          {
+            "key": "Content-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Accept-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{userJwt}}"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('JSON Content-Type', () => pm.expect(pm.response.headers.get('Content-Type')).to.match(/^application\\/json/i));",
+              "pm.test('Response body', () => pm.expect(body).to.be.an('object'));",
+              "const etag=pm.response.headers.get('ETag'); if(etag) pm.collectionVariables.set('etag',JSON.stringify(etag).slice(1,-1));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "OP-21 success provider",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/functions/v1/providers/onet/occupations",
+        "header": [
+          {
+            "key": "apikey",
+            "value": "{{publicKey}}"
+          },
+          {
+            "key": "Content-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Accept-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{userJwt}}"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('JSON Content-Type', () => pm.expect(pm.response.headers.get('Content-Type')).to.match(/^application\\/json/i));",
+              "pm.test('Response body', () => pm.expect(body).to.be.an('object'));",
+              "const etag=pm.response.headers.get('ETag'); if(etag) pm.collectionVariables.set('etag',JSON.stringify(etag).slice(1,-1));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "OP-22 success provider",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/functions/v1/providers/onet/skills/53-7062.00",
+        "header": [
+          {
+            "key": "apikey",
+            "value": "{{publicKey}}"
+          },
+          {
+            "key": "Content-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Accept-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{userJwt}}"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('JSON Content-Type', () => pm.expect(pm.response.headers.get('Content-Type')).to.match(/^application\\/json/i));",
+              "pm.test('Response body', () => pm.expect(body).to.be.an('object'));",
+              "const etag=pm.response.headers.get('ETag'); if(etag) pm.collectionVariables.set('etag',JSON.stringify(etag).slice(1,-1));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "OP-23 success provider",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/functions/v1/providers/cars/brands",
+        "header": [
+          {
+            "key": "apikey",
+            "value": "{{publicKey}}"
+          },
+          {
+            "key": "Content-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Accept-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{userJwt}}"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('JSON Content-Type', () => pm.expect(pm.response.headers.get('Content-Type')).to.match(/^application\\/json/i));",
+              "pm.test('Response body', () => pm.expect(body).to.be.an('object'));",
+              "const etag=pm.response.headers.get('ETag'); if(etag) pm.collectionVariables.set('etag',JSON.stringify(etag).slice(1,-1));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "OP-24 success provider",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/functions/v1/providers/cars/models",
+        "header": [
+          {
+            "key": "apikey",
+            "value": "{{publicKey}}"
+          },
+          {
+            "key": "Content-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Accept-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{userJwt}}"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('JSON Content-Type', () => pm.expect(pm.response.headers.get('Content-Type')).to.match(/^application\\/json/i));",
+              "pm.test('Response body', () => pm.expect(body).to.be.an('object'));",
+              "const etag=pm.response.headers.get('ETag'); if(etag) pm.collectionVariables.set('etag',JSON.stringify(etag).slice(1,-1));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "OP-01 negative get_catalog",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/rest/v1/rpc/get_catalog",
+        "header": [
+          {
+            "key": "apikey",
+            "value": "{{publicKey}}"
+          },
+          {
+            "key": "Content-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Accept-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"args\": {\"unexpected\": true}}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+              "const body = pm.response.json();",
+              "pm.test('JSON Content-Type', () => pm.expect(pm.response.headers.get('Content-Type')).to.match(/^application\\/json/i));",
+              "pm.test('Error code present', () => pm.expect(body.error?.code || body.code).to.be.a('string').and.not.empty);",
+              "const etag=pm.response.headers.get('ETag'); if(etag) pm.collectionVariables.set('etag',JSON.stringify(etag).slice(1,-1));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "OP-02 negative list_catalog",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/rest/v1/rpc/list_catalog",
+        "header": [
+          {
+            "key": "apikey",
+            "value": "{{publicKey}}"
+          },
+          {
+            "key": "Content-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Accept-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"args\": {\"resource\": \"occupations\"}}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+              "const body = pm.response.json();",
+              "pm.test('JSON Content-Type', () => pm.expect(pm.response.headers.get('Content-Type')).to.match(/^application\\/json/i));",
+              "pm.test('Error code present', () => pm.expect(body.error?.code || body.code).to.be.a('string').and.not.empty);",
+              "const etag=pm.response.headers.get('ETag'); if(etag) pm.collectionVariables.set('etag',JSON.stringify(etag).slice(1,-1));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "OP-03 negative list_catalog",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/rest/v1/rpc/list_catalog",
+        "header": [
+          {
+            "key": "apikey",
+            "value": "{{publicKey}}"
+          },
+          {
+            "key": "Content-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Accept-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"args\": {\"resource\": \"skills\"}}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+              "const body = pm.response.json();",
+              "pm.test('JSON Content-Type', () => pm.expect(pm.response.headers.get('Content-Type')).to.match(/^application\\/json/i));",
+              "pm.test('Error code present', () => pm.expect(body.error?.code || body.code).to.be.a('string').and.not.empty);",
+              "const etag=pm.response.headers.get('ETag'); if(etag) pm.collectionVariables.set('etag',JSON.stringify(etag).slice(1,-1));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "OP-04 negative list_catalog",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/rest/v1/rpc/list_catalog",
+        "header": [
+          {
+            "key": "apikey",
+            "value": "{{publicKey}}"
+          },
+          {
+            "key": "Content-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Accept-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"args\": {\"resource\": \"jobs\"}}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+              "const body = pm.response.json();",
+              "pm.test('JSON Content-Type', () => pm.expect(pm.response.headers.get('Content-Type')).to.match(/^application\\/json/i));",
+              "pm.test('Error code present', () => pm.expect(body.error?.code || body.code).to.be.a('string').and.not.empty);",
+              "const etag=pm.response.headers.get('ETag'); if(etag) pm.collectionVariables.set('etag',JSON.stringify(etag).slice(1,-1));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "OP-05 negative list_catalog",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/rest/v1/rpc/list_catalog",
+        "header": [
+          {
+            "key": "apikey",
+            "value": "{{publicKey}}"
+          },
+          {
+            "key": "Content-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Accept-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"args\": {\"resource\": \"inflation\"}}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+              "const body = pm.response.json();",
+              "pm.test('JSON Content-Type', () => pm.expect(pm.response.headers.get('Content-Type')).to.match(/^application\\/json/i));",
+              "pm.test('Error code present', () => pm.expect(body.error?.code || body.code).to.be.a('string').and.not.empty);",
+              "const etag=pm.response.headers.get('ETag'); if(etag) pm.collectionVariables.set('etag',JSON.stringify(etag).slice(1,-1));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "OP-06 negative list_catalog",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/rest/v1/rpc/list_catalog",
+        "header": [
+          {
+            "key": "apikey",
+            "value": "{{publicKey}}"
+          },
+          {
+            "key": "Content-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Accept-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"args\": {\"resource\": \"car-brands\"}}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+              "const body = pm.response.json();",
+              "pm.test('JSON Content-Type', () => pm.expect(pm.response.headers.get('Content-Type')).to.match(/^application\\/json/i));",
+              "pm.test('Error code present', () => pm.expect(body.error?.code || body.code).to.be.a('string').and.not.empty);",
+              "const etag=pm.response.headers.get('ETag'); if(etag) pm.collectionVariables.set('etag',JSON.stringify(etag).slice(1,-1));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "OP-07 negative list_catalog",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/rest/v1/rpc/list_catalog",
+        "header": [
+          {
+            "key": "apikey",
+            "value": "{{publicKey}}"
+          },
+          {
+            "key": "Content-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Accept-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"args\": {\"resource\": \"car-models\"}}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+              "const body = pm.response.json();",
+              "pm.test('JSON Content-Type', () => pm.expect(pm.response.headers.get('Content-Type')).to.match(/^application\\/json/i));",
+              "pm.test('Error code present', () => pm.expect(body.error?.code || body.code).to.be.a('string').and.not.empty);",
+              "const etag=pm.response.headers.get('ETag'); if(etag) pm.collectionVariables.set('etag',JSON.stringify(etag).slice(1,-1));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "OP-08 negative list_catalog",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/rest/v1/rpc/list_catalog",
+        "header": [
+          {
+            "key": "apikey",
+            "value": "{{publicKey}}"
+          },
+          {
+            "key": "Content-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Accept-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"args\": {\"resource\": \"tracks\"}}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+              "const body = pm.response.json();",
+              "pm.test('JSON Content-Type', () => pm.expect(pm.response.headers.get('Content-Type')).to.match(/^application\\/json/i));",
+              "pm.test('Error code present', () => pm.expect(body.error?.code || body.code).to.be.a('string').and.not.empty);",
+              "const etag=pm.response.headers.get('ETag'); if(etag) pm.collectionVariables.set('etag',JSON.stringify(etag).slice(1,-1));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "OP-09 negative list_catalog",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/rest/v1/rpc/list_catalog",
+        "header": [
+          {
+            "key": "apikey",
+            "value": "{{publicKey}}"
+          },
+          {
+            "key": "Content-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Accept-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"args\": {\"resource\": \"race-configurations\"}}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+              "const body = pm.response.json();",
+              "pm.test('JSON Content-Type', () => pm.expect(pm.response.headers.get('Content-Type')).to.match(/^application\\/json/i));",
+              "pm.test('Error code present', () => pm.expect(body.error?.code || body.code).to.be.a('string').and.not.empty);",
+              "const etag=pm.response.headers.get('ETag'); if(etag) pm.collectionVariables.set('etag',JSON.stringify(etag).slice(1,-1));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "OP-10 negative get_catalog_item",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/rest/v1/rpc/get_catalog_item",
+        "header": [
+          {
+            "key": "apikey",
+            "value": "{{publicKey}}"
+          },
+          {
+            "key": "Content-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Accept-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"args\": {\"resource\": \"occupations\"}}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+              "const body = pm.response.json();",
+              "pm.test('JSON Content-Type', () => pm.expect(pm.response.headers.get('Content-Type')).to.match(/^application\\/json/i));",
+              "pm.test('Error code present', () => pm.expect(body.error?.code || body.code).to.be.a('string').and.not.empty);",
+              "const etag=pm.response.headers.get('ETag'); if(etag) pm.collectionVariables.set('etag',JSON.stringify(etag).slice(1,-1));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "OP-11 negative get_catalog_item",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/rest/v1/rpc/get_catalog_item",
+        "header": [
+          {
+            "key": "apikey",
+            "value": "{{publicKey}}"
+          },
+          {
+            "key": "Content-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Accept-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"args\": {\"resource\": \"car-models\"}}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+              "const body = pm.response.json();",
+              "pm.test('JSON Content-Type', () => pm.expect(pm.response.headers.get('Content-Type')).to.match(/^application\\/json/i));",
+              "pm.test('Error code present', () => pm.expect(body.error?.code || body.code).to.be.a('string').and.not.empty);",
+              "const etag=pm.response.headers.get('ETag'); if(etag) pm.collectionVariables.set('etag',JSON.stringify(etag).slice(1,-1));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "OP-12 negative get_catalog_item",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/rest/v1/rpc/get_catalog_item",
+        "header": [
+          {
+            "key": "apikey",
+            "value": "{{publicKey}}"
+          },
+          {
+            "key": "Content-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Accept-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"args\": {\"resource\": \"tracks\"}}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+              "const body = pm.response.json();",
+              "pm.test('JSON Content-Type', () => pm.expect(pm.response.headers.get('Content-Type')).to.match(/^application\\/json/i));",
+              "pm.test('Error code present', () => pm.expect(body.error?.code || body.code).to.be.a('string').and.not.empty);",
+              "const etag=pm.response.headers.get('ETag'); if(etag) pm.collectionVariables.set('etag',JSON.stringify(etag).slice(1,-1));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "OP-13 negative create_draft",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/rest/v1/rpc/create_draft",
+        "header": [
+          {
+            "key": "apikey",
+            "value": "{{publicKey}}"
+          },
+          {
+            "key": "Content-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Accept-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"args\": {}}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+              "const body = pm.response.json();",
+              "pm.test('JSON Content-Type', () => pm.expect(pm.response.headers.get('Content-Type')).to.match(/^application\\/json/i));",
+              "pm.test('Error code present', () => pm.expect(body.error?.code || body.code).to.be.a('string').and.not.empty);",
+              "const etag=pm.response.headers.get('ETag'); if(etag) pm.collectionVariables.set('etag',JSON.stringify(etag).slice(1,-1));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "OP-14 negative list_draft_skills",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/rest/v1/rpc/list_draft_skills",
+        "header": [
+          {
+            "key": "apikey",
+            "value": "{{publicKey}}"
+          },
+          {
+            "key": "Content-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Accept-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"args\": {}}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+              "const body = pm.response.json();",
+              "pm.test('JSON Content-Type', () => pm.expect(pm.response.headers.get('Content-Type')).to.match(/^application\\/json/i));",
+              "pm.test('Error code present', () => pm.expect(body.error?.code || body.code).to.be.a('string').and.not.empty);",
+              "const etag=pm.response.headers.get('ETag'); if(etag) pm.collectionVariables.set('etag',JSON.stringify(etag).slice(1,-1));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "OP-15 negative create_skill",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/rest/v1/rpc/create_skill",
+        "header": [
+          {
+            "key": "apikey",
+            "value": "{{publicKey}}"
+          },
+          {
+            "key": "Content-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Accept-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"args\": {}}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+              "const body = pm.response.json();",
+              "pm.test('JSON Content-Type', () => pm.expect(pm.response.headers.get('Content-Type')).to.match(/^application\\/json/i));",
+              "pm.test('Error code present', () => pm.expect(body.error?.code || body.code).to.be.a('string').and.not.empty);",
+              "const etag=pm.response.headers.get('ETag'); if(etag) pm.collectionVariables.set('etag',JSON.stringify(etag).slice(1,-1));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "OP-16 negative get_draft_skill",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/rest/v1/rpc/get_draft_skill",
+        "header": [
+          {
+            "key": "apikey",
+            "value": "{{publicKey}}"
+          },
+          {
+            "key": "Content-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Accept-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"args\": {}}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+              "const body = pm.response.json();",
+              "pm.test('JSON Content-Type', () => pm.expect(pm.response.headers.get('Content-Type')).to.match(/^application\\/json/i));",
+              "pm.test('Error code present', () => pm.expect(body.error?.code || body.code).to.be.a('string').and.not.empty);",
+              "const etag=pm.response.headers.get('ETag'); if(etag) pm.collectionVariables.set('etag',JSON.stringify(etag).slice(1,-1));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "OP-17 negative update_skill",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/rest/v1/rpc/update_skill",
+        "header": [
+          {
+            "key": "apikey",
+            "value": "{{publicKey}}"
+          },
+          {
+            "key": "Content-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Accept-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"args\": {}}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+              "const body = pm.response.json();",
+              "pm.test('JSON Content-Type', () => pm.expect(pm.response.headers.get('Content-Type')).to.match(/^application\\/json/i));",
+              "pm.test('Error code present', () => pm.expect(body.error?.code || body.code).to.be.a('string').and.not.empty);",
+              "const etag=pm.response.headers.get('ETag'); if(etag) pm.collectionVariables.set('etag',JSON.stringify(etag).slice(1,-1));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "OP-18 negative delete_skill",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/rest/v1/rpc/delete_skill",
+        "header": [
+          {
+            "key": "apikey",
+            "value": "{{publicKey}}"
+          },
+          {
+            "key": "Content-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Accept-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"args\": {}}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+              "const body = pm.response.json();",
+              "pm.test('JSON Content-Type', () => pm.expect(pm.response.headers.get('Content-Type')).to.match(/^application\\/json/i));",
+              "pm.test('Error code present', () => pm.expect(body.error?.code || body.code).to.be.a('string').and.not.empty);",
+              "const etag=pm.response.headers.get('ETag'); if(etag) pm.collectionVariables.set('etag',JSON.stringify(etag).slice(1,-1));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "OP-19 negative publish_catalog",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/rest/v1/rpc/publish_catalog",
+        "header": [
+          {
+            "key": "apikey",
+            "value": "{{publicKey}}"
+          },
+          {
+            "key": "Content-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Accept-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"args\": {}}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+              "const body = pm.response.json();",
+              "pm.test('JSON Content-Type', () => pm.expect(pm.response.headers.get('Content-Type')).to.match(/^application\\/json/i));",
+              "pm.test('Error code present', () => pm.expect(body.error?.code || body.code).to.be.a('string').and.not.empty);",
+              "const etag=pm.response.headers.get('ETag'); if(etag) pm.collectionVariables.set('etag',JSON.stringify(etag).slice(1,-1));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "OP-20 negative provider",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/functions/v1/providers/worldbank/inflation",
+        "header": [
+          {
+            "key": "apikey",
+            "value": "{{publicKey}}"
+          },
+          {
+            "key": "Content-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Accept-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{userJwt}}"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+              "const body = pm.response.json();",
+              "pm.test('JSON Content-Type', () => pm.expect(pm.response.headers.get('Content-Type')).to.match(/^application\\/json/i));",
+              "pm.test('Error code present', () => pm.expect(body.error?.code || body.code).to.be.a('string').and.not.empty);",
+              "const etag=pm.response.headers.get('ETag'); if(etag) pm.collectionVariables.set('etag',JSON.stringify(etag).slice(1,-1));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "OP-21 negative provider",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/functions/v1/providers/onet/occupations?unexpected=1",
+        "header": [
+          {
+            "key": "apikey",
+            "value": "{{publicKey}}"
+          },
+          {
+            "key": "Content-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Accept-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{userJwt}}"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+              "const body = pm.response.json();",
+              "pm.test('JSON Content-Type', () => pm.expect(pm.response.headers.get('Content-Type')).to.match(/^application\\/json/i));",
+              "pm.test('Error code present', () => pm.expect(body.error?.code || body.code).to.be.a('string').and.not.empty);",
+              "const etag=pm.response.headers.get('ETag'); if(etag) pm.collectionVariables.set('etag',JSON.stringify(etag).slice(1,-1));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "OP-22 negative provider",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/functions/v1/providers/onet/skills/bad",
+        "header": [
+          {
+            "key": "apikey",
+            "value": "{{publicKey}}"
+          },
+          {
+            "key": "Content-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Accept-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{userJwt}}"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 422', () => pm.response.to.have.status(422));",
+              "const body = pm.response.json();",
+              "pm.test('JSON Content-Type', () => pm.expect(pm.response.headers.get('Content-Type')).to.match(/^application\\/json/i));",
+              "pm.test('Error code present', () => pm.expect(body.error?.code || body.code).to.be.a('string').and.not.empty);",
+              "const etag=pm.response.headers.get('ETag'); if(etag) pm.collectionVariables.set('etag',JSON.stringify(etag).slice(1,-1));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "OP-23 negative provider",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/functions/v1/providers/cars/brands?page=0",
+        "header": [
+          {
+            "key": "apikey",
+            "value": "{{publicKey}}"
+          },
+          {
+            "key": "Content-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Accept-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{userJwt}}"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 422', () => pm.response.to.have.status(422));",
+              "const body = pm.response.json();",
+              "pm.test('JSON Content-Type', () => pm.expect(pm.response.headers.get('Content-Type')).to.match(/^application\\/json/i));",
+              "pm.test('Error code present', () => pm.expect(body.error?.code || body.code).to.be.a('string').and.not.empty);",
+              "const etag=pm.response.headers.get('ETag'); if(etag) pm.collectionVariables.set('etag',JSON.stringify(etag).slice(1,-1));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "OP-24 negative provider",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/functions/v1/providers/cars/models?brandId=!",
+        "header": [
+          {
+            "key": "apikey",
+            "value": "{{publicKey}}"
+          },
+          {
+            "key": "Content-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Accept-Profile",
+            "value": "lastpay_api"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{userJwt}}"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 422', () => pm.response.to.have.status(422));",
+              "const body = pm.response.json();",
+              "pm.test('JSON Content-Type', () => pm.expect(pm.response.headers.get('Content-Type')).to.match(/^application\\/json/i));",
+              "pm.test('Error code present', () => pm.expect(body.error?.code || body.code).to.be.a('string').and.not.empty);",
+              "const etag=pm.response.headers.get('ETag'); if(etag) pm.collectionVariables.set('etag',JSON.stringify(etag).slice(1,-1));"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "draftVersion",
+      "value": ""
+    },
+    {
+      "key": "etag",
+      "value": ""
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "if(!pm.collectionVariables.get('draftVersion')) pm.collectionVariables.set('draftVersion','newman-'+Date.now());"
+        ]
+      }
+    }
+  ]
+}

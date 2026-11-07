@@ -1,0 +1,66 @@
+name: Supabase backend tests
+on:
+  push:
+    paths: ['server/**', 'docs/supabase/**', '.github/workflows/supabase-tests.yml', 'openapi.yaml']
+  pull_request:
+    paths: ['server/**', 'docs/supabase/**', '.github/workflows/supabase-tests.yml', 'openapi.yaml']
+permissions:
+  contents: read
+jobs:
+  supabase:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ci-disposable-only
+          POSTGRES_DB: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.9.8
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install isolated test tools
+        run: |
+          python -m pip install -r server/supabase/scripts/requirements-test.txt
+          npm install --prefix server/supabase/.local/newman --no-audit --no-fund newman@6.2.1
+          curl --fail --location --retry 3 https://github.com/PostgREST/postgrest/releases/download/v16.5/postgrest-v16.5-linux-static-x86-64.tar.xz -o /tmp/postgrest.tar.xz
+          mkdir -p server/supabase/.local/postgrest
+          tar -xJf /tmp/postgrest.tar.xz -C server/supabase/.local/postgrest
+      - name: Check TypeScript SQL RLS Edge API and Newman
+        env:
+          TEST_PG_PORT: '5432'
+          TEST_PG_PASSWORD: ci-disposable-only
+          POSTGREST_BINARY: ${{ github.workspace }}/server/supabase/.local/postgrest/postgrest
+        run: python server/supabase/scripts/test-local.py --disposable-postgres
+      - name: Validate contract migrations and source hygiene
+        run: python server/supabase/scripts/check-source.py
+      - name: Verify mutation responses against committed SQL
+        env:
+          TEST_PG_PORT: '5432'
+          TEST_PG_PASSWORD: ci-disposable-only
+          POSTGREST_BINARY: ${{ github.workspace }}/server/supabase/.local/postgrest/postgrest
+        run: python server/supabase/scripts/test-mutation-responses.py --disposable-postgres
+      - name: Upload safe reports only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: supabase-test-results
+          if-no-files-found: warn
+          path: |
+            server/supabase/.local/results.json
+            server/supabase/.local/deno-unit.xml
+            server/supabase/.local/newman-summary.json
+            server/supabase/.local/mutation-response-results.json

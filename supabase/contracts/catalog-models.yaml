@@ -1,0 +1,924 @@
+description: Domain resource schemas preserved during Supabase migration; current
+  HTTP contract is root openapi.yaml
+schemas:
+  SkillInput:
+    type: object
+    additionalProperties: false
+    properties:
+      code:
+        $ref: '#/components/schemas/Identifier'
+      title:
+        type: string
+        minLength: 1
+        maxLength: 160
+        pattern: ^(?=[\s\S]*[^\u0009-\u000d\u001c-\u0020\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000])[^\u0000]*(?![\s\S])
+      description:
+        type: string
+        maxLength: 4000
+        pattern: ^[^\u0000]*(?![\s\S])
+      source:
+        type: string
+        enum:
+        - ONET
+        - DEMO
+      externalId:
+        type: string
+        nullable: true
+        maxLength: 64
+        pattern: ^[^\u0000]*(?![\s\S])
+    required:
+    - code
+    - title
+    - description
+    - source
+    - externalId
+    oneOf:
+    - properties:
+        source:
+          enum:
+          - ONET
+        externalId:
+          type: string
+          minLength: 1
+          maxLength: 64
+          pattern: ^(?=[\s\S]*[^\u0009-\u000d\u001c-\u0020\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000])[^\u0000]*(?![\s\S])
+    - properties:
+        source:
+          enum:
+          - DEMO
+  SkillCreate:
+    type: object
+    additionalProperties: false
+    properties:
+      id:
+        $ref: '#/components/schemas/Identifier'
+      code:
+        $ref: '#/components/schemas/Identifier'
+      title:
+        type: string
+        minLength: 1
+        maxLength: 160
+        pattern: ^(?=[\s\S]*[^\u0009-\u000d\u001c-\u0020\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000])[^\u0000]*(?![\s\S])
+      description:
+        type: string
+        maxLength: 4000
+        pattern: ^[^\u0000]*(?![\s\S])
+      source:
+        type: string
+        enum:
+        - ONET
+        - DEMO
+      externalId:
+        type: string
+        nullable: true
+        maxLength: 64
+        pattern: ^[^\u0000]*(?![\s\S])
+    required:
+    - id
+    - code
+    - title
+    - description
+    - source
+    - externalId
+    oneOf:
+    - properties:
+        source:
+          enum:
+          - ONET
+        externalId:
+          type: string
+          minLength: 1
+          maxLength: 64
+          pattern: ^(?=[\s\S]*[^\u0009-\u000d\u001c-\u0020\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000])[^\u0000]*(?![\s\S])
+    - properties:
+        source:
+          enum:
+          - DEMO
+  Skill:
+    $ref: '#/components/schemas/SkillCreate'
+  Occupation:
+    type: object
+    additionalProperties: false
+    properties:
+      id:
+        $ref: '#/components/schemas/Identifier'
+      title:
+        type: string
+        minLength: 1
+        maxLength: 160
+      description:
+        type: string
+        maxLength: 4000
+      source:
+        type: string
+        enum:
+        - ONET
+        - DEMO
+      externalId:
+        type: string
+        nullable: true
+        maxLength: 64
+      skills:
+        type: array
+        items:
+          type: object
+          additionalProperties: false
+          properties:
+            skillId:
+              $ref: '#/components/schemas/Identifier'
+            importance:
+              type: number
+              minimum: 0
+              maximum: 100
+              nullable: true
+              multipleOf: 0.01
+          required:
+          - skillId
+          - importance
+        maxItems: 1000
+    required:
+    - id
+    - title
+    - description
+    - source
+    - externalId
+    - skills
+  Job:
+    type: object
+    additionalProperties: false
+    properties:
+      id:
+        $ref: '#/components/schemas/Identifier'
+      occupationId:
+        type: string
+        nullable: true
+        maxLength: 64
+      requiredSkillId:
+        $ref: '#/components/schemas/Identifier'
+      title:
+        type: string
+        minLength: 1
+        maxLength: 160
+      requiredLevel:
+        type: integer
+        format: int32
+        minimum: 0
+        maximum: 100
+      durationHours:
+        type: number
+        minimum: 0.01
+        maximum: 24
+        nullable: false
+        multipleOf: 0.01
+      basePayMinor:
+        $ref: '#/components/schemas/Money'
+      bonusCapMinor:
+        $ref: '#/components/schemas/Money'
+      taskPlan:
+        type: integer
+        format: int32
+        minimum: 1
+        maximum: 2147483647
+      extraEnergyPerHour:
+        type: number
+        minimum: 0
+        maximum: 100
+        nullable: false
+        multipleOf: 0.01
+      mechanic:
+        type: string
+        enum:
+        - WAREHOUSE
+    required:
+    - id
+    - occupationId
+    - requiredSkillId
+    - title
+    - requiredLevel
+    - durationHours
+    - basePayMinor
+    - bonusCapMinor
+    - taskPlan
+    - extraEnergyPerHour
+    - mechanic
+  InflationObservation:
+    type: object
+    additionalProperties: false
+    properties:
+      id:
+        $ref: '#/components/schemas/Identifier'
+      countryCode:
+        type: string
+        pattern: ^[A-Z]{3}(?![\s\S])
+      year:
+        type: integer
+        format: int32
+        minimum: 1900
+        maximum: 2100
+      indicatorCode:
+        type: string
+        enum:
+        - FP.CPI.TOTL.ZG
+      valuePercent:
+        type: number
+        minimum: -100
+        exclusiveMinimum: true
+        maximum: 999999.999999
+        multipleOf: 1.0e-06
+      source:
+        type: string
+        enum:
+        - WORLD_BANK
+        - DEMO
+      fetchedAt:
+        type: string
+        format: date-time
+    required:
+    - id
+    - countryCode
+    - year
+    - indicatorCode
+    - valuePercent
+    - source
+    - fetchedAt
+  CarBrand:
+    type: object
+    additionalProperties: false
+    properties:
+      id:
+        $ref: '#/components/schemas/Identifier'
+      name:
+        type: string
+        minLength: 1
+        maxLength: 100
+      source:
+        type: string
+        enum:
+        - CARS_BASE
+        - DEMO
+      externalId:
+        type: string
+        nullable: true
+        maxLength: 64
+    required:
+    - id
+    - name
+    - source
+    - externalId
+  CarSpecification:
+    type: object
+    additionalProperties: false
+    properties:
+      massKg:
+        type: number
+        minimum: 0
+        maximum: 999999.99
+        nullable: true
+        exclusiveMinimum: true
+        multipleOf: 0.01
+      powerKw:
+        type: number
+        minimum: 0
+        maximum: 999999.99
+        nullable: true
+        exclusiveMinimum: true
+        multipleOf: 0.01
+      maxSpeedKmh:
+        type: number
+        minimum: 0
+        maximum: 9999.99
+        nullable: true
+        exclusiveMinimum: true
+        multipleOf: 0.01
+      tankLiters:
+        type: number
+        minimum: 0
+        maximum: 9999.99
+        nullable: true
+        exclusiveMinimum: true
+        multipleOf: 0.01
+      consumptionLPer100km:
+        type: number
+        minimum: 0
+        maximum: 9999.99
+        nullable: true
+        multipleOf: 0.01
+    required:
+    - massKg
+    - powerKw
+    - maxSpeedKmh
+    - tankLiters
+    - consumptionLPer100km
+  CarBalance:
+    type: object
+    additionalProperties: false
+    properties:
+      purchasePriceMinor:
+        type: integer
+        format: int64
+        minimum: 1
+        maximum: 9007199254740991
+      raceMaxSpeedKmh:
+        type: number
+        minimum: 0.01
+        maximum: 9999.99
+        nullable: false
+        multipleOf: 0.01
+      accelerationMps2:
+        type: number
+        minimum: 0.001
+        maximum: 999.999
+        nullable: false
+        multipleOf: 0.001
+      handling:
+        type: number
+        minimum: 0.001
+        maximum: 1
+        nullable: false
+        multipleOf: 0.001
+      tankLiters:
+        type: number
+        minimum: 0.01
+        maximum: 9999.99
+        nullable: false
+        multipleOf: 0.01
+      consumptionLPer100km:
+        type: number
+        minimum: 0
+        maximum: 9999.99
+        nullable: false
+        multipleOf: 0.01
+      repairPricePerPointMinor:
+        $ref: '#/components/schemas/Money'
+    required:
+    - purchasePriceMinor
+    - raceMaxSpeedKmh
+    - accelerationMps2
+    - handling
+    - tankLiters
+    - consumptionLPer100km
+    - repairPricePerPointMinor
+  CarModel:
+    type: object
+    additionalProperties: false
+    properties:
+      id:
+        $ref: '#/components/schemas/Identifier'
+      brandId:
+        $ref: '#/components/schemas/Identifier'
+      name:
+        type: string
+        minLength: 1
+        maxLength: 120
+      variant:
+        type: string
+        minLength: 1
+        maxLength: 120
+      modelYear:
+        type: integer
+        minimum: 1886
+        maximum: 2100
+        nullable: true
+      source:
+        type: string
+        enum:
+        - CARS_BASE
+        - DEMO
+      externalId:
+        type: string
+        nullable: true
+        maxLength: 64
+      specification:
+        $ref: '#/components/schemas/NullableCarSpecification'
+      balance:
+        $ref: '#/components/schemas/CarBalance'
+    required:
+    - id
+    - brandId
+    - name
+    - variant
+    - modelYear
+    - source
+    - externalId
+    - specification
+    - balance
+  Track:
+    type: object
+    additionalProperties: false
+    properties:
+      id:
+        $ref: '#/components/schemas/Identifier'
+      title:
+        type: string
+        minLength: 1
+        maxLength: 160
+      lengthM:
+        type: integer
+        format: int32
+        minimum: 1
+        maximum: 2147483647
+      assetKey:
+        type: string
+        minLength: 1
+        maxLength: 120
+      assetSha256:
+        type: string
+        pattern: ^[a-f0-9]{64}(?![\s\S])
+      layoutRevision:
+        type: integer
+        format: int32
+        minimum: 1
+        maximum: 2147483647
+    required:
+    - id
+    - title
+    - lengthM
+    - assetKey
+    - assetSha256
+    - layoutRevision
+  RaceConfiguration:
+    type: object
+    additionalProperties: false
+    properties:
+      id:
+        $ref: '#/components/schemas/Identifier'
+      trackId:
+        $ref: '#/components/schemas/Identifier'
+      title:
+        type: string
+        minLength: 1
+        maxLength: 160
+      laps:
+        type: integer
+        format: int32
+        minimum: 1
+        maximum: 100
+      timeLimitSeconds:
+        type: integer
+        format: int32
+        minimum: 1
+        maximum: 2147483647
+      entryFeeMinor:
+        $ref: '#/components/schemas/Money'
+      finishRewardMinor:
+        $ref: '#/components/schemas/Money'
+      requiredCarCondition:
+        type: integer
+        format: int32
+        minimum: 0
+        maximum: 100
+    required:
+    - id
+    - trackId
+    - title
+    - laps
+    - timeLimitSeconds
+    - entryFeeMinor
+    - finishRewardMinor
+    - requiredCarCondition
+  Manifest:
+    type: object
+    additionalProperties: false
+    properties:
+      catalogVersion:
+        $ref: '#/components/schemas/CatalogVersion'
+      schemaVersion:
+        type: string
+        enum:
+        - '1'
+      publishedAt:
+        type: string
+        format: date-time
+      contentSha256:
+        type: string
+        pattern: ^[a-f0-9]{64}(?![\s\S])
+      resources:
+        type: array
+        items:
+          type: string
+          enum:
+          - occupations
+          - skills
+          - jobs
+          - inflation
+          - car-brands
+          - car-models
+          - tracks
+          - race-configurations
+        minItems: 8
+        maxItems: 8
+        uniqueItems: true
+      sources:
+        type: array
+        minItems: 8
+        maxItems: 8
+        items:
+          $ref: '#/components/schemas/SourceMetadata'
+        description: Одна запись на ресурс; уникальность проверяется при публикации.
+    required:
+    - catalogVersion
+    - schemaVersion
+    - publishedAt
+    - contentSha256
+    - resources
+    - sources
+  DraftCreate:
+    type: object
+    additionalProperties: false
+    properties:
+      version:
+        $ref: '#/components/schemas/CatalogVersion'
+      baseVersion:
+        $ref: '#/components/schemas/CatalogVersion'
+    required:
+    - version
+    - baseVersion
+  Draft:
+    type: object
+    additionalProperties: false
+    properties:
+      catalogVersion:
+        $ref: '#/components/schemas/CatalogVersion'
+      status:
+        type: string
+        enum:
+        - DRAFT
+        - PUBLISHED
+      revision:
+        type: integer
+        format: int64
+        minimum: 1
+    required:
+    - catalogVersion
+    - status
+    - revision
+  PageMeta:
+    type: object
+    additionalProperties: false
+    properties:
+      catalogVersion:
+        $ref: '#/components/schemas/CatalogVersion'
+      page:
+        type: integer
+        format: int32
+        minimum: 1
+        maximum: 1000000
+      pageSize:
+        type: integer
+        format: int32
+        minimum: 1
+        maximum: 100
+      total:
+        type: integer
+        format: int32
+        minimum: 0
+        maximum: 2147483647
+      stale:
+        type: boolean
+        description: Истёк TTL хотя бы одного источника снимка.
+      fetchedAt:
+        type: string
+        format: date-time
+        description: Минимальный fetchedAt источников снимка.
+    required:
+    - catalogVersion
+    - page
+    - pageSize
+    - total
+    - stale
+    - fetchedAt
+  Error:
+    type: object
+    additionalProperties: false
+    properties:
+      error:
+        type: object
+        additionalProperties: false
+        properties:
+          code:
+            type: string
+            minLength: 1
+            maxLength: 64
+          message:
+            type: string
+            minLength: 1
+            maxLength: 300
+          requestId:
+            type: string
+            format: uuid
+          details:
+            type: array
+            items:
+              type: object
+              additionalProperties: false
+              properties:
+                field:
+                  type: string
+                  minLength: 1
+                  maxLength: 120
+                message:
+                  type: string
+                  minLength: 1
+                  maxLength: 300
+              required:
+              - field
+              - message
+            maxItems: 100
+        required:
+        - code
+        - message
+        - requestId
+        - details
+    required:
+    - error
+  SkillPage:
+    type: object
+    additionalProperties: false
+    properties:
+      data:
+        type: array
+        items:
+          $ref: '#/components/schemas/Skill'
+        maxItems: 100
+      meta:
+        $ref: '#/components/schemas/PageMeta'
+    required:
+    - data
+    - meta
+  SkillEnvelope:
+    type: object
+    additionalProperties: false
+    properties:
+      data:
+        $ref: '#/components/schemas/Skill'
+      catalogVersion:
+        $ref: '#/components/schemas/CatalogVersion'
+    required:
+    - data
+    - catalogVersion
+  OccupationPage:
+    type: object
+    additionalProperties: false
+    properties:
+      data:
+        type: array
+        items:
+          $ref: '#/components/schemas/Occupation'
+        maxItems: 100
+      meta:
+        $ref: '#/components/schemas/PageMeta'
+    required:
+    - data
+    - meta
+  OccupationEnvelope:
+    type: object
+    additionalProperties: false
+    properties:
+      data:
+        $ref: '#/components/schemas/Occupation'
+      catalogVersion:
+        $ref: '#/components/schemas/CatalogVersion'
+    required:
+    - data
+    - catalogVersion
+  JobPage:
+    type: object
+    additionalProperties: false
+    properties:
+      data:
+        type: array
+        items:
+          $ref: '#/components/schemas/Job'
+        maxItems: 100
+      meta:
+        $ref: '#/components/schemas/PageMeta'
+    required:
+    - data
+    - meta
+  JobEnvelope:
+    type: object
+    additionalProperties: false
+    properties:
+      data:
+        $ref: '#/components/schemas/Job'
+      catalogVersion:
+        $ref: '#/components/schemas/CatalogVersion'
+    required:
+    - data
+    - catalogVersion
+  InflationObservationPage:
+    type: object
+    additionalProperties: false
+    properties:
+      data:
+        type: array
+        items:
+          $ref: '#/components/schemas/InflationObservation'
+        maxItems: 100
+      meta:
+        $ref: '#/components/schemas/PageMeta'
+    required:
+    - data
+    - meta
+  InflationObservationEnvelope:
+    type: object
+    additionalProperties: false
+    properties:
+      data:
+        $ref: '#/components/schemas/InflationObservation'
+      catalogVersion:
+        $ref: '#/components/schemas/CatalogVersion'
+    required:
+    - data
+    - catalogVersion
+  CarBrandPage:
+    type: object
+    additionalProperties: false
+    properties:
+      data:
+        type: array
+        items:
+          $ref: '#/components/schemas/CarBrand'
+        maxItems: 100
+      meta:
+        $ref: '#/components/schemas/PageMeta'
+    required:
+    - data
+    - meta
+  CarBrandEnvelope:
+    type: object
+    additionalProperties: false
+    properties:
+      data:
+        $ref: '#/components/schemas/CarBrand'
+      catalogVersion:
+        $ref: '#/components/schemas/CatalogVersion'
+    required:
+    - data
+    - catalogVersion
+  CarModelPage:
+    type: object
+    additionalProperties: false
+    properties:
+      data:
+        type: array
+        items:
+          $ref: '#/components/schemas/CarModel'
+        maxItems: 100
+      meta:
+        $ref: '#/components/schemas/PageMeta'
+    required:
+    - data
+    - meta
+  CarModelEnvelope:
+    type: object
+    additionalProperties: false
+    properties:
+      data:
+        $ref: '#/components/schemas/CarModel'
+      catalogVersion:
+        $ref: '#/components/schemas/CatalogVersion'
+    required:
+    - data
+    - catalogVersion
+  TrackPage:
+    type: object
+    additionalProperties: false
+    properties:
+      data:
+        type: array
+        items:
+          $ref: '#/components/schemas/Track'
+        maxItems: 100
+      meta:
+        $ref: '#/components/schemas/PageMeta'
+    required:
+    - data
+    - meta
+  TrackEnvelope:
+    type: object
+    additionalProperties: false
+    properties:
+      data:
+        $ref: '#/components/schemas/Track'
+      catalogVersion:
+        $ref: '#/components/schemas/CatalogVersion'
+    required:
+    - data
+    - catalogVersion
+  RaceConfigurationPage:
+    type: object
+    additionalProperties: false
+    properties:
+      data:
+        type: array
+        items:
+          $ref: '#/components/schemas/RaceConfiguration'
+        maxItems: 100
+      meta:
+        $ref: '#/components/schemas/PageMeta'
+    required:
+    - data
+    - meta
+  RaceConfigurationEnvelope:
+    type: object
+    additionalProperties: false
+    properties:
+      data:
+        $ref: '#/components/schemas/RaceConfiguration'
+      catalogVersion:
+        $ref: '#/components/schemas/CatalogVersion'
+    required:
+    - data
+    - catalogVersion
+  SourceMetadata:
+    type: object
+    additionalProperties: false
+    required:
+    - resource
+    - provider
+    - fetchedAt
+    - sourceVersion
+    - sha256
+    properties:
+      resource:
+        type: string
+        enum:
+        - occupations
+        - skills
+        - jobs
+        - inflation
+        - car-brands
+        - car-models
+        - tracks
+        - race-configurations
+      provider:
+        type: string
+        enum:
+        - ONET
+        - WORLD_BANK
+        - CARS_BASE
+        - DEMO
+      fetchedAt:
+        type: string
+        format: date-time
+      sourceVersion:
+        type: string
+        nullable: true
+        maxLength: 120
+      sha256:
+        type: string
+        pattern: ^[a-f0-9]{64}(?![\s\S])
+  NullableCarSpecification:
+    type: object
+    additionalProperties: false
+    properties:
+      massKg:
+        type: number
+        minimum: 0
+        maximum: 100000
+        nullable: true
+        exclusiveMinimum: true
+      powerKw:
+        type: number
+        minimum: 0
+        maximum: 100000
+        nullable: true
+        exclusiveMinimum: true
+      maxSpeedKmh:
+        type: number
+        minimum: 0
+        maximum: 100000
+        nullable: true
+        exclusiveMinimum: true
+      tankLiters:
+        type: number
+        minimum: 0
+        maximum: 100000
+        nullable: true
+        exclusiveMinimum: true
+      consumptionLPer100km:
+        type: number
+        minimum: 0
+        maximum: 100000
+        nullable: true
+    required:
+    - massKg
+    - powerKw
+    - maxSpeedKmh
+    - tankLiters
+    - consumptionLPer100km
+    nullable: true
+  Identifier:
+    type: string
+    pattern: ^[a-z0-9][a-z0-9._-]{0,63}(?![\s\S])
+    maxLength: 64
+  CatalogVersion:
+    type: string
+    pattern: ^[a-z0-9][a-z0-9._-]{0,31}(?![\s\S])
+    maxLength: 32
+  Money:
+    type: integer
+    format: int64
+    minimum: 0
+    maximum: 9007199254740991

@@ -1,0 +1,92 @@
+{
+  "checks": [
+    {
+      "check": "Supabase Auth password sign-in",
+      "status": 200,
+      "passed": true
+    },
+    {
+      "check": "Supabase Auth user confirmation",
+      "status": 200,
+      "confirmed": true,
+      "passed": true
+    },
+    {
+      "check": "/onet/occupations",
+      "status": 503,
+      "corsOrigin": "*",
+      "noCredentialLeak": true,
+      "code": "UNAVAILABLE",
+      "message": "O*NET is not configured",
+      "retryAfter": "60",
+      "errorEnvelopeValid": true,
+      "passed": true
+    },
+    {
+      "check": "/onet/skills/53-7062.00",
+      "status": 503,
+      "corsOrigin": "*",
+      "noCredentialLeak": true,
+      "code": "UNAVAILABLE",
+      "message": "O*NET is not configured",
+      "retryAfter": "60",
+      "errorEnvelopeValid": true,
+      "passed": true
+    },
+    {
+      "check": "/cars/brands",
+      "status": 503,
+      "corsOrigin": "*",
+      "noCredentialLeak": true,
+      "code": "UNAVAILABLE",
+      "message": "CarsBase is not configured",
+      "retryAfter": "60",
+      "errorEnvelopeValid": true,
+      "passed": true
+    },
+    {
+      "check": "/cars/models",
+      "status": 503,
+      "corsOrigin": "*",
+      "noCredentialLeak": true,
+      "code": "UNAVAILABLE",
+      "message": "CarsBase is not configured",
+      "retryAfter": "60",
+      "errorEnvelopeValid": true,
+      "passed": true
+    },
+    {
+      "check": "/worldbank/inflation?country=RUS&yearFrom=2020&yearTo=2022",
+      "status": 200,
+      "corsOrigin": "*",
+      "noCredentialLeak": true,
+      "provider": "WORLD_BANK",
+      "fromCache": false,
+      "stale": false,
+      "observations": [
+        {
+          "country": "RUS",
+          "year": "2022",
+          "value": 13.7436797398231
+        },
+        {
+          "country": "RUS",
+          "year": "2021",
+          "value": 6.69445891957612
+        },
+        {
+          "country": "RUS",
+          "year": "2020",
+          "value": 3.38219796948067
+        }
+      ],
+      "passed": true
+    },
+    {
+      "check": "Supabase Auth local logout",
+      "status": 204,
+      "passed": true
+    }
+  ],
+  "passed": true
+}

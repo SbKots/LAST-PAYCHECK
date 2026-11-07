@@ -1,5 +1,47 @@
 # LAST PAYCHECK
 
+## Серверная часть Supabase
+
+Текущая реализация: **Supabase Auth → Data API/RPC и Edge Function providers → PostgreSQL**.
+Существующий Free-проект `last-paycheck` Frankfurt: `mmuytwyhdwttzxuredfm`.
+Четыре миграции применены, providers развёрнута, `demo-1` остаётся активной.
+В рабочем backend нет Ktor, JDK или постоянно включённого ПК.
+
+- [HTTPS контракт OpenAPI](openapi.yaml), [24 операции](docs/supabase/operation-map.md).
+- [Структура таблиц](docs/supabase/data-dictionary.md), [архитектура](docs/supabase/architecture.md), [Auth и RLS](docs/supabase/security.md), [RPC](docs/supabase/rpc.md).
+- [Локальные тесты](docs/supabase/testing.md), [облачные доказательства](docs/supabase/evidence/README.md), [исправление DELETE](docs/supabase/delete-response-diagnosis.md).
+- [Состояние развёртывания](docs/supabase/deployment.md), [Android](docs/supabase/android.md), [Free](docs/supabase/free-tier.md).
+- Отчёты Word: [№8](docs/08-backend.docx) и [№11](docs/11-server-testing.docx).
+- №9 сдаётся рабочим кодом, SQL-миграциями, API и тестами; №10 — интеграциями и Postman. Отдельные DOCX для №9 и №10 не требуются.
+
+Все пять маршрутов облачной функции `providers` вернули HTTP 200 с действительной
+сессией пользователя. O*NET вернул 46 профессий и 35 навыков, CarsBase в деморежиме —
+50 марок и 67 моделей BMW, World Bank — три значения инфляции. Повторные запросы
+вернули те же данные из свежего кэша.
+Публикация тестового каталога и GitHub Actions на GitHub остаются отдельными проверками.
+
+### Публичный каталог в браузере
+
+Edge Function `catalog` развёрнута. [Браузерный каталог](https://mmuytwyhdwttzxuredfm.supabase.co/functions/v1/catalog)
+открывается без входа, JWT и ручного добавления заголовков. Облачная проверка
+подтвердила HTTP 200 и манифест `demo-1`. Маршрут описан в [OpenAPI](openapi.yaml).
+
+`GET` возвращает ответ существующей RPC `lastpay_api.get_catalog`: манифест последней
+опубликованной версии, её контрольную сумму, источники и список ресурсов. Это не выгрузка
+всех записей справочников. Строки ресурсов по-прежнему доступны через `list_catalog`.
+Поддерживаются `GET` и `OPTIONS`; остальные методы получают `405`. Параметры запроса
+не принимаются. Ответы имеют `Content-Type: application/json; charset=utf-8` и CORS.
+
+Функция использует только `SB_PUBLISHABLE_KEY` либо встроенный `SUPABASE_ANON_KEY`;
+JWT клиента не передаётся в базу. Закрытые данные и черновики не запрашиваются,
+существующие RLS/GRANT не меняются. Ошибки базы и конфигурации дают безопасный `503`
+с `Retry-After: 60`, ограничение частоты — `429`. Для `catalog` установлено
+`verify_jwt = false`; настройки и проверка пользователей в `providers` не изменены.
+
+Локальные проверки: `deno task check` и `deno task test` из `supabase/`.
+Полный Docker-free прогон `supabase/scripts/test-local.py --disposable-postgres`
+дополнительно проверяет браузерный GET с настоящими локальными PostgreSQL и PostgREST.
+
 **LAST PAYCHECK** — разрабатываемая 2D-игра для Android в жанре экономического симулятора жизни и выживания. Игрок начинает с небольшим запасом денег, арендуемым жильём и базовыми навыками. Чтобы прожить как можно больше игровых дней, он самостоятельно работает в мини-играх, покупает еду, отдыхает, учится и справляется с изменением стоимости жизни.
 
 ## Проблема и цель
@@ -35,9 +77,11 @@
 - **Android:** Kotlin, Jetpack Compose, Material 3; Compose Canvas для 2D-мини-игр.
 - **Архитектура:** Clean Architecture (`domain`, `data`, `presentation`), MVVM, Hilt, Coroutines и StateFlow.
 - **Данные:** Retrofit/OkHttp, Room и DataStore.
-- **Сервер:** Kotlin Ktor и PostgreSQL.
+- **Текущий backend:** Supabase PostgreSQL, Auth, Data API/RPC и Edge Functions.
+- **Историческая реализация Ktor:** доступна в коммите `ba1380c`; в текущем дереве не используется.
 - **Аппаратные функции:** акселерометр для управления грузом в мини-игре склада и позже — автомобилем; вибрация для обратной связи. Предусмотрено сенсорное управление без датчика.
-- **Качество:** JUnit, MockK, Kover, KDoc; Gradle Kotlin DSL и Version Catalog.
+- **Качество Android (план):** JUnit, MockK, Kover и KDoc.
+- **Качество backend:** Deno unit, SQL/RLS, PostgREST API, Newman и GitHub Actions.
 
 ## Дизайн-система
 
@@ -50,11 +94,12 @@
 Макеты интерфейса представлены в **светлой и тёмной темах**, в портретной и альбомной ориентациях для смартфонов. Для автосалона также добавлены планшетные варианты.
 
 
-## Тестирование backend
 
-Практика 11: [инструкция и тест-план](server/TESTING.md),
-[Word-отчёт](docs/11-server-testing.docx),
-[фактические результаты локального прогона](docs/11-server-testing-results.json).
-JUnit 5, негативное покрытие всех 24 операций, PostgreSQL RLS, контракт OpenAPI
-и существующая коллекция Postman запускаются одним тестовым runner.
-Workflow находится в `.github/workflows/backend-tests.yml`.
+## Проверка серверной части
+
+На отдельном локальном PostgreSQL запустить `python supabase/scripts/test-local.py --disposable-postgres`,
+затем `python supabase/scripts/test-mutation-responses.py --disposable-postgres`.
+Настройка инструментов и ограничения — в [testing.md](docs/supabase/testing.md).
+Полный пишущий Newman допускается только на localhost; рабочее облако не используется.
+Workflow: `.github/workflows/supabase-tests.yml`; автоматического deploy нет.
+Старый backend восстанавливается из `ba1380c` в отдельную папку, без сброса этой рабочей копии.

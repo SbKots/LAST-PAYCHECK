@@ -1,0 +1,1652 @@
+{
+  "passed": true,
+  "database": "lastpay_sb_df21126f8f7c",
+  "cloudDeployed": false,
+  "auth": "local signed JWT/Auth fixture; not GoTrue",
+  "providers": "controlled responses; no live external API",
+  "results": [
+    {
+      "test": "catalog manifest published",
+      "passed": true
+    },
+    {
+      "test": "published list occupations",
+      "passed": true
+    },
+    {
+      "test": "published list skills",
+      "passed": true
+    },
+    {
+      "test": "published list jobs",
+      "passed": true
+    },
+    {
+      "test": "published list car-brands",
+      "passed": true
+    },
+    {
+      "test": "published list car-models",
+      "passed": true
+    },
+    {
+      "test": "published list tracks",
+      "passed": true
+    },
+    {
+      "test": "published list race-configurations",
+      "passed": true
+    },
+    {
+      "test": "published list inflation",
+      "passed": true
+    },
+    {
+      "test": "published detail occupations",
+      "passed": true
+    },
+    {
+      "test": "published detail car-models",
+      "passed": true
+    },
+    {
+      "test": "published detail tracks",
+      "passed": true
+    },
+    {
+      "test": "list validation {}",
+      "passed": true
+    },
+    {
+      "test": "list validation {'resource': 'skills', 'catalogVersion': 'BAD'}",
+      "passed": true
+    },
+    {
+      "test": "list validation {'resource': 'skills', 'catalogVersion': 'demo-1', 'pageSize': 101}",
+      "passed": true
+    },
+    {
+      "test": "list validation {'resource': 'skills', 'catalogVersion': 'demo-1', 'page': '1.0'}",
+      "passed": true
+    },
+    {
+      "test": "list validation {'resource': 'skills', 'catalogVersion': 'missing'}",
+      "passed": true
+    },
+    {
+      "test": "list validation {'resource': 'inflation', 'catalogVersion': 'demo-1', 'country': 'WLD', 'yearFrom': 2020, 'yearTo': 2022}",
+      "passed": true
+    },
+    {
+      "test": "no admin from user or app metadata",
+      "passed": true
+    },
+    {
+      "test": "signed anonymous user cannot admin",
+      "passed": true
+    },
+    {
+      "test": "admin draft creation",
+      "passed": true
+    },
+    {
+      "test": "duplicate version conflict",
+      "passed": true
+    },
+    {
+      "test": "RLS anon draft hidden",
+      "passed": true
+    },
+    {
+      "test": "RLS userA draft hidden",
+      "passed": true
+    },
+    {
+      "test": "RLS admin draft visible",
+      "passed": true
+    },
+    {
+      "test": "direct skill write denied",
+      "passed": true
+    },
+    {
+      "test": "admin registry inaccessible",
+      "passed": true
+    },
+    {
+      "test": "provider RPC inaccessible to user",
+      "passed": true
+    },
+    {
+      "test": "private publisher inaccessible",
+      "passed": true
+    },
+    {
+      "test": "missing ifMatch",
+      "passed": true
+    },
+    {
+      "test": "invalid skill whitespace",
+      "passed": true
+    },
+    {
+      "test": "skill input parity {'id': 'sql-skill', 'code': 'sql-skill', 'title': '\\u2003', 'description': '', 'source': 'DEMO', 'externalId': None}",
+      "passed": true
+    },
+    {
+      "test": "skill input parity {'id': 'BAD', 'code': 'sql-skill', 'title': 'SQL test', 'description': '', 'source': 'DEMO', 'externalId': None}",
+      "passed": true
+    },
+    {
+      "test": "skill input parity {'id': 'sql-skill', 'code': 'sql-skill', 'title': 'SQL test', 'description': '', 'source': 'DEMO', 'externalId': None, 'extra': True}",
+      "passed": true
+    },
+    {
+      "test": "skill input parity {'code': 'sql-skill', 'title': 'SQL test', 'description': '', 'source': 'DEMO', 'externalId': None}",
+      "passed": true
+    },
+    {
+      "test": "create skill",
+      "passed": true
+    },
+    {
+      "test": "duplicate skill SQL constraint",
+      "passed": true
+    },
+    {
+      "test": "FK referenced skill",
+      "passed": true
+    },
+    {
+      "test": "failed writes rollback revision",
+      "passed": true
+    },
+    {
+      "test": "concurrent revision update exactly one wins",
+      "passed": true
+    },
+    {
+      "test": "delete skill receipt",
+      "passed": true
+    },
+    {
+      "test": "publish",
+      "passed": true
+    },
+    {
+      "test": "published RPC immutable",
+      "passed": true
+    },
+    {
+      "test": "trigger protects even migration owner",
+      "passed": true
+    },
+    {
+      "test": "save userA",
+      "passed": true
+    },
+    {
+      "test": "save stale revision",
+      "passed": true
+    },
+    {
+      "test": "save userB",
+      "passed": true
+    },
+    {
+      "test": "cannot choose save owner",
+      "passed": true
+    },
+    {
+      "test": "save RLS userA",
+      "passed": true
+    },
+    {
+      "test": "save RLS userB",
+      "passed": true
+    },
+    {
+      "test": "save RLS admin",
+      "passed": true
+    },
+    {
+      "test": "save RLS anonymous",
+      "passed": true
+    },
+    {
+      "test": "anon cannot read private saves",
+      "passed": true
+    },
+    {
+      "test": "anonymous cannot save",
+      "passed": true
+    },
+    {
+      "test": "publication validation draft",
+      "passed": true
+    },
+    {
+      "test": "publish rejects missing balance with 422",
+      "passed": true
+    },
+    {
+      "test": "cache lease acquired",
+      "passed": true
+    },
+    {
+      "test": "cache lease rejects concurrent owner",
+      "passed": true
+    },
+    {
+      "test": "cache wrong owner cannot store",
+      "passed": true
+    },
+    {
+      "test": "cache holder stores",
+      "passed": true
+    },
+    {
+      "test": "cache lookup is fresh",
+      "passed": true
+    },
+    {
+      "test": "canonical JSON exact decimal",
+      "passed": true
+    },
+    {
+      "test": "fixture Cyrillic preserved",
+      "passed": true
+    },
+    {
+      "test": "definer search_path and no PUBLIC EXECUTE",
+      "passed": true
+    },
+    {
+      "test": "all 14 application tables have RLS",
+      "passed": true
+    },
+    {
+      "test": "no legacy roles in migrations",
+      "passed": true
+    },
+    {
+      "test": "invalid requests count toward persistent limit",
+      "passed": true
+    },
+    {
+      "test": "/rest/v1/rpc/get_catalog 200",
+      "passed": true
+    },
+    {
+      "test": "/rest/v1/rpc/get_catalog JSON",
+      "passed": true
+    },
+    {
+      "test": "manifest matches old schema",
+      "passed": true
+    },
+    {
+      "test": "OP-01 Supabase request schema",
+      "passed": true
+    },
+    {
+      "test": "OP-01 RPC success",
+      "passed": true
+    },
+    {
+      "test": "OP-01 RPC success JSON",
+      "passed": true
+    },
+    {
+      "test": "OP-01 Supabase response schema",
+      "passed": true
+    },
+    {
+      "test": "OP-02 Supabase request schema",
+      "passed": true
+    },
+    {
+      "test": "OP-02 RPC success",
+      "passed": true
+    },
+    {
+      "test": "OP-02 RPC success JSON",
+      "passed": true
+    },
+    {
+      "test": "OP-02 Supabase response schema",
+      "passed": true
+    },
+    {
+      "test": "OP-03 Supabase request schema",
+      "passed": true
+    },
+    {
+      "test": "OP-03 RPC success",
+      "passed": true
+    },
+    {
+      "test": "OP-03 RPC success JSON",
+      "passed": true
+    },
+    {
+      "test": "OP-03 Supabase response schema",
+      "passed": true
+    },
+    {
+      "test": "OP-04 Supabase request schema",
+      "passed": true
+    },
+    {
+      "test": "OP-04 RPC success",
+      "passed": true
+    },
+    {
+      "test": "OP-04 RPC success JSON",
+      "passed": true
+    },
+    {
+      "test": "OP-04 Supabase response schema",
+      "passed": true
+    },
+    {
+      "test": "OP-05 Supabase request schema",
+      "passed": true
+    },
+    {
+      "test": "OP-05 RPC success",
+      "passed": true
+    },
+    {
+      "test": "OP-05 RPC success JSON",
+      "passed": true
+    },
+    {
+      "test": "OP-05 Supabase response schema",
+      "passed": true
+    },
+    {
+      "test": "OP-06 Supabase request schema",
+      "passed": true
+    },
+    {
+      "test": "OP-06 RPC success",
+      "passed": true
+    },
+    {
+      "test": "OP-06 RPC success JSON",
+      "passed": true
+    },
+    {
+      "test": "OP-06 Supabase response schema",
+      "passed": true
+    },
+    {
+      "test": "OP-07 Supabase request schema",
+      "passed": true
+    },
+    {
+      "test": "OP-07 RPC success",
+      "passed": true
+    },
+    {
+      "test": "OP-07 RPC success JSON",
+      "passed": true
+    },
+    {
+      "test": "OP-07 Supabase response schema",
+      "passed": true
+    },
+    {
+      "test": "OP-08 Supabase request schema",
+      "passed": true
+    },
+    {
+      "test": "OP-08 RPC success",
+      "passed": true
+    },
+    {
+      "test": "OP-08 RPC success JSON",
+      "passed": true
+    },
+    {
+      "test": "OP-08 Supabase response schema",
+      "passed": true
+    },
+    {
+      "test": "OP-09 Supabase request schema",
+      "passed": true
+    },
+    {
+      "test": "OP-09 RPC success",
+      "passed": true
+    },
+    {
+      "test": "OP-09 RPC success JSON",
+      "passed": true
+    },
+    {
+      "test": "OP-09 Supabase response schema",
+      "passed": true
+    },
+    {
+      "test": "OP-10 Supabase request schema",
+      "passed": true
+    },
+    {
+      "test": "OP-10 RPC success",
+      "passed": true
+    },
+    {
+      "test": "OP-10 RPC success JSON",
+      "passed": true
+    },
+    {
+      "test": "OP-10 Supabase response schema",
+      "passed": true
+    },
+    {
+      "test": "OP-11 Supabase request schema",
+      "passed": true
+    },
+    {
+      "test": "OP-11 RPC success",
+      "passed": true
+    },
+    {
+      "test": "OP-11 RPC success JSON",
+      "passed": true
+    },
+    {
+      "test": "OP-11 Supabase response schema",
+      "passed": true
+    },
+    {
+      "test": "OP-12 Supabase request schema",
+      "passed": true
+    },
+    {
+      "test": "OP-12 RPC success",
+      "passed": true
+    },
+    {
+      "test": "OP-12 RPC success JSON",
+      "passed": true
+    },
+    {
+      "test": "OP-12 Supabase response schema",
+      "passed": true
+    },
+    {
+      "test": "OP-13 Supabase request schema",
+      "passed": true
+    },
+    {
+      "test": "OP-13 RPC success",
+      "passed": true
+    },
+    {
+      "test": "OP-13 RPC success JSON",
+      "passed": true
+    },
+    {
+      "test": "OP-13 ETag",
+      "passed": true
+    },
+    {
+      "test": "OP-13 Supabase response schema",
+      "passed": true
+    },
+    {
+      "test": "OP-14 Supabase request schema",
+      "passed": true
+    },
+    {
+      "test": "OP-14 RPC success",
+      "passed": true
+    },
+    {
+      "test": "OP-14 RPC success JSON",
+      "passed": true
+    },
+    {
+      "test": "OP-14 ETag",
+      "passed": true
+    },
+    {
+      "test": "OP-14 Supabase response schema",
+      "passed": true
+    },
+    {
+      "test": "OP-15 Supabase request schema",
+      "passed": true
+    },
+    {
+      "test": "OP-15 RPC success",
+      "passed": true
+    },
+    {
+      "test": "OP-15 RPC success JSON",
+      "passed": true
+    },
+    {
+      "test": "OP-15 ETag",
+      "passed": true
+    },
+    {
+      "test": "OP-15 Supabase response schema",
+      "passed": true
+    },
+    {
+      "test": "OP-16 Supabase request schema",
+      "passed": true
+    },
+    {
+      "test": "OP-16 RPC success",
+      "passed": true
+    },
+    {
+      "test": "OP-16 RPC success JSON",
+      "passed": true
+    },
+    {
+      "test": "OP-16 ETag",
+      "passed": true
+    },
+    {
+      "test": "OP-16 Supabase response schema",
+      "passed": true
+    },
+    {
+      "test": "OP-17 Supabase request schema",
+      "passed": true
+    },
+    {
+      "test": "OP-17 RPC success",
+      "passed": true
+    },
+    {
+      "test": "OP-17 RPC success JSON",
+      "passed": true
+    },
+    {
+      "test": "OP-17 ETag",
+      "passed": true
+    },
+    {
+      "test": "OP-17 Supabase response schema",
+      "passed": true
+    },
+    {
+      "test": "OP-18 Supabase request schema",
+      "passed": true
+    },
+    {
+      "test": "OP-18 RPC success",
+      "passed": true
+    },
+    {
+      "test": "OP-18 RPC success JSON",
+      "passed": true
+    },
+    {
+      "test": "OP-18 ETag",
+      "passed": true
+    },
+    {
+      "test": "OP-18 deletion receipt",
+      "passed": true
+    },
+    {
+      "test": "OP-19 Supabase request schema",
+      "passed": true
+    },
+    {
+      "test": "OP-19 RPC success",
+      "passed": true
+    },
+    {
+      "test": "OP-19 RPC success JSON",
+      "passed": true
+    },
+    {
+      "test": "OP-19 Supabase response schema",
+      "passed": true
+    },
+    {
+      "test": "OP-20 provider success",
+      "passed": true
+    },
+    {
+      "test": "OP-20 provider success JSON",
+      "passed": true
+    },
+    {
+      "test": "OP-20 envelope",
+      "passed": true
+    },
+    {
+      "test": "OP-20 provider response schema",
+      "passed": true
+    },
+    {
+      "test": "OP-21 provider success",
+      "passed": true
+    },
+    {
+      "test": "OP-21 provider success JSON",
+      "passed": true
+    },
+    {
+      "test": "OP-21 envelope",
+      "passed": true
+    },
+    {
+      "test": "OP-21 provider response schema",
+      "passed": true
+    },
+    {
+      "test": "OP-22 provider success",
+      "passed": true
+    },
+    {
+      "test": "OP-22 provider success JSON",
+      "passed": true
+    },
+    {
+      "test": "OP-22 envelope",
+      "passed": true
+    },
+    {
+      "test": "OP-22 provider response schema",
+      "passed": true
+    },
+    {
+      "test": "OP-23 provider success",
+      "passed": true
+    },
+    {
+      "test": "OP-23 provider success JSON",
+      "passed": true
+    },
+    {
+      "test": "OP-23 envelope",
+      "passed": true
+    },
+    {
+      "test": "OP-23 provider response schema",
+      "passed": true
+    },
+    {
+      "test": "OP-24 provider success",
+      "passed": true
+    },
+    {
+      "test": "OP-24 provider success JSON",
+      "passed": true
+    },
+    {
+      "test": "OP-24 envelope",
+      "passed": true
+    },
+    {
+      "test": "OP-24 provider response schema",
+      "passed": true
+    },
+    {
+      "test": "all 24 operations positive",
+      "passed": true
+    },
+    {
+      "test": "OP-01 negative",
+      "passed": true
+    },
+    {
+      "test": "OP-01 negative JSON",
+      "passed": true
+    },
+    {
+      "test": "OP-01 negative error envelope",
+      "passed": true
+    },
+    {
+      "test": "OP-02 negative",
+      "passed": true
+    },
+    {
+      "test": "OP-02 negative JSON",
+      "passed": true
+    },
+    {
+      "test": "OP-02 negative error envelope",
+      "passed": true
+    },
+    {
+      "test": "OP-03 negative",
+      "passed": true
+    },
+    {
+      "test": "OP-03 negative JSON",
+      "passed": true
+    },
+    {
+      "test": "OP-03 negative error envelope",
+      "passed": true
+    },
+    {
+      "test": "OP-04 negative",
+      "passed": true
+    },
+    {
+      "test": "OP-04 negative JSON",
+      "passed": true
+    },
+    {
+      "test": "OP-04 negative error envelope",
+      "passed": true
+    },
+    {
+      "test": "OP-05 negative",
+      "passed": true
+    },
+    {
+      "test": "OP-05 negative JSON",
+      "passed": true
+    },
+    {
+      "test": "OP-05 negative error envelope",
+      "passed": true
+    },
+    {
+      "test": "OP-06 negative",
+      "passed": true
+    },
+    {
+      "test": "OP-06 negative JSON",
+      "passed": true
+    },
+    {
+      "test": "OP-06 negative error envelope",
+      "passed": true
+    },
+    {
+      "test": "OP-07 negative",
+      "passed": true
+    },
+    {
+      "test": "OP-07 negative JSON",
+      "passed": true
+    },
+    {
+      "test": "OP-07 negative error envelope",
+      "passed": true
+    },
+    {
+      "test": "OP-08 negative",
+      "passed": true
+    },
+    {
+      "test": "OP-08 negative JSON",
+      "passed": true
+    },
+    {
+      "test": "OP-08 negative error envelope",
+      "passed": true
+    },
+    {
+      "test": "OP-09 negative",
+      "passed": true
+    },
+    {
+      "test": "OP-09 negative JSON",
+      "passed": true
+    },
+    {
+      "test": "OP-09 negative error envelope",
+      "passed": true
+    },
+    {
+      "test": "OP-10 negative",
+      "passed": true
+    },
+    {
+      "test": "OP-10 negative JSON",
+      "passed": true
+    },
+    {
+      "test": "OP-10 negative error envelope",
+      "passed": true
+    },
+    {
+      "test": "OP-11 negative",
+      "passed": true
+    },
+    {
+      "test": "OP-11 negative JSON",
+      "passed": true
+    },
+    {
+      "test": "OP-11 negative error envelope",
+      "passed": true
+    },
+    {
+      "test": "OP-12 negative",
+      "passed": true
+    },
+    {
+      "test": "OP-12 negative JSON",
+      "passed": true
+    },
+    {
+      "test": "OP-12 negative error envelope",
+      "passed": true
+    },
+    {
+      "test": "OP-13 negative",
+      "passed": true
+    },
+    {
+      "test": "OP-13 negative JSON",
+      "passed": true
+    },
+    {
+      "test": "OP-13 negative error envelope",
+      "passed": true
+    },
+    {
+      "test": "OP-14 negative",
+      "passed": true
+    },
+    {
+      "test": "OP-14 negative JSON",
+      "passed": true
+    },
+    {
+      "test": "OP-14 negative error envelope",
+      "passed": true
+    },
+    {
+      "test": "OP-15 negative",
+      "passed": true
+    },
+    {
+      "test": "OP-15 negative JSON",
+      "passed": true
+    },
+    {
+      "test": "OP-15 negative error envelope",
+      "passed": true
+    },
+    {
+      "test": "OP-16 negative",
+      "passed": true
+    },
+    {
+      "test": "OP-16 negative JSON",
+      "passed": true
+    },
+    {
+      "test": "OP-16 negative error envelope",
+      "passed": true
+    },
+    {
+      "test": "OP-17 negative",
+      "passed": true
+    },
+    {
+      "test": "OP-17 negative JSON",
+      "passed": true
+    },
+    {
+      "test": "OP-17 negative error envelope",
+      "passed": true
+    },
+    {
+      "test": "OP-18 negative",
+      "passed": true
+    },
+    {
+      "test": "OP-18 negative JSON",
+      "passed": true
+    },
+    {
+      "test": "OP-18 negative error envelope",
+      "passed": true
+    },
+    {
+      "test": "OP-19 negative",
+      "passed": true
+    },
+    {
+      "test": "OP-19 negative JSON",
+      "passed": true
+    },
+    {
+      "test": "OP-19 negative error envelope",
+      "passed": true
+    },
+    {
+      "test": "OP-20 negative",
+      "passed": true
+    },
+    {
+      "test": "OP-20 negative JSON",
+      "passed": true
+    },
+    {
+      "test": "OP-20 negative error envelope",
+      "passed": true
+    },
+    {
+      "test": "OP-21 negative",
+      "passed": true
+    },
+    {
+      "test": "OP-21 negative JSON",
+      "passed": true
+    },
+    {
+      "test": "OP-21 negative error envelope",
+      "passed": true
+    },
+    {
+      "test": "OP-22 negative",
+      "passed": true
+    },
+    {
+      "test": "OP-22 negative JSON",
+      "passed": true
+    },
+    {
+      "test": "OP-22 negative error envelope",
+      "passed": true
+    },
+    {
+      "test": "OP-23 negative",
+      "passed": true
+    },
+    {
+      "test": "OP-23 negative JSON",
+      "passed": true
+    },
+    {
+      "test": "OP-23 negative error envelope",
+      "passed": true
+    },
+    {
+      "test": "OP-24 negative",
+      "passed": true
+    },
+    {
+      "test": "OP-24 negative JSON",
+      "passed": true
+    },
+    {
+      "test": "OP-24 negative error envelope",
+      "passed": true
+    },
+    {
+      "test": "ordinary user cannot administer",
+      "passed": true
+    },
+    {
+      "test": "ordinary user cannot administer JSON",
+      "passed": true
+    },
+    {
+      "test": "ordinary user cannot administer error envelope",
+      "passed": true
+    },
+    {
+      "test": "bad JWT signature",
+      "passed": true
+    },
+    {
+      "test": "bad JWT signature JSON",
+      "passed": true
+    },
+    {
+      "test": "bad JWT signature error envelope",
+      "passed": true
+    },
+    {
+      "test": "expired JWT",
+      "passed": true
+    },
+    {
+      "test": "expired JWT JSON",
+      "passed": true
+    },
+    {
+      "test": "expired JWT error envelope",
+      "passed": true
+    },
+    {
+      "test": "Edge missing JWT",
+      "passed": true
+    },
+    {
+      "test": "Edge missing JWT JSON",
+      "passed": true
+    },
+    {
+      "test": "Edge missing JWT error envelope",
+      "passed": true
+    },
+    {
+      "test": "Edge forged JWT",
+      "passed": true
+    },
+    {
+      "test": "Edge forged JWT JSON",
+      "passed": true
+    },
+    {
+      "test": "Edge forged JWT error envelope",
+      "passed": true
+    },
+    {
+      "test": "Edge anonymous session denied",
+      "passed": true
+    },
+    {
+      "test": "Edge anonymous session denied JSON",
+      "passed": true
+    },
+    {
+      "test": "Edge anonymous session denied error envelope",
+      "passed": true
+    },
+    {
+      "test": "Edge unsupported method",
+      "passed": true
+    },
+    {
+      "test": "Edge unsupported method JSON",
+      "passed": true
+    },
+    {
+      "test": "Edge unsupported method error envelope",
+      "passed": true
+    },
+    {
+      "test": "Data API RPC unsupported GET",
+      "passed": true
+    },
+    {
+      "test": "Data API RPC unsupported GET JSON",
+      "passed": true
+    },
+    {
+      "test": "Data API RPC unsupported GET error envelope",
+      "passed": true
+    },
+    {
+      "test": "Edge persistent cache hit",
+      "passed": true
+    },
+    {
+      "test": "Edge persistent cache hit JSON",
+      "passed": true
+    },
+    {
+      "test": "Edge persistent cache hit confirmed",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 1",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 1 JSON",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 1 error envelope",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 2",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 2 JSON",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 2 error envelope",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 3",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 3 JSON",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 3 error envelope",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 4",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 4 JSON",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 4 error envelope",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 5",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 5 JSON",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 5 error envelope",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 6",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 6 JSON",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 6 error envelope",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 7",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 7 JSON",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 7 error envelope",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 8",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 8 JSON",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 8 error envelope",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 9",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 9 JSON",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 9 error envelope",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 10",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 10 JSON",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 10 error envelope",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 11",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 11 JSON",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 11 error envelope",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 12",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 12 JSON",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 12 error envelope",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 13",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 13 JSON",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 13 error envelope",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 14",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 14 JSON",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 14 error envelope",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 15",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 15 JSON",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 15 error envelope",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 16",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 16 JSON",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 16 error envelope",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 17",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 17 JSON",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 17 error envelope",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 18",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 18 JSON",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 18 error envelope",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 19",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 19 JSON",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 19 error envelope",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 20",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 20 JSON",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 20 error envelope",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 21",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 21 JSON",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 21 error envelope",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 22",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 22 JSON",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 22 error envelope",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 23",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 23 JSON",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 23 error envelope",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 24",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 24 JSON",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 24 error envelope",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 25",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 25 JSON",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 25 error envelope",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 26",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 26 JSON",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 26 error envelope",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 27",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 27 JSON",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 27 error envelope",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 28",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 28 JSON",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 28 error envelope",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 29",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 29 JSON",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 29 error envelope",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 30",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 30 JSON",
+      "passed": true
+    },
+    {
+      "test": "Edge limit request 30 error envelope",
+      "passed": true
+    },
+    {
+      "test": "Edge persisted rate limit 31st request",
+      "passed": true
+    },
+    {
+      "test": "Edge persisted rate limit 31st request JSON",
+      "passed": true
+    },
+    {
+      "test": "Edge persisted rate limit 31st request error envelope",
+      "passed": true
+    },
+    {
+      "test": "Newman assertions",
+      "passed": true
+    }
+  ],
+  "unitTests": 53,
+  "sqlChecks": 67,
+  "operations": 24,
+  "negativeScenarios": 24,
+  "apiChecksBeforeNewman": 298,
+  "newman": {
+    "stats": {
+      "iterations": {
+        "total": 1,
+        "pending": 0,
+        "failed": 0
+      },
+      "items": {
+        "total": 48,
+        "pending": 0,
+        "failed": 0
+      },
+      "scripts": {
+        "total": 96,
+        "pending": 0,
+        "failed": 0
+      },
+      "prerequests": {
+        "total": 48,
+        "pending": 0,
+        "failed": 0
+      },
+      "requests": {
+        "total": 48,
+        "pending": 0,
+        "failed": 0
+      },
+      "tests": {
+        "total": 48,
+        "pending": 0,
+        "failed": 0
+      },
+      "assertions": {
+        "total": 144,
+        "pending": 0,
+        "failed": 0
+      },
+      "testScripts": {
+        "total": 48,
+        "pending": 0,
+        "failed": 0
+      },
+      "prerequestScripts": {
+        "total": 48,
+        "pending": 0,
+        "failed": 0
+      }
+    },
+    "failures": []
+  },
+  "negativeResults": [
+    {
+      "operation": "OP-01",
+      "expected": 400,
+      "passed": true
+    },
+    {
+      "operation": "OP-02",
+      "expected": 400,
+      "passed": true
+    },
+    {
+      "operation": "OP-03",
+      "expected": 400,
+      "passed": true
+    },
+    {
+      "operation": "OP-04",
+      "expected": 400,
+      "passed": true
+    },
+    {
+      "operation": "OP-05",
+      "expected": 400,
+      "passed": true
+    },
+    {
+      "operation": "OP-06",
+      "expected": 400,
+      "passed": true
+    },
+    {
+      "operation": "OP-07",
+      "expected": 400,
+      "passed": true
+    },
+    {
+      "operation": "OP-08",
+      "expected": 400,
+      "passed": true
+    },
+    {
+      "operation": "OP-09",
+      "expected": 400,
+      "passed": true
+    },
+    {
+      "operation": "OP-10",
+      "expected": 400,
+      "passed": true
+    },
+    {
+      "operation": "OP-11",
+      "expected": 400,
+      "passed": true
+    },
+    {
+      "operation": "OP-12",
+      "expected": 400,
+      "passed": true
+    },
+    {
+      "operation": "OP-13",
+      "expected": 401,
+      "passed": true
+    },
+    {
+      "operation": "OP-14",
+      "expected": 401,
+      "passed": true
+    },
+    {
+      "operation": "OP-15",
+      "expected": 401,
+      "passed": true
+    },
+    {
+      "operation": "OP-16",
+      "expected": 401,
+      "passed": true
+    },
+    {
+      "operation": "OP-17",
+      "expected": 401,
+      "passed": true
+    },
+    {
+      "operation": "OP-18",
+      "expected": 401,
+      "passed": true
+    },
+    {
+      "operation": "OP-19",
+      "expected": 401,
+      "passed": true
+    },
+    {
+      "operation": "OP-20",
+      "expected": 400,
+      "passed": true
+    },
+    {
+      "operation": "OP-21",
+      "expected": 400,
+      "passed": true
+    },
+    {
+      "operation": "OP-22",
+      "expected": 422,
+      "passed": true
+    },
+    {
+      "operation": "OP-23",
+      "expected": 422,
+      "passed": true
+    },
+    {
+      "operation": "OP-24",
+      "expected": 422,
+      "passed": true
+    }
+  ],
+  "checks": 366,
+  "failed": 0
+}

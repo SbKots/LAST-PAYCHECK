@@ -1,0 +1,98 @@
+{
+  "projectRef": "mmuytwyhdwttzxuredfm",
+  "keyType": "publishable",
+  "authenticatedUser": false,
+  "preparedSmokeExit": 0,
+  "checks": [
+    {
+      "check": "get_catalog",
+      "status": 200,
+      "catalogVersion": "demo-1"
+    },
+    {
+      "check": "list_catalog occupations",
+      "status": 200,
+      "items": 1,
+      "total": 1
+    },
+    {
+      "check": "list_catalog skills",
+      "status": 200,
+      "items": 1,
+      "total": 1
+    },
+    {
+      "check": "list_catalog jobs",
+      "status": 200,
+      "items": 2,
+      "total": 3
+    },
+    {
+      "check": "list_catalog car-brands",
+      "status": 200,
+      "items": 1,
+      "total": 1
+    },
+    {
+      "check": "list_catalog car-models",
+      "status": 200,
+      "items": 2,
+      "total": 3
+    },
+    {
+      "check": "list_catalog tracks",
+      "status": 200,
+      "items": 1,
+      "total": 1
+    },
+    {
+      "check": "list_catalog race-configurations",
+      "status": 200,
+      "items": 1,
+      "total": 1
+    },
+    {
+      "check": "list_catalog inflation",
+      "status": 200,
+      "items": 1,
+      "total": 1
+    },
+    {
+      "check": "get_catalog_item occupations",
+      "status": 200,
+      "catalogVersion": "demo-1",
+      "id": "warehouse"
+    },
+    {
+      "check": "get_catalog_item car-models",
+      "status": 200,
+      "catalogVersion": "demo-1",
+      "id": "city-hatch"
+    },
+    {
+      "check": "get_catalog_item tracks",
+      "status": 200,
+      "catalogVersion": "demo-1",
+      "id": "night-delivery"
+    },
+    {
+      "check": "closed schema lastpay",
+      "status": 406,
+      "code": "PGRST106",
+      "message": "Invalid schema: lastpay"
+    },
+    {
+      "check": "closed schema lastpay_private",
+      "status": 406,
+      "code": "PGRST106",
+      "message": "Invalid schema: lastpay_private"
+    },
+    {
+      "check": "service-only provider_cache",
+      "status": 401,
+      "code": "42501",
+      "message": "permission denied for function provider_cache"
+    }
+  ],
+  "writes": "no business/admin writes; public RPC rate counters incremented"
+}

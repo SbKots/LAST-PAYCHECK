@@ -1,0 +1,174 @@
+erDiagram
+    lastpay_car_balance {
+        varchar catalog_version PK,FK
+        varchar model_id PK,FK
+        bigint purchase_price_minor
+        numeric race_max_speed_kmh
+        numeric acceleration_mps2
+        numeric handling
+        numeric tank_liters
+        numeric consumption_l_per_100km
+        bigint repair_price_per_point_minor
+    }
+    lastpay_car_brand {
+        varchar catalog_version PK,FK
+        varchar id PK
+        varchar name
+        varchar source
+        varchar external_id
+    }
+    lastpay_car_model {
+        varchar catalog_version PK,FK
+        varchar id PK
+        varchar brand_id FK
+        varchar name
+        varchar variant
+        smallint model_year
+        varchar source
+        varchar external_id
+    }
+    lastpay_car_specification {
+        varchar catalog_version PK,FK
+        varchar model_id PK,FK
+        numeric mass_kg
+        numeric power_kw
+        numeric max_speed_kmh
+        numeric tank_liters
+        numeric consumption_l_per_100km
+    }
+    lastpay_catalog_version {
+        varchar version PK
+        varchar status
+        bigint revision
+        timestamptz created_at
+        timestamptz published_at
+        char content_sha256
+        jsonb source_metadata
+    }
+    lastpay_inflation_observation {
+        varchar catalog_version PK,FK
+        varchar id PK
+        char country_code
+        smallint year
+        varchar indicator_code
+        numeric value_percent
+        varchar source
+        timestamptz fetched_at
+    }
+    lastpay_job_definition {
+        varchar catalog_version PK,FK
+        varchar id PK
+        varchar occupation_id FK
+        varchar required_skill_id FK
+        varchar title
+        smallint required_level
+        numeric duration_hours
+        bigint base_pay_minor
+        bigint bonus_cap_minor
+        integer task_plan
+        numeric extra_energy_per_hour
+        varchar mechanic
+    }
+    lastpay_occupation {
+        varchar catalog_version PK,FK
+        varchar id PK
+        varchar source
+        varchar external_id
+        varchar title
+        text description
+    }
+    lastpay_occupation_skill {
+        varchar catalog_version PK,FK
+        varchar occupation_id PK,FK
+        varchar skill_id PK,FK
+        numeric importance
+    }
+    lastpay_provider_cache {
+        uuid id PK
+        varchar provider
+        char request_hash
+        jsonb payload
+        timestamptz fetched_at
+        timestamptz expires_at
+        varchar etag
+        varchar catalog_version FK
+    }
+    lastpay_race_configuration {
+        varchar catalog_version PK,FK
+        varchar id PK
+        varchar track_id FK
+        varchar title
+        smallint laps
+        integer time_limit_seconds
+        bigint entry_fee_minor
+        bigint finish_reward_minor
+        smallint required_car_condition
+    }
+    lastpay_race_track {
+        varchar catalog_version PK,FK
+        varchar id PK
+        varchar title
+        integer length_m
+        varchar asset_key
+        char asset_sha256
+        integer layout_revision
+    }
+    lastpay_skill {
+        varchar catalog_version PK,FK
+        varchar id PK
+        varchar code
+        varchar title
+        text description
+        varchar source
+        varchar external_id
+    }
+    lastpay_user_save {
+        uuid user_id PK,FK
+        jsonb snapshot
+        bigint revision
+        timestamptz updated_at
+    }
+    lastpay_private_admin_membership {
+        uuid user_id PK,FK
+        timestamptz created_at
+    }
+    lastpay_private_iso_country {
+        text code PK
+    }
+    lastpay_private_provider_lease {
+        text provider PK
+        text request_hash PK
+        uuid owner
+        timestamptz expires_at
+    }
+    lastpay_private_rate_window {
+        text bucket PK
+        text subject PK
+        bigint minute
+        integer hits
+    }
+    auth_users {
+        uuid id PK
+    }
+    lastpay_catalog_version ||--o{ lastpay_car_balance : references
+    lastpay_car_model ||--o| lastpay_car_balance : references
+    lastpay_catalog_version ||--o{ lastpay_car_brand : references
+    lastpay_car_brand ||--o{ lastpay_car_model : references
+    lastpay_catalog_version ||--o{ lastpay_car_model : references
+    lastpay_catalog_version ||--o{ lastpay_car_specification : references
+    lastpay_car_model ||--o| lastpay_car_specification : references
+    lastpay_catalog_version ||--o{ lastpay_inflation_observation : references
+    lastpay_catalog_version ||--o{ lastpay_job_definition : references
+    lastpay_occupation |o--o{ lastpay_job_definition : references
+    lastpay_skill ||--o{ lastpay_job_definition : references
+    lastpay_catalog_version ||--o{ lastpay_occupation : references
+    lastpay_catalog_version ||--o{ lastpay_occupation_skill : references
+    lastpay_occupation ||--o{ lastpay_occupation_skill : references
+    lastpay_skill ||--o{ lastpay_occupation_skill : references
+    lastpay_catalog_version |o--o{ lastpay_provider_cache : references
+    lastpay_catalog_version ||--o{ lastpay_race_configuration : references
+    lastpay_race_track ||--o{ lastpay_race_configuration : references
+    lastpay_catalog_version ||--o{ lastpay_race_track : references
+    lastpay_catalog_version ||--o{ lastpay_skill : references
+    auth_users ||--o| lastpay_user_save : references
+    auth_users ||--o| lastpay_private_admin_membership : references

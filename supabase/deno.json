@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "lib": [
+      "deno.ns",
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ]
+  },
+  "fmt": {
+    "lineWidth": 100
+  },
+  "tasks": {
+    "check": "deno fmt --check functions tests/unit_test.ts tests/catalog_test.ts tests/local_server.ts deno.json && deno lint functions tests/unit_test.ts tests/catalog_test.ts tests/local_server.ts && deno check functions/providers/index.ts functions/catalog/index.ts tests/unit_test.ts tests/catalog_test.ts tests/local_server.ts",
+    "test": "deno test --allow-read tests/unit_test.ts tests/catalog_test.ts --junit-path=.local/deno-unit.xml"
+  }
+}

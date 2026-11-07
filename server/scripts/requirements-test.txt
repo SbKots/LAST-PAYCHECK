@@ -1,4 +1,0 @@
-PyYAML==6.0.3
-openapi-spec-validator==0.9.0
-openapi-schema-validator==0.9.0
-psycopg[binary]==3.3.8

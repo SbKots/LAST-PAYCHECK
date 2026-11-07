@@ -1,318 +1,40 @@
 {
   "date": "2026-11-06",
-  "branch": "feature/practice-11",
-  "base": "a5974f0",
-  "jdk": "21.0.7",
-  "postgres": "17.6",
-  "newmanVersion": "6.2.1",
-  "actionlint": "1.7.12 PASS",
-  "openapi": "both contracts valid",
-  "database": "lastpay_test_071455fe0821",
-  "operations": 24,
-  "negativeScenarios": 24,
-  "junit": {
-    "lastpay.DatabaseTest": {
-      "tests": 11,
-      "failures": 0,
-      "errors": 0,
-      "skipped": 0
-    },
-    "lastpay.ProviderTest": {
-      "tests": 11,
-      "failures": 0,
-      "errors": 0,
-      "skipped": 0
-    },
-    "lastpay.RoutesTest": {
-      "tests": 35,
-      "failures": 0,
-      "errors": 0,
-      "skipped": 0
-    },
-    "lastpay.SecurityTest": {
-      "tests": 10,
-      "failures": 0,
-      "errors": 0,
-      "skipped": 0
-    },
-    "lastpay.ValidationTest": {
-      "tests": 43,
-      "failures": 0,
-      "errors": 0,
-      "skipped": 0
-    }
+  "backend": "Supabase",
+  "branch": "feature/supabase-backend",
+  "legacyRecoveryCommit": "ba1380c",
+  "local": {
+    "unitTests": 53,
+    "sqlChecks": 67,
+    "apiAssertions": 298,
+    "operations": 24,
+    "negativeScenarios": 24,
+    "runnerChecks": 366,
+    "failed": 0,
+    "newmanRequests": 48,
+    "newmanAssertions": 144,
+    "mutationRegression": 99
   },
-  "gradle": "clean test build installDist PASS",
-  "newman": {
-    "negativeRequests": 35,
-    "stats": {
-      "iterations": {
-        "total": 1,
-        "pending": 0,
-        "failed": 0
-      },
-      "items": {
-        "total": 55,
-        "pending": 0,
-        "failed": 0
-      },
-      "scripts": {
-        "total": 56,
-        "pending": 0,
-        "failed": 0
-      },
-      "prerequests": {
-        "total": 55,
-        "pending": 0,
-        "failed": 0
-      },
-      "requests": {
-        "total": 55,
-        "pending": 0,
-        "failed": 0
-      },
-      "tests": {
-        "total": 55,
-        "pending": 0,
-        "failed": 0
-      },
-      "assertions": {
-        "total": 212,
-        "pending": 0,
-        "failed": 0
-      },
-      "testScripts": {
-        "total": 55,
-        "pending": 0,
-        "failed": 0
-      },
-      "prerequestScripts": {
-        "total": 1,
-        "pending": 0,
-        "failed": 0
-      }
-    },
-    "failures": []
+  "cloud": {
+    "projectRef": "mmuytwyhdwttzxuredfm",
+    "migrations": [
+      "202611060001",
+      "202611060002",
+      "202611060003",
+      "202611060004"
+    ],
+    "securityChecks": 54,
+    "deleteChecks": 28,
+    "deleteFailed": 0,
+    "envoyAttempts": 1,
+    "activeVersion": "demo-1",
+    "evidenceDirectory": "supabase/evidence",
+    "positivePublicationTested": false
   },
-  "smoke": "PASS",
-  "worldBank": "controlled fresh PostgreSQL cache fixture; no live provider",
-  "githubActions": "not run on GitHub",
-  "negativeResults": [
-    {
-      "id": "NEG-01",
-      "operation": "GET /catalog",
-      "method": "POST",
-      "path": "/catalog",
-      "status": 405,
-      "actual": 405,
-      "errorCode": "METHODNOTALLOWED"
-    },
-    {
-      "id": "NEG-02",
-      "operation": "GET /occupations",
-      "method": "GET",
-      "path": "/occupations",
-      "status": 400,
-      "actual": 400,
-      "errorCode": "BADREQUEST"
-    },
-    {
-      "id": "NEG-03",
-      "operation": "GET /skills",
-      "method": "GET",
-      "path": "/skills",
-      "status": 400,
-      "actual": 400,
-      "errorCode": "BADREQUEST"
-    },
-    {
-      "id": "NEG-04",
-      "operation": "GET /jobs",
-      "method": "GET",
-      "path": "/jobs",
-      "status": 400,
-      "actual": 400,
-      "errorCode": "BADREQUEST"
-    },
-    {
-      "id": "NEG-05",
-      "operation": "GET /inflation",
-      "method": "GET",
-      "path": "/inflation",
-      "status": 400,
-      "actual": 400,
-      "errorCode": "BADREQUEST"
-    },
-    {
-      "id": "NEG-06",
-      "operation": "GET /cars/brands",
-      "method": "GET",
-      "path": "/cars/brands",
-      "status": 400,
-      "actual": 400,
-      "errorCode": "BADREQUEST"
-    },
-    {
-      "id": "NEG-07",
-      "operation": "GET /cars/models",
-      "method": "GET",
-      "path": "/cars/models",
-      "status": 400,
-      "actual": 400,
-      "errorCode": "BADREQUEST"
-    },
-    {
-      "id": "NEG-08",
-      "operation": "GET /tracks",
-      "method": "GET",
-      "path": "/tracks",
-      "status": 400,
-      "actual": 400,
-      "errorCode": "BADREQUEST"
-    },
-    {
-      "id": "NEG-09",
-      "operation": "GET /race-configurations",
-      "method": "GET",
-      "path": "/race-configurations",
-      "status": 400,
-      "actual": 400,
-      "errorCode": "BADREQUEST"
-    },
-    {
-      "id": "NEG-10",
-      "operation": "GET /occupations/{id}",
-      "method": "GET",
-      "path": "/occupations/bad",
-      "status": 400,
-      "actual": 400,
-      "errorCode": "BADREQUEST"
-    },
-    {
-      "id": "NEG-11",
-      "operation": "GET /cars/models/{id}",
-      "method": "GET",
-      "path": "/cars/models/bad",
-      "status": 400,
-      "actual": 400,
-      "errorCode": "BADREQUEST"
-    },
-    {
-      "id": "NEG-12",
-      "operation": "GET /tracks/{id}",
-      "method": "GET",
-      "path": "/tracks/bad",
-      "status": 400,
-      "actual": 400,
-      "errorCode": "BADREQUEST"
-    },
-    {
-      "id": "NEG-13",
-      "operation": "POST /admin/catalogs",
-      "method": "POST",
-      "path": "/admin/catalogs",
-      "status": 401,
-      "actual": 401,
-      "errorCode": "UNAUTHORIZED"
-    },
-    {
-      "id": "NEG-14",
-      "operation": "GET /admin/catalogs/{version}/skills",
-      "method": "GET",
-      "path": "/admin/catalogs/v/skills",
-      "status": 401,
-      "actual": 401,
-      "errorCode": "UNAUTHORIZED"
-    },
-    {
-      "id": "NEG-15",
-      "operation": "POST /admin/catalogs/{version}/skills",
-      "method": "POST",
-      "path": "/admin/catalogs/v/skills",
-      "status": 401,
-      "actual": 401,
-      "errorCode": "UNAUTHORIZED"
-    },
-    {
-      "id": "NEG-16",
-      "operation": "GET /admin/catalogs/{version}/skills/{id}",
-      "method": "GET",
-      "path": "/admin/catalogs/v/skills/bad",
-      "status": 401,
-      "actual": 401,
-      "errorCode": "UNAUTHORIZED"
-    },
-    {
-      "id": "NEG-17",
-      "operation": "PUT /admin/catalogs/{version}/skills/{id}",
-      "method": "PUT",
-      "path": "/admin/catalogs/v/skills/bad",
-      "status": 401,
-      "actual": 401,
-      "errorCode": "UNAUTHORIZED"
-    },
-    {
-      "id": "NEG-18",
-      "operation": "DELETE /admin/catalogs/{version}/skills/{id}",
-      "method": "DELETE",
-      "path": "/admin/catalogs/v/skills/bad",
-      "status": 401,
-      "actual": 401,
-      "errorCode": "UNAUTHORIZED"
-    },
-    {
-      "id": "NEG-19",
-      "operation": "POST /admin/catalogs/{version}/publish",
-      "method": "POST",
-      "path": "/admin/catalogs/v/publish",
-      "status": 401,
-      "actual": 401,
-      "errorCode": "UNAUTHORIZED"
-    },
-    {
-      "id": "NEG-20",
-      "operation": "GET /integrations/worldbank/inflation",
-      "method": "GET",
-      "path": "/integrations/worldbank/inflation",
-      "status": 400,
-      "actual": 400,
-      "errorCode": "BADREQUEST"
-    },
-    {
-      "id": "NEG-21",
-      "operation": "GET /integrations/onet/occupations",
-      "method": "GET",
-      "path": "/integrations/onet/occupations?unexpected=1",
-      "status": 400,
-      "actual": 400,
-      "errorCode": "BADREQUEST"
-    },
-    {
-      "id": "NEG-22",
-      "operation": "GET /integrations/onet/skills/{occupationCode}",
-      "method": "GET",
-      "path": "/integrations/onet/skills/bad",
-      "status": 422,
-      "actual": 422,
-      "errorCode": "VALIDATIONERROR"
-    },
-    {
-      "id": "NEG-23",
-      "operation": "GET /integrations/cars/brands",
-      "method": "GET",
-      "path": "/integrations/cars/brands?page=0",
-      "status": 422,
-      "actual": 422,
-      "errorCode": "VALIDATIONERROR"
-    },
-    {
-      "id": "NEG-24",
-      "operation": "GET /integrations/cars/models",
-      "method": "GET",
-      "path": "/integrations/cars/models?brandId=!",
-      "status": 422,
-      "actual": 422,
-      "errorCode": "VALIDATIONERROR"
-    }
+  "githubActions": "YAML actionlint PASS; GitHub execution not performed",
+  "limitations": [
+    "live ONET/CarsBase keys absent",
+    "cloud positive publication requires separate permission",
+    "Android E2E refresh offline and load not verified"
   ]
 }

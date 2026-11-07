@@ -1,0 +1,405 @@
+{
+  "database": "lastpay_response_9a84a19cf7",
+  "cloudWrites": false,
+  "results": [
+    {
+      "test": "create_draft HTTP 201",
+      "passed": true
+    },
+    {
+      "test": "create_draft valid framing",
+      "passed": true
+    },
+    {
+      "test": "create_skill HTTP 201",
+      "passed": true
+    },
+    {
+      "test": "create_skill valid framing",
+      "passed": true
+    },
+    {
+      "test": "baseline invalid 204 Content-Length 4 reproduced",
+      "passed": true
+    },
+    {
+      "test": "baseline first attempt committed",
+      "passed": true
+    },
+    {
+      "test": "baseline retry yields 412 after first attempt committed",
+      "passed": true
+    },
+    {
+      "test": "migration preserves both function OIDs owners ACLs",
+      "passed": true
+    },
+    {
+      "test": "create_draft HTTP 201",
+      "passed": true
+    },
+    {
+      "test": "create_draft valid framing",
+      "passed": true
+    },
+    {
+      "test": "draft created once",
+      "passed": true
+    },
+    {
+      "test": "create_draft HTTP 409",
+      "passed": true
+    },
+    {
+      "test": "create_draft valid framing",
+      "passed": true
+    },
+    {
+      "test": "create_draft error leaves all application data unchanged",
+      "passed": true
+    },
+    {
+      "test": "create_draft safe error JSON",
+      "passed": true
+    },
+    {
+      "test": "create_skill HTTP 403",
+      "passed": true
+    },
+    {
+      "test": "create_skill valid framing",
+      "passed": true
+    },
+    {
+      "test": "create_skill error leaves all application data unchanged",
+      "passed": true
+    },
+    {
+      "test": "create_skill safe error JSON",
+      "passed": true
+    },
+    {
+      "test": "create_skill HTTP 401",
+      "passed": true
+    },
+    {
+      "test": "create_skill valid framing",
+      "passed": true
+    },
+    {
+      "test": "create_skill error leaves all application data unchanged",
+      "passed": true
+    },
+    {
+      "test": "create_skill safe error JSON",
+      "passed": true
+    },
+    {
+      "test": "create_skill HTTP 201",
+      "passed": true
+    },
+    {
+      "test": "create_skill valid framing",
+      "passed": true
+    },
+    {
+      "test": "create committed exactly one revision",
+      "passed": true
+    },
+    {
+      "test": "create_skill HTTP 409",
+      "passed": true
+    },
+    {
+      "test": "create_skill valid framing",
+      "passed": true
+    },
+    {
+      "test": "create_skill error leaves all application data unchanged",
+      "passed": true
+    },
+    {
+      "test": "create_skill safe error JSON",
+      "passed": true
+    },
+    {
+      "test": "update_skill HTTP 412",
+      "passed": true
+    },
+    {
+      "test": "update_skill valid framing",
+      "passed": true
+    },
+    {
+      "test": "update_skill error leaves all application data unchanged",
+      "passed": true
+    },
+    {
+      "test": "update_skill safe error JSON",
+      "passed": true
+    },
+    {
+      "test": "update_skill HTTP 400",
+      "passed": true
+    },
+    {
+      "test": "update_skill valid framing",
+      "passed": true
+    },
+    {
+      "test": "update_skill error leaves all application data unchanged",
+      "passed": true
+    },
+    {
+      "test": "update_skill safe error JSON",
+      "passed": true
+    },
+    {
+      "test": "update_skill HTTP 200",
+      "passed": true
+    },
+    {
+      "test": "update_skill valid framing",
+      "passed": true
+    },
+    {
+      "test": "update committed exactly one revision",
+      "passed": true
+    },
+    {
+      "test": "updated value committed",
+      "passed": true
+    },
+    {
+      "test": "get_draft_skill HTTP 200",
+      "passed": true
+    },
+    {
+      "test": "get_draft_skill valid framing",
+      "passed": true
+    },
+    {
+      "test": "strong revision ETag identity",
+      "passed": true
+    },
+    {
+      "test": "no-transform directive identity",
+      "passed": true
+    },
+    {
+      "test": "get_draft_skill HTTP 200",
+      "passed": true
+    },
+    {
+      "test": "get_draft_skill valid framing",
+      "passed": true
+    },
+    {
+      "test": "strong revision ETag gzip, br",
+      "passed": true
+    },
+    {
+      "test": "no-transform directive gzip, br",
+      "passed": true
+    },
+    {
+      "test": "delete_skill HTTP 412",
+      "passed": true
+    },
+    {
+      "test": "delete_skill valid framing",
+      "passed": true
+    },
+    {
+      "test": "delete_skill error leaves all application data unchanged",
+      "passed": true
+    },
+    {
+      "test": "delete_skill safe error JSON",
+      "passed": true
+    },
+    {
+      "test": "delete_skill HTTP 403",
+      "passed": true
+    },
+    {
+      "test": "delete_skill valid framing",
+      "passed": true
+    },
+    {
+      "test": "delete_skill error leaves all application data unchanged",
+      "passed": true
+    },
+    {
+      "test": "delete_skill safe error JSON",
+      "passed": true
+    },
+    {
+      "test": "delete_skill HTTP 200",
+      "passed": true
+    },
+    {
+      "test": "delete_skill valid framing",
+      "passed": true
+    },
+    {
+      "test": "fixed delete receipt and ETag",
+      "passed": true
+    },
+    {
+      "test": "fixed delete committed exactly one revision",
+      "passed": true
+    },
+    {
+      "test": "fixed success does not trigger framing retry",
+      "passed": true
+    },
+    {
+      "test": "get_draft_skill HTTP 404",
+      "passed": true
+    },
+    {
+      "test": "get_draft_skill valid framing",
+      "passed": true
+    },
+    {
+      "test": "get_draft_skill error leaves all application data unchanged",
+      "passed": true
+    },
+    {
+      "test": "get_draft_skill safe error JSON",
+      "passed": true
+    },
+    {
+      "test": "delete_skill HTTP 412",
+      "passed": true
+    },
+    {
+      "test": "delete_skill valid framing",
+      "passed": true
+    },
+    {
+      "test": "delete_skill error leaves all application data unchanged",
+      "passed": true
+    },
+    {
+      "test": "delete_skill safe error JSON",
+      "passed": true
+    },
+    {
+      "test": "publish_catalog HTTP 412",
+      "passed": true
+    },
+    {
+      "test": "publish_catalog valid framing",
+      "passed": true
+    },
+    {
+      "test": "publish_catalog error leaves all application data unchanged",
+      "passed": true
+    },
+    {
+      "test": "publish_catalog safe error JSON",
+      "passed": true
+    },
+    {
+      "test": "publish_catalog HTTP 200",
+      "passed": true
+    },
+    {
+      "test": "publish_catalog valid framing",
+      "passed": true
+    },
+    {
+      "test": "publish committed exactly one revision",
+      "passed": true
+    },
+    {
+      "test": "publish_catalog HTTP 409",
+      "passed": true
+    },
+    {
+      "test": "publish_catalog valid framing",
+      "passed": true
+    },
+    {
+      "test": "publish_catalog error leaves all application data unchanged",
+      "passed": true
+    },
+    {
+      "test": "publish_catalog safe error JSON",
+      "passed": true
+    },
+    {
+      "test": "save_game HTTP 200",
+      "passed": true
+    },
+    {
+      "test": "save_game valid framing",
+      "passed": true
+    },
+    {
+      "test": "save response revision and owner",
+      "passed": true
+    },
+    {
+      "test": "save_game HTTP 412",
+      "passed": true
+    },
+    {
+      "test": "save_game valid framing",
+      "passed": true
+    },
+    {
+      "test": "save_game error leaves all application data unchanged",
+      "passed": true
+    },
+    {
+      "test": "save_game safe error JSON",
+      "passed": true
+    },
+    {
+      "test": "save receipt agrees with committed row",
+      "passed": true
+    },
+    {
+      "test": "create_draft HTTP 201",
+      "passed": true
+    },
+    {
+      "test": "create_draft valid framing",
+      "passed": true
+    },
+    {
+      "test": "create_skill HTTP 201",
+      "passed": true
+    },
+    {
+      "test": "create_skill valid framing",
+      "passed": true
+    },
+    {
+      "test": "delete_skill HTTP 500",
+      "passed": true
+    },
+    {
+      "test": "delete_skill valid framing",
+      "passed": true
+    },
+    {
+      "test": "delete_skill error leaves all application data unchanged",
+      "passed": true
+    },
+    {
+      "test": "delete_skill safe error JSON",
+      "passed": true
+    },
+    {
+      "test": "post-mutation exception rolled back skill and revision",
+      "passed": true
+    }
+  ],
+  "passed": true,
+  "checks": 99,
+  "failed": 0
+}

@@ -1,0 +1,233 @@
+{
+  "date": "2026-11-07",
+  "scope": "Real upstream HTTPS and local production adapter; not hosted Supabase verification",
+  "cloudSecretsChanged": false,
+  "cloudDeployed": false,
+  "cloudUserJwtVerified": false,
+  "runtimeAdapterChanged": false,
+  "authenticationAndCacheInLiveHandler": "In-memory local fixtures; persistent SQL cache tested separately by local regression runner",
+  "upstreamRequests": [
+    {
+      "route": "/onet/occupations",
+      "http": 200,
+      "contentType": "application/json; charset=utf-8",
+      "keys": [
+        "start",
+        "end",
+        "total",
+        "career"
+      ],
+      "total": 46,
+      "rows": 46,
+      "rowKeys": [
+        "href",
+        "code",
+        "title",
+        "tags"
+      ],
+      "first": {
+        "code": "15-1243.01",
+        "title": "Data Warehousing Specialists"
+      },
+      "adapter": "PASS",
+      "localHandler": {
+        "cold": 200,
+        "warm": 200,
+        "fromCache": true,
+        "upstreamCalls": 1,
+        "dataUnchanged": true
+      }
+    },
+    {
+      "route": "/onet/skills/53-7062.00",
+      "http": 200,
+      "contentType": "application/json; charset=utf-8",
+      "keys": [
+        "start",
+        "end",
+        "total",
+        "element"
+      ],
+      "total": 35,
+      "rows": 35,
+      "rowKeys": [
+        "id",
+        "related",
+        "name",
+        "description",
+        "importance"
+      ],
+      "first": {
+        "id": "2.B.1.b",
+        "name": "Coordination"
+      },
+      "adapter": "PASS",
+      "localHandler": {
+        "cold": 200,
+        "warm": 200,
+        "fromCache": true,
+        "upstreamCalls": 1,
+        "dataUnchanged": true
+      }
+    },
+    {
+      "route": "/cars/brands",
+      "http": 200,
+      "contentType": "application/json; charset=utf-8",
+      "keys": [
+        "data",
+        "meta"
+      ],
+      "meta": {
+        "total": 50,
+        "count": 50,
+        "pageSize": 1000,
+        "page": 1,
+        "next_after_id": "BMW",
+        "demoMode": true,
+        "duration_ms": 3.3
+      },
+      "rows": 50,
+      "rowKeys": [
+        "id",
+        "name",
+        "cyrillic_name",
+        "numeric_id",
+        "year_from",
+        "year_to",
+        "popular",
+        "country",
+        "updated_at"
+      ],
+      "first": {
+        "id": "212",
+        "name": "212"
+      },
+      "adapter": "PASS",
+      "localHandler": {
+        "cold": 200,
+        "warm": 200,
+        "fromCache": true,
+        "upstreamCalls": 1,
+        "dataUnchanged": true
+      }
+    },
+    {
+      "route": "/cars/models?brandId=BMW",
+      "http": 200,
+      "contentType": "application/json; charset=utf-8",
+      "keys": [
+        "data",
+        "meta"
+      ],
+      "meta": {
+        "total": 67,
+        "count": 67,
+        "pageSize": 1000,
+        "page": 1,
+        "next_after_id": "BMW_Z8",
+        "demoMode": true,
+        "duration_ms": 3.26
+      },
+      "rows": 67,
+      "rowKeys": [
+        "id",
+        "mark_id",
+        "name",
+        "cyrillic_name",
+        "year_from",
+        "year_to",
+        "class",
+        "updated_at"
+      ],
+      "first": {
+        "id": "BMW_02",
+        "name": "02 (E10)"
+      },
+      "adapter": "PASS",
+      "localHandler": {
+        "cold": 200,
+        "warm": 200,
+        "fromCache": true,
+        "upstreamCalls": 1,
+        "dataUnchanged": true
+      }
+    },
+    {
+      "route": "/worldbank/inflation?country=RUS&yearFrom=2020&yearTo=2022",
+      "http": 200,
+      "contentType": "application/json;charset=utf-8",
+      "keys": [
+        "0",
+        "1"
+      ],
+      "adapter": "PASS",
+      "localHandler": {
+        "cold": 200,
+        "warm": 200,
+        "fromCache": true,
+        "upstreamCalls": 1,
+        "dataUnchanged": true
+      }
+    },
+    {
+      "provider": "CarsBase public probe",
+      "route": "/status",
+      "http": 200
+    },
+    {
+      "provider": "CarsBase public probe",
+      "route": "/marks",
+      "http": 401
+    },
+    {
+      "provider": "CarsBase public probe",
+      "route": "/models?mark_id=BMW",
+      "http": 401
+    },
+    {
+      "provider": "CarsBase public probe",
+      "route": "/me?token=test",
+      "http": 200,
+      "demoMode": true,
+      "message": "Р”РµРјРѕ С‚РѕРєРµРЅ Р°РєС‚РёРІРµРЅ. Р”РѕСЃС‚СѓРї Рє РґР°РЅРЅС‹Рј РѕРіСЂР°РЅРёС‡РµРЅ."
+    },
+    {
+      "provider": "CarsBase public probe",
+      "route": "/full",
+      "http": 200
+    }
+  ],
+  "carsBaseDemoLimitProbe": {
+    "brandId": "TOYOTA",
+    "http": 200,
+    "rows": 0,
+    "demoMode": true,
+    "adapterClassification": "NO_DATA; handler returns 503 when no cached data exists"
+  },
+  "carsBaseDocumentation": "https://cars-base.ru/api2",
+  "carsBaseDemoDescription": "First 50 brands; BMW model probe returned 67 rows. Demo is not the complete paid database.",
+  "localRegression": {
+    "passed": true,
+    "unitTests": 102,
+    "sqlChecks": 67,
+    "operations": 24,
+    "negativeScenarios": 24,
+    "checks": 389,
+    "failed": 0,
+    "newmanRequests": 48,
+    "newmanAssertions": 144
+  },
+  "keyScan": {
+    "workspaceMatches": 0,
+    "historyBlobs": 140,
+    "historyMatches": 0,
+    "activationArtifactsMatches": 0
+  },
+  "remaining": [
+    "Approve ONET_API_KEY and CARS_API_TOKEN=test in Edge Secrets",
+    "Request separate approval for a providers redeploy only if needed",
+    "Use a real confirmed user session for hosted HTTPS checks",
+    "Update report11 content after hosted results without changing formatting"
+  ]
+}

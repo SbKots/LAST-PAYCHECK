@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="catalog_loading">Загрузка демокаталога…</string>
+    <string name="demo_catalog_version">Версия демокаталога %1$s</string>
+</resources>

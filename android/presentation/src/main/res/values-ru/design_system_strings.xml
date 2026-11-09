@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="design_system_caption">Дизайн-система · Практика 13</string>
+    <string name="use_light_theme">Включить светлую тему</string>
+    <string name="use_dark_theme">Включить тёмную тему</string>
+    <string name="design_system_catalog">Каталог</string>
+    <string name="design_system_local_data">Локальные данные для демонстрации</string>
+    <string name="design_system_controls">Элементы управления</string>
+    <string name="design_system_quantity">Количество порций</string>
+    <string name="design_system_quantity_help">Целое число от 1.</string>
+    <string name="design_system_quantity_error">Ошибка. Укажите хотя бы 1 порцию.</string>
+    <string name="design_system_confirm">Подтвердить количество</string>
+    <string name="design_system_reset">Сбросить</string>
+    <string name="design_system_unavailable">Недоступно</string>
+    <string name="design_system_quantity_confirmed">Выбранное количество — %1$d</string>
+</resources>

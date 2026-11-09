@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="startup_title">LAST PAYCHECK</string>
+    <string name="catalog_loading">Loading the demo catalog…</string>
+    <string name="demo_catalog_version">Demo catalog version %1$s</string>
+</resources>

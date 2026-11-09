@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="design_system_caption">Design system · Practice 13</string>
+    <string name="use_light_theme">Switch to light theme</string>
+    <string name="use_dark_theme">Switch to dark theme</string>
+    <string name="design_system_catalog">Catalog</string>
+    <string name="design_system_local_data">Local demo data</string>
+    <string name="design_system_controls">Controls</string>
+    <string name="design_system_quantity">Number of portions</string>
+    <string name="design_system_quantity_help">Enter a whole number of 1 or more.</string>
+    <string name="design_system_quantity_error">Error. Enter at least 1 portion.</string>
+    <string name="design_system_confirm">Confirm quantity</string>
+    <string name="design_system_reset">Reset</string>
+    <string name="design_system_unavailable">Unavailable</string>
+    <string name="design_system_quantity_confirmed">Quantity selected: %1$d</string>
+</resources>

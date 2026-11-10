@@ -64,7 +64,7 @@ private fun GalleryHeader(darkTheme: Boolean, onThemeToggle: () -> Unit) {
             text = stringResource(R.string.startup_title),
             level = LpHeadingLevel.Screen
         )
-        LpCaption(text = stringResource(R.string.design_system_caption))
+
         val themeLabel = if (darkTheme) R.string.use_light_theme else R.string.use_dark_theme
         LpButton(
             label = stringResource(themeLabel),

@@ -1,4 +1,5 @@
 plugins {
+    `java-library`
     alias(libs.plugins.kotlin.jvm)
 }
 
@@ -7,6 +8,7 @@ kotlin {
 }
 
 dependencies {
+    api(libs.kotlinx.coroutines.core)
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
 }

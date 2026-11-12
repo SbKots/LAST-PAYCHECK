@@ -6,6 +6,14 @@ plugins {
     alias(libs.plugins.hilt)
 }
 
+val supabasePublishableKey = providers.gradleProperty("supabasePublishableKey")
+    .orElse(providers.environmentVariable("SUPABASE_PUBLISHABLE_KEY"))
+    .getOrElse("")
+val publishableKeyPattern = Regex("sb_publishable_[A-Za-z0-9_-]+")
+require(supabasePublishableKey.isEmpty() || supabasePublishableKey.matches(publishableKeyPattern)) {
+    "Only a Supabase publishable key is accepted"
+}
+
 android {
     namespace = "com.lastpaycheck.app"
     compileSdk = libs.versions.compileSdk.get().toInt()
@@ -16,10 +24,12 @@ android {
         targetSdk = libs.versions.targetSdk.get().toInt()
         versionCode = 1
         versionName = "0.1.0"
+        buildConfigField("String", "SUPABASE_PUBLISHABLE_KEY", "\"$supabasePublishableKey\"")
     }
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 

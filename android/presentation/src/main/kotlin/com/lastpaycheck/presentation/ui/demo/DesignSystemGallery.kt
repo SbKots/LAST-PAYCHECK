@@ -37,7 +37,9 @@ private const val DEMO_QUANTITY = "2"
 internal fun DesignSystemGallery(
     catalogStatus: String,
     darkTheme: Boolean,
-    onThemeToggle: () -> Unit
+    onThemeToggle: () -> Unit,
+    catalogSource: String? = null,
+    onCatalogRetry: (() -> Unit)? = null
 ) {
     LastPaycheckTheme(darkTheme = darkTheme) {
         Surface(color = LastPaycheckTheme.colors.background) {
@@ -50,7 +52,7 @@ internal fun DesignSystemGallery(
                 verticalArrangement = Arrangement.spacedBy(LpSpacing.lg)
             ) {
                 GalleryHeader(darkTheme, onThemeToggle)
-                CatalogCard(catalogStatus)
+                CatalogCard(catalogStatus, catalogSource, onCatalogRetry)
                 QuantityExample()
             }
         }
@@ -76,13 +78,25 @@ private fun GalleryHeader(darkTheme: Boolean, onThemeToggle: () -> Unit) {
 }
 
 @Composable
-internal fun CatalogCard(catalogStatus: String) {
+internal fun CatalogCard(
+    catalogStatus: String,
+    source: String? = null,
+    onRetry: (() -> Unit)? = null
+) {
     LpCard(
         title = stringResource(R.string.design_system_catalog),
         modifier = Modifier.fillMaxWidth()
     ) {
         LpBody(text = catalogStatus)
-        LpCaption(text = stringResource(R.string.design_system_local_data))
+        if (source != null) LpCaption(text = source)
+        if (onRetry != null) {
+            LpButton(
+                label = stringResource(R.string.catalog_retry),
+                onClick = onRetry,
+                modifier = Modifier.fillMaxWidth(),
+                style = LpButtonStyle.Secondary
+            )
+        }
     }
 }
 

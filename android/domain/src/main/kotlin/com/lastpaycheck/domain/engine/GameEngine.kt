@@ -25,7 +25,6 @@ import com.lastpaycheck.domain.model.failure
 import com.lastpaycheck.domain.model.flatMap
 import com.lastpaycheck.domain.repository.RandomSource
 
-/** Pure transitions. The coordinator owns clocks, storage and the active snapshot. */
 class GameEngine(
     private val random: RandomSource = SeededRandomSource,
     private val events: EventPolicy = NoEventsPolicy
@@ -70,7 +69,6 @@ class GameEngine(
         if (session.status == SessionStatus.FINISHED) return failure(GameError.GameFinished)
         if (session.clock.isPaused || activeMillis == 0L) return transition(session)
 
-        // Quarter units preserve the real-time budget when sleep ends inside this update.
         var budget = Math.addExact(
             Math.multiplyExact(activeMillis, 576L),
             session.clock.fractionalRemainder.toLong()

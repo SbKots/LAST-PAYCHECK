@@ -43,7 +43,6 @@ class LimitedEventsPolicy(
         if (session.clock.gameMillis - lastTime < spacing) {
             return EventDecision(session.randomState)
         }
-        // An extra outcome permits a day without an event.
         val draw = random.next(session.randomState, definitions.size + 1)
         val definition = definitions.getOrNull(draw.value)
             ?: return EventDecision(draw.nextState)

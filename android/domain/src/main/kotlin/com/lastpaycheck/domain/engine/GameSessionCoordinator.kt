@@ -22,7 +22,6 @@ import kotlinx.coroutines.sync.withLock
 private const val CHECKPOINT_INTERVAL_MILLIS = 10_000L
 private const val CLOCK_OPERATION_PREFIX = "@clock:"
 
-/** One instance per game. Durable effects are published only after a repository commit. */
 class GameSessionCoordinator(
     private val engine: GameEngine,
     private val repository: GameSessionRepository,
@@ -130,7 +129,6 @@ class GameSessionCoordinator(
             val reasons = if (enabled) oldReasons + reason else oldReasons - reason
             if (reasons == oldReasons) return@flatMap DomainResult.Success(snapshot)
             val paused = snapshot.copy(clock = snapshot.clock.copy(pauseReasons = reasons))
-            // Lifecycle pauses remain effective even when the checkpoint cannot be written.
             checkpoint(paused, reasons)
         }
     }

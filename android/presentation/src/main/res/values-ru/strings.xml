@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="catalog_loading">Загрузка демокаталога…</string>
+    <string name="catalog_loading">Загрузка опубликованного каталога…</string>
+    <string name="catalog_version">Версия опубликованного каталога %1$s</string>
+    <string name="catalog_source">Загружено из Supabase</string>
+    <string name="catalog_offline">Нет подключения к интернету.</string>
+    <string name="catalog_timeout">Сервер каталога не ответил вовремя.</string>
+    <string name="catalog_connection_error">Не удалось подключиться к серверу каталога.</string>
+    <string name="catalog_invalid_response">Сервер вернул некорректный каталог.</string>
+    <string name="catalog_rate_limited">Слишком много запросов. Попробуйте позже.</string>
+    <string name="catalog_server_error">Сервер каталога временно недоступен.</string>
+    <string name="catalog_error">Не удалось загрузить каталог.</string>
+    <string name="catalog_retry">Повторить</string>
     <string name="demo_catalog_version">Версия демокаталога %1$s</string>
 </resources>

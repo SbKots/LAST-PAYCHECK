@@ -68,7 +68,6 @@ data class GameSettings(
     val vibrationEnabled: Boolean
 )
 
-/** Reuse the key only when retrying the same action in the same session. */
 data class OperationKey(val sessionId: String, val id: String)
 
 sealed interface GameEffect {

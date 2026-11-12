@@ -4,7 +4,6 @@ const val GAME_MINUTE_MILLIS = 60_000L
 const val GAME_HOUR_MILLIS = 60 * GAME_MINUTE_MILLIS
 const val GAME_DAY_MILLIS = 24 * GAME_HOUR_MILLIS
 
-/** One resource point is stored as GAME_HOUR_MILLIS units for exact hourly changes. */
 data class Needs(
     val satietyUnits: Long,
     val energyUnits: Long,

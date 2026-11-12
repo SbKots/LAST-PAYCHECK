@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="startup_title">LAST PAYCHECK</string>
-    <string name="catalog_loading">Loading the demo catalog…</string>
+    <string name="catalog_loading">Loading the published catalog…</string>
+    <string name="catalog_version">Published catalog version %1$s</string>
+    <string name="catalog_source">Loaded from Supabase</string>
+    <string name="catalog_offline">No internet connection.</string>
+    <string name="catalog_timeout">The catalog request timed out.</string>
+    <string name="catalog_connection_error">Could not connect to the catalog server.</string>
+    <string name="catalog_invalid_response">The server returned an invalid catalog.</string>
+    <string name="catalog_rate_limited">Too many requests. Try again later.</string>
+    <string name="catalog_server_error">The catalog server is temporarily unavailable.</string>
+    <string name="catalog_error">Could not load the catalog.</string>
+    <string name="catalog_retry">Retry</string>
     <string name="demo_catalog_version">Demo catalog version %1$s</string>
 </resources>

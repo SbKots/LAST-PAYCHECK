@@ -61,7 +61,8 @@ private fun GalleryPreview(darkTheme: Boolean) {
     DesignSystemGallery(
         catalogStatus = stringResource(R.string.demo_catalog_version, "demo-1"),
         darkTheme = darkTheme,
-        onThemeToggle = {}
+        onThemeToggle = {},
+        catalogSource = stringResource(R.string.design_system_local_data)
     )
 }
 
@@ -109,7 +110,10 @@ private fun ComponentsPreview(darkTheme: Boolean) {
                     supportingText = stringResource(R.string.design_system_unavailable),
                     enabled = false
                 )
-                CatalogCard(stringResource(R.string.demo_catalog_version, "demo-1"))
+                CatalogCard(
+                    stringResource(R.string.demo_catalog_version, "demo-1"),
+                    stringResource(R.string.design_system_local_data)
+                )
             }
         }
     }

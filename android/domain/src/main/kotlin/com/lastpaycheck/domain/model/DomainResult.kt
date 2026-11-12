@@ -6,6 +6,12 @@ sealed interface DomainResult<out T> {
 }
 
 sealed interface GameError {
+    data class Remote(
+        val reason: RemoteFailure,
+        val status: Int? = null,
+        val code: String? = null
+    ) : GameError
+
     data class InvalidInput(val field: String) : GameError
     data class NotFound(val id: String) : GameError
     data class InsufficientFunds(val requiredMinor: Long, val availableMinor: Long) : GameError

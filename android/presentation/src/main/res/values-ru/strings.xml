@@ -3,6 +3,7 @@
     <string name="catalog_loading">Загрузка опубликованного каталога…</string>
     <string name="catalog_version">Версия опубликованного каталога %1$s</string>
     <string name="catalog_source">Загружено из Supabase</string>
+    <string name="catalog_cached">Загружено из кеша устройства</string>
     <string name="catalog_offline">Нет подключения к интернету.</string>
     <string name="catalog_timeout">Сервер каталога не ответил вовремя.</string>
     <string name="catalog_connection_error">Не удалось подключиться к серверу каталога.</string>

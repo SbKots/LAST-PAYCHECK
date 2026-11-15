@@ -97,7 +97,7 @@ data class GameSession(
     val speed: Int get() = if (activeActivity is TimedActivity.Sleep) 4 else 1
     val lastEvent: GameEvent? get() = events.lastOrNull()
 
-    internal fun isValid(): Boolean {
+    fun isValid(): Boolean {
         val finished = status == SessionStatus.FINISHED
         val active = activeActivity
         return id.isNotBlank() && revision >= 0 && catalogVersion == scenario.version &&

@@ -9,6 +9,12 @@ data class CatalogManifest(
     val sources: List<CatalogResourceSource>
 )
 
+data class CatalogSnapshot(
+    val manifest: CatalogManifest,
+    val fromCache: Boolean,
+    val lastRefreshedAt: Instant?
+)
+
 data class CatalogResourceSource(
     val resource: String,
     val provider: String,

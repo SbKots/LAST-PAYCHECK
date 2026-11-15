@@ -4,6 +4,7 @@
     <string name="catalog_loading">Loading the published catalog…</string>
     <string name="catalog_version">Published catalog version %1$s</string>
     <string name="catalog_source">Loaded from Supabase</string>
+    <string name="catalog_cached">Saved on this device</string>
     <string name="catalog_offline">No internet connection.</string>
     <string name="catalog_timeout">The catalog request timed out.</string>
     <string name="catalog_connection_error">Could not connect to the catalog server.</string>

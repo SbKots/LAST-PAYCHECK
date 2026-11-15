@@ -61,11 +61,14 @@ data class EventDefinition(
 
 enum class ControlMode { TOUCH, TILT }
 
+enum class ThemePreference { SYSTEM, LIGHT, DARK }
+
 data class GameSettings(
     val controls: ControlMode,
     val calibration: Double,
     val soundEnabled: Boolean,
-    val vibrationEnabled: Boolean
+    val vibrationEnabled: Boolean,
+    val theme: ThemePreference = ThemePreference.SYSTEM
 )
 
 data class OperationKey(val sessionId: String, val id: String)

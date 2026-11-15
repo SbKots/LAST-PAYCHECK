@@ -1,5 +1,7 @@
 package com.lastpaycheck.data
 
+import com.lastpaycheck.data.catalog.CachedManifest
+import com.lastpaycheck.data.catalog.CatalogCache
 import com.lastpaycheck.data.remote.SupabaseNetwork
 import com.lastpaycheck.data.remote.dto.SaveArgsDto
 import com.lastpaycheck.data.remote.dto.SaveRequestDto
@@ -39,10 +41,11 @@ class SupabaseNetworkTest {
             jsonResponse(Json.encodeToString(manifestFixture().copy(catalogVersion = "release-43")))
         )
 
-        val result = network.catalogRepository.getManifest()
+        val repository = network.catalogRepository(TestCache())
+        val result = repository.getManifest()
             as DomainResult.Success<CatalogManifest>
         assertEquals("release-42", result.value.version)
-        assertEquals("release-43", network.catalogRepository.getVersion())
+        assertEquals("release-43", repository.getVersion())
 
         val request = checkNotNull(server.takeRequest(1, TimeUnit.SECONDS))
         assertEquals("/functions/v1/catalog", request.path)
@@ -55,7 +58,7 @@ class SupabaseNetworkTest {
 
     @Test
     fun mapsHttpStatusesAndBothErrorEnvelopes() = runBlocking {
-        val catalog = network().catalogRepository
+        val catalog = network().catalogRepository(TestCache())
         val expected = mapOf(
             400 to RemoteFailure.BAD_REQUEST,
             401 to RemoteFailure.AUTH_REQUIRED,
@@ -83,7 +86,7 @@ class SupabaseNetworkTest {
 
     @Test
     fun rejectsMalformedMissingEmptyAndUnexpectedPayloads() = runBlocking {
-        val catalog = network().catalogRepository
+        val catalog = network().catalogRepository(TestCache())
         for (body in listOf("{", "", "null", "[]", "{}", "<html>error</html>")) {
             server.enqueue(jsonResponse(body))
             assertEquals(failure(RemoteFailure.INVALID_RESPONSE), catalog.getManifest())
@@ -213,5 +216,15 @@ class SupabaseNetworkTest {
     private companion object {
         const val TEST_TOKEN = "testHeader.testPayload.testSignature"
         const val TEST_KEY = "sb_publishable_test"
+    }
+}
+
+private class TestCache : CatalogCache {
+    private var current: CachedManifest? = null
+
+    override suspend fun read() = current
+
+    override suspend fun write(manifest: CachedManifest) {
+        current = manifest
     }
 }

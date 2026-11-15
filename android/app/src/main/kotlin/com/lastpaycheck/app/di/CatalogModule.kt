@@ -5,11 +5,16 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.util.Log
 import com.lastpaycheck.app.BuildConfig
+import com.lastpaycheck.data.local.LocalPersistence
 import com.lastpaycheck.data.remote.SupabaseNetwork
 import com.lastpaycheck.data.remote.interceptor.TokenProvider
 import com.lastpaycheck.domain.catalog.GetCatalogVersion
 import com.lastpaycheck.domain.repository.CatalogManifestRepository
+import com.lastpaycheck.domain.repository.GameSessionRepository
+import com.lastpaycheck.domain.repository.SettingsRepository
 import com.lastpaycheck.domain.usecase.GetCatalogManifest
+import com.lastpaycheck.domain.usecase.ObserveSettingsUseCase
+import com.lastpaycheck.domain.usecase.UpdateSettingsUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -54,8 +59,28 @@ object CatalogModule {
     }
 
     @Provides
-    fun provideCatalogRepository(network: SupabaseNetwork): CatalogManifestRepository =
-        network.catalogRepository
+    @Singleton
+    fun provideLocalPersistence(@ApplicationContext context: Context): LocalPersistence =
+        LocalPersistence(context)
+
+    @Provides
+    @Singleton
+    fun provideCatalogRepository(
+        network: SupabaseNetwork,
+        local: LocalPersistence
+    ): CatalogManifestRepository = local.catalogRepository(network)
+
+    @Provides
+    fun provideSessions(local: LocalPersistence): GameSessionRepository = local.sessions
+
+    @Provides
+    fun provideSettings(local: LocalPersistence): SettingsRepository = local.settings
+
+    @Provides
+    fun provideObserveSettings(settings: SettingsRepository) = ObserveSettingsUseCase(settings)
+
+    @Provides
+    fun provideUpdateSettings(settings: SettingsRepository) = UpdateSettingsUseCase(settings)
 
     @Provides
     fun provideGetCatalogVersion(repository: CatalogManifestRepository): GetCatalogVersion =

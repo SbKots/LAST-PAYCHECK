@@ -1,5 +1,6 @@
 package com.lastpaycheck.data.remote
 
+import com.lastpaycheck.data.catalog.CatalogCache
 import com.lastpaycheck.data.catalog.DefaultCatalogRepository
 import com.lastpaycheck.data.remote.error.RemoteCalls
 import com.lastpaycheck.data.remote.interceptor.SupabaseHeaders
@@ -50,7 +51,6 @@ class SupabaseNetwork(
 
     internal val calls = RemoteCalls(json, hasConnection)
     internal val saveApi: SaveApi by lazy { retrofit.create(SaveApi::class.java) }
-    val catalogRepository: CatalogManifestRepository by lazy {
-        DefaultCatalogRepository(retrofit.create(CatalogApi::class.java), calls)
-    }
+    internal fun catalogRepository(cache: CatalogCache): CatalogManifestRepository =
+        DefaultCatalogRepository(retrofit.create(CatalogApi::class.java), calls, cache)
 }

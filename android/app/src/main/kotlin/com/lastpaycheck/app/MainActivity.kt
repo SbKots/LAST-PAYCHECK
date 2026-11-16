@@ -7,7 +7,8 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.lifecycle.ViewModelProvider
-import com.lastpaycheck.presentation.startup.StartupScreen
+import com.lastpaycheck.presentation.game.GameNavigation
+import com.lastpaycheck.presentation.game.MainViewModel
 import com.lastpaycheck.presentation.startup.StartupViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -16,8 +17,9 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val viewModel = ViewModelProvider(this)[StartupViewModel::class.java]
+        val gameViewModel = ViewModelProvider(this)[MainViewModel::class.java]
         setContent {
-            StartupScreen(viewModel, onThemeChanged = ::updateSystemBars)
+            GameNavigation(gameViewModel, viewModel, onThemeChanged = ::updateSystemBars)
         }
     }
 

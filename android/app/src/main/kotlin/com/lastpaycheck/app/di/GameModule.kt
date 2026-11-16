@@ -1,0 +1,64 @@
+package com.lastpaycheck.app.di
+
+import android.os.SystemClock
+import com.lastpaycheck.data.catalog.TrainingGameCatalogRepository
+import com.lastpaycheck.domain.engine.GameEngine
+import com.lastpaycheck.domain.engine.GameSessionCoordinator
+import com.lastpaycheck.domain.repository.ActiveGameClock
+import com.lastpaycheck.domain.repository.CatalogRepository
+import com.lastpaycheck.domain.repository.GameSessionRepository
+import com.lastpaycheck.domain.usecase.ContinueGameUseCase
+import com.lastpaycheck.domain.usecase.GetPlayerStatusUseCase
+import com.lastpaycheck.domain.usecase.PreviewNewGameUseCase
+import com.lastpaycheck.domain.usecase.SaveProgressUseCase
+import com.lastpaycheck.domain.usecase.SetPauseUseCase
+import com.lastpaycheck.domain.usecase.StartActivityUseCase
+import com.lastpaycheck.domain.usecase.StartNewGameUseCase
+import com.lastpaycheck.domain.usecase.UpdateGameTimeUseCase
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.components.ViewModelComponent
+import dagger.hilt.android.scopes.ViewModelScoped
+
+@Module
+@InstallIn(ViewModelComponent::class)
+object GameModule {
+    @Provides
+    fun catalog(): CatalogRepository = TrainingGameCatalogRepository()
+
+    @Provides
+    @ViewModelScoped
+    fun clock() = ActiveGameClock(SystemClock::elapsedRealtime)
+
+    @Provides
+    @ViewModelScoped
+    fun coordinator(repository: GameSessionRepository, clock: ActiveGameClock) =
+        GameSessionCoordinator(GameEngine(), repository, clock)
+
+    @Provides
+    fun preview(catalog: CatalogRepository) = PreviewNewGameUseCase(catalog)
+
+    @Provides
+    fun start(catalog: CatalogRepository, coordinator: GameSessionCoordinator) =
+        StartNewGameUseCase(catalog, coordinator)
+
+    @Provides
+    fun continueGame(coordinator: GameSessionCoordinator) = ContinueGameUseCase(coordinator)
+
+    @Provides
+    fun status(coordinator: GameSessionCoordinator) = GetPlayerStatusUseCase(coordinator)
+
+    @Provides
+    fun activity(catalog: CatalogRepository, coordinator: GameSessionCoordinator) =
+        StartActivityUseCase(catalog, coordinator)
+
+    @Provides
+    fun tick(coordinator: GameSessionCoordinator) = UpdateGameTimeUseCase(coordinator)
+
+    @Provides
+    fun pause(coordinator: GameSessionCoordinator) = SetPauseUseCase(coordinator)
+
+    @Provides
+    fun save(coordinator: GameSessionCoordinator) = SaveProgressUseCase(coordinator)
+}

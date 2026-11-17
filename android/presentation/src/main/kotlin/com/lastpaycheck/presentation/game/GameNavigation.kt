@@ -11,8 +11,10 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.lastpaycheck.domain.model.DomainResult
@@ -34,10 +36,10 @@ internal object GameRoutes {
     data class Apartment(val sessionId: String)
 
     @Serializable
-    data object Shop
+    data class Shop(val sessionId: String)
 
     @Serializable
-    data object Work
+    data class Work(val sessionId: String)
 
     @Serializable
     data object Training
@@ -57,6 +59,7 @@ fun GameNavigation(
 ) {
     val nav = rememberNavController()
     val state by game.state.collectAsStateWithLifecycle()
+    val entry by nav.currentBackStackEntryAsState()
     val preview by game.preview.collectAsStateWithLifecycle()
     val settings by startup.settings.collectAsStateWithLifecycle()
     val theme = (settings as? DomainResult.Success)?.value?.theme
@@ -66,6 +69,16 @@ fun GameNavigation(
         else -> isSystemInDarkTheme()
     }
     SideEffect { onThemeChanged(dark) }
+    val destination = entry?.destination
+    LaunchedEffect(destination) {
+        if (destination?.hasRoute<GameRoutes.Apartment>() == true) game.dismissSectionEffect()
+    }
+    if (destination?.hasRoute<GameRoutes.Apartment>() == true ||
+        destination?.hasRoute<GameRoutes.Work>() == true ||
+        destination?.hasRoute<GameRoutes.Shop>() == true
+    ) {
+        GameLifecycle(game)
+    }
     val openHome: (GameSession) -> Unit = {
         nav.navigate(GameRoutes.Apartment(it.id)) {
             popUpTo<GameRoutes.Start>()
@@ -101,22 +114,48 @@ fun GameNavigation(
             composable<GameRoutes.Apartment> { entry ->
                 val route = entry.toRoute<GameRoutes.Apartment>()
                 LaunchedEffect(route.sessionId) { game.restoreHome(route.sessionId) }
-                HomeLifecycle(game)
+                val homeState = state.forSession(route.sessionId)
                 GameHomeScreen(
-                    state = state,
+                    state = homeState,
                     onAction = game::start,
                     onPause = game::togglePause,
                     onSave = game::save,
                     onRetry = game::retry,
-                    onBack = { nav.popBackStack() }
+                    onBack = { nav.popBackStack() },
+                    onWork = if (homeState is MainUiState.Content) {
+                        {
+                            nav.navigate(
+                                GameRoutes.Work(route.sessionId)
+                            ) { launchSingleTop = true }
+                        }
+                    } else {
+                        null
+                    },
+                    onShop = if (homeState is MainUiState.Content) {
+                        {
+                            nav.navigate(
+                                GameRoutes.Shop(route.sessionId)
+                            ) { launchSingleTop = true }
+                        }
+                    } else {
+                        null
+                    }
                 )
+            }
+            composable<GameRoutes.Work> { entry ->
+                val route = entry.toRoute<GameRoutes.Work>()
+                SectionRoute(game, route.sessionId, Section.Work) { nav.popBackStack() }
+            }
+            composable<GameRoutes.Shop> { entry ->
+                val route = entry.toRoute<GameRoutes.Shop>()
+                SectionRoute(game, route.sessionId, Section.Shop) { nav.popBackStack() }
             }
         }
     }
 }
 
 @Composable
-private fun HomeLifecycle(viewModel: MainViewModel) {
+private fun GameLifecycle(viewModel: MainViewModel) {
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     DisposableEffect(lifecycle, viewModel) {
         val observer = LifecycleEventObserver { _, event ->
@@ -132,4 +171,16 @@ private fun HomeLifecycle(viewModel: MainViewModel) {
             viewModel.setHomeVisible(false)
         }
     }
+}
+
+internal fun MainUiState.forSession(sessionId: String): MainUiState = when (this) {
+    is MainUiState.Content -> if (session.id == sessionId) this else MainUiState.Empty
+    is MainUiState.Error -> if (session == null || session.id == sessionId) {
+        this
+    } else {
+        copy(
+            session = null
+        )
+    }
+    else -> this
 }

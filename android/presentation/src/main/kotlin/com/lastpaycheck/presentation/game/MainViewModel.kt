@@ -3,13 +3,17 @@ package com.lastpaycheck.presentation.game
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lastpaycheck.domain.model.ActivityRequest
+import com.lastpaycheck.domain.model.BoxCategory
 import com.lastpaycheck.domain.model.DomainResult
+import com.lastpaycheck.domain.model.GameEffect
 import com.lastpaycheck.domain.model.GameError
 import com.lastpaycheck.domain.model.GameSession
 import com.lastpaycheck.domain.model.NewGamePreview
 import com.lastpaycheck.domain.model.OperationKey
+import com.lastpaycheck.domain.model.OperationReceipt
 import com.lastpaycheck.domain.model.PauseReason
 import com.lastpaycheck.domain.model.SessionStatus
+import com.lastpaycheck.domain.model.WorkShift
 import com.lastpaycheck.domain.repository.ActiveGameClock
 import com.lastpaycheck.domain.repository.CatalogRepository
 import com.lastpaycheck.domain.repository.CheckpointChoice
@@ -50,17 +54,25 @@ class MainViewModel @Inject constructor(
     private val startActivity: StartActivityUseCase,
     private val updateTime: UpdateGameTimeUseCase,
     private val setPause: SetPauseUseCase,
-    private val saveProgress: SaveProgressUseCase
+    private val saveProgress: SaveProgressUseCase,
+    private val sections: SectionActions
 ) : ViewModel() {
     private val mutableState = MutableStateFlow<MainUiState>(MainUiState.Loading)
     internal val state = mutableState.asStateFlow()
     private val mutablePreview = MutableStateFlow<DomainResult<NewGamePreview>?>(null)
     internal val preview = mutablePreview.asStateFlow()
+    private val mutableCatalog = MutableStateFlow<DomainResult<SectionCatalog>?>(null)
+    internal val sectionCatalog = mutableCatalog.asStateFlow()
+    private val mutableEffect = MutableStateFlow<GameEffect?>(null)
+    internal val sectionEffect = mutableEffect.asStateFlow()
+    private val mutableBusy = MutableStateFlow(false)
+    internal val sectionBusy = mutableBusy.asStateFlow()
     private var operation: Job? = null
     private var ticker: Job? = null
     private var homeVisible = false
     private var activeSessionId: String? = null
     private var retryAction: (() -> Unit)? = null
+    private var catalogLoad: Job? = null
 
     init {
         loadSavedGame()
@@ -117,6 +129,8 @@ class MainViewModel @Inject constructor(
             operation?.join()
             perform {
                 if (activeSessionId == sessionId) return@perform
+                activeSessionId = null
+                updateTicker()
                 retryAction = { restoreHome(sessionId) }
                 mutableState.value = MainUiState.Loading
                 val loaded = sessions.load(CheckpointChoice.LATEST)
@@ -127,6 +141,91 @@ class MainViewModel @Inject constructor(
                         ?: DomainResult.Failure(GameError.NoSession)
                     publish(result)
                 }
+            }
+        }
+    }
+
+    internal fun loadSection(sessionId: String, day: Long) {
+        if (activeSessionId != sessionId) return
+        catalogLoad?.cancel()
+        mutableCatalog.value = null
+        catalogLoad = viewModelScope.launch {
+            val session = currentSession()?.takeIf { it.id == sessionId } ?: return@launch
+            val result = catalog.get(session.catalogVersion)
+            if (result is DomainResult.Failure) {
+                mutableCatalog.value = result
+                return@launch
+            }
+            val available = (result as DomainResult.Success).value
+            val products = available.products.map { product ->
+                when (val quote = sections.quote(product.id)) {
+                    is DomainResult.Success -> StoreProduct(product, quote.value)
+                    is DomainResult.Failure -> {
+                        mutableCatalog.value = quote
+                        return@launch
+                    }
+                }
+            }
+            mutableCatalog.value =
+                DomainResult.Success(SectionCatalog(sessionId, day, available, products))
+        }
+    }
+
+    internal fun startShift(sessionId: String, jobId: String) = sectionCommand(
+        sessionId
+    ) { key, _ ->
+        sections.startShift(key, jobId)
+    }
+
+    internal fun placeBox(sessionId: String, boxId: String, zone: BoxCategory) =
+        sectionCommand(sessionId) { key, session ->
+            if ((session.activeActivity as? WorkShift)?.selectedBox?.id != boxId) {
+                DomainResult.Failure(GameError.BoxAlreadyPlaced)
+            } else {
+                sections.placeBox(key, boxId, zone)
+            }
+        }
+
+    internal fun finishShift(sessionId: String) = sectionCommand(sessionId) { key, _ ->
+        sections.finishShift(key)
+    }
+
+    internal fun buy(sessionId: String, item: StoreProduct, quantity: Int, confirmationId: String) =
+        sectionCommand(sessionId, confirmationId) { key, _ ->
+            sections.buy(key, item.product.id, quantity, item.quote.unitPriceMinor)
+        }
+
+    internal fun dismissSectionEffect() {
+        mutableEffect.value = null
+    }
+
+    private fun sectionCommand(
+        sessionId: String,
+        operationId: String = UUID.randomUUID().toString(),
+        command: suspend (OperationKey, GameSession) -> DomainResult<OperationReceipt>
+    ) {
+        if (mutableBusy.value || activeSessionId != sessionId) return
+        mutableBusy.value = true
+        mutableEffect.value = null
+        val running = operation
+        operation = viewModelScope.launch {
+            try {
+                running?.join()
+                val session = currentSession()?.takeIf { it.id == sessionId } ?: return@launch
+                val key = OperationKey(sessionId, operationId)
+                retryAction = {
+                    publish(playerStatus())
+                    loadSection(sessionId, session.clock.day)
+                }
+                when (val result = command(key, session)) {
+                    is DomainResult.Success -> {
+                        publish(playerStatus())
+                        mutableEffect.value = result.value.effect
+                    }
+                    is DomainResult.Failure -> showError(result.error)
+                }
+            } finally {
+                mutableBusy.value = false
             }
         }
     }

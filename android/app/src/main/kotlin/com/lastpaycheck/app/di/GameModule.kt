@@ -7,14 +7,20 @@ import com.lastpaycheck.domain.engine.GameSessionCoordinator
 import com.lastpaycheck.domain.repository.ActiveGameClock
 import com.lastpaycheck.domain.repository.CatalogRepository
 import com.lastpaycheck.domain.repository.GameSessionRepository
+import com.lastpaycheck.domain.usecase.BuyProductUseCase
 import com.lastpaycheck.domain.usecase.ContinueGameUseCase
+import com.lastpaycheck.domain.usecase.FinishShiftUseCase
 import com.lastpaycheck.domain.usecase.GetPlayerStatusUseCase
+import com.lastpaycheck.domain.usecase.PlaceBoxUseCase
 import com.lastpaycheck.domain.usecase.PreviewNewGameUseCase
+import com.lastpaycheck.domain.usecase.QuoteProductUseCase
 import com.lastpaycheck.domain.usecase.SaveProgressUseCase
 import com.lastpaycheck.domain.usecase.SetPauseUseCase
 import com.lastpaycheck.domain.usecase.StartActivityUseCase
 import com.lastpaycheck.domain.usecase.StartNewGameUseCase
+import com.lastpaycheck.domain.usecase.StartShiftUseCase
 import com.lastpaycheck.domain.usecase.UpdateGameTimeUseCase
+import com.lastpaycheck.presentation.game.SectionActions
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -61,4 +67,13 @@ object GameModule {
 
     @Provides
     fun save(coordinator: GameSessionCoordinator) = SaveProgressUseCase(coordinator)
+
+    @Provides
+    fun gameplay(catalog: CatalogRepository, coordinator: GameSessionCoordinator) = SectionActions(
+        StartShiftUseCase(catalog, coordinator),
+        PlaceBoxUseCase(coordinator),
+        FinishShiftUseCase(coordinator),
+        QuoteProductUseCase(catalog, coordinator),
+        BuyProductUseCase(catalog, coordinator)
+    )
 }

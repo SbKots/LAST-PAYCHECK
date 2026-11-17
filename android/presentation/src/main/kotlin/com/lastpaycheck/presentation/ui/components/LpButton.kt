@@ -7,7 +7,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.material3.MaterialTheme
@@ -18,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import com.lastpaycheck.presentation.ui.theme.LastPaycheckTheme
@@ -32,7 +35,9 @@ fun LpButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     style: LpButtonStyle = LpButtonStyle.Primary,
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    pinLeadingIcon: Boolean = false,
+    leadingIcon: (@Composable (Color) -> Unit)? = null
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val pressed by interactionSource.collectIsPressedAsState()
@@ -78,14 +83,36 @@ fun LpButton(
                 role = Role.Button,
                 onClick = onClick
             )
-            .padding(horizontal = LpSpacing.base, vertical = LpSpacing.md),
+            .padding(
+                horizontal = if (leadingIcon == null) LpSpacing.base else LpSpacing.sm,
+                vertical = LpSpacing.md
+            ),
         contentAlignment = Alignment.Center
     ) {
-        Text(
-            text = label,
-            color = foreground,
-            style = MaterialTheme.typography.labelLarge,
-            textAlign = TextAlign.Center
-        )
+        if (leadingIcon == null) {
+            ButtonLabel(label, foreground)
+        } else if (pinLeadingIcon) {
+            Box(Modifier.align(Alignment.CenterStart)) { leadingIcon(foreground) }
+            ButtonLabel(label, foreground, Modifier.padding(horizontal = LpSpacing.lg))
+        } else {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(LpSpacing.sm),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                leadingIcon(foreground)
+                if (label.isNotEmpty()) ButtonLabel(label, foreground)
+            }
+        }
     }
+}
+
+@Composable
+private fun ButtonLabel(label: String, color: Color, modifier: Modifier = Modifier) {
+    Text(
+        text = label,
+        modifier = modifier,
+        color = color,
+        style = MaterialTheme.typography.labelLarge,
+        textAlign = TextAlign.Center
+    )
 }

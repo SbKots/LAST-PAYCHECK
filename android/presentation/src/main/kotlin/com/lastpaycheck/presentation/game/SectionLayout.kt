@@ -20,6 +20,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -42,11 +43,12 @@ internal fun SectionPage(
     session: GameSession?,
     onBack: () -> Unit,
     footer: @Composable () -> Unit,
+    screenTag: String = "",
     content: @Composable ColumnScope.() -> Unit
 ) {
     val colors = LastPaycheckTheme.colors
     val back = stringResource(R.string.game_back)
-    Surface(Modifier.fillMaxSize(), color = colors.background) {
+    Surface(Modifier.fillMaxSize().testTag(screenTag), color = colors.background) {
         Column(Modifier.safeDrawingPadding()) {
             Surface(color = colors.surface) {
                 Row(

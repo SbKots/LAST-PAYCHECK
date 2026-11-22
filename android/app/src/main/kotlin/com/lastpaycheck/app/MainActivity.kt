@@ -7,6 +7,8 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.lifecycle.ViewModelProvider
+import com.lastpaycheck.presentation.account.AccountViewModel
+import com.lastpaycheck.presentation.game.FinanceViewModel
 import com.lastpaycheck.presentation.game.GameNavigation
 import com.lastpaycheck.presentation.game.MainViewModel
 import com.lastpaycheck.presentation.startup.StartupViewModel
@@ -18,8 +20,16 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         val viewModel = ViewModelProvider(this)[StartupViewModel::class.java]
         val gameViewModel = ViewModelProvider(this)[MainViewModel::class.java]
+        val accountViewModel = ViewModelProvider(this)[AccountViewModel::class.java]
+        val financeViewModel = ViewModelProvider(this)[FinanceViewModel::class.java]
         setContent {
-            GameNavigation(gameViewModel, viewModel, onThemeChanged = ::updateSystemBars)
+            GameNavigation(
+                gameViewModel,
+                viewModel,
+                accountViewModel,
+                financeViewModel,
+                onThemeChanged = ::updateSystemBars
+            )
         }
     }
 

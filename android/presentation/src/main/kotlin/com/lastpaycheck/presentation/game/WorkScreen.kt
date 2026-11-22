@@ -55,7 +55,13 @@ internal fun WorkContent(
     BackHandler(preparing && shift == null && job != null, backToJobs)
     when {
         shift != null -> ActiveShift(session, shift, busy, effect, game, onBack)
-        preparing && job != null -> ShiftPreparation(session, job, busy, backToJobs) {
+        preparing && job != null -> ShiftPreparation(
+            session,
+            job,
+            busy,
+            game::togglePause,
+            backToJobs
+        ) {
             preparing = false
             game.startShift(session.id, job.id)
         }
@@ -64,6 +70,7 @@ internal fun WorkContent(
             stringResource(R.string.game_career_level, session.player.level),
             session,
             onBack,
+            screenTag = "screen.work",
             footer = {
                 SectionFooter(
                     action = stringResource(R.string.game_shift_requirements),
@@ -71,6 +78,7 @@ internal fun WorkContent(
                 ) { preparing = true }
             }
         ) {
+            GamePauseNotice(session, game::togglePause, busy)
             if (jobs.isEmpty()) LpBody(stringResource(R.string.game_no_jobs))
             if (effect is GameEffect.ShiftFinished) ShiftSummary(effect.result)
             Column(verticalArrangement = Arrangement.spacedBy(LpSpacing.sm)) {
@@ -158,6 +166,7 @@ private fun ShiftPreparation(
     session: GameSession,
     job: Job,
     busy: Boolean,
+    onResume: () -> Unit,
     onBack: () -> Unit,
     onStart: () -> Unit
 ) {
@@ -176,6 +185,7 @@ private fun ShiftPreparation(
             )
         }
     ) {
+        GamePauseNotice(session, onResume, busy)
         SectionScene(R.drawable.warehouse) {
             SectionCard(stringResource(R.string.game_shift_requirements)) {
                 JobDetails(job)
@@ -194,7 +204,8 @@ private fun ShiftPreparation(
 
 private fun blockedJob(session: GameSession, job: Job): Int? = when {
     session.status == SessionStatus.FINISHED -> R.string.game_finished
-    session.clock.isPaused || session.activeActivity != null -> R.string.game_busy
+    session.clock.isPaused -> R.string.progress_unpause_hint
+    session.activeActivity != null -> R.string.game_busy
     session.player.needs.energyUnits == 0L -> R.string.game_no_energy
     job.requiredLevel > session.player.level -> R.string.game_job_locked
     else -> null
@@ -260,6 +271,7 @@ private fun ActiveShift(
             }
         }
     ) {
+        GamePauseNotice(session, game::togglePause, busy)
         Row(horizontalArrangement = Arrangement.spacedBy(LpSpacing.sm)) {
             ShiftMetric(
                 R.string.game_shift_correct,

@@ -34,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -68,10 +69,15 @@ internal fun GameHomeScreen(
     onSave: () -> Unit,
     onRetry: () -> Unit,
     onBack: () -> Unit,
-    onWork: (() -> Unit)?,
-    onShop: (() -> Unit)?
+    onCity: (() -> Unit)?,
+    onTraining: () -> Unit,
+    onFridge: () -> Unit,
+    onSettings: () -> Unit
 ) {
-    Surface(Modifier.fillMaxSize(), color = LastPaycheckTheme.colors.background) {
+    Surface(
+        Modifier.fillMaxSize().testTag("screen.home"),
+        color = LastPaycheckTheme.colors.background
+    ) {
         Column(Modifier.safeDrawingPadding()) {
             val session = when (state) {
                 is MainUiState.Content -> state.session
@@ -79,21 +85,23 @@ internal fun GameHomeScreen(
                 else -> null
             }
             session?.let {
-                GameStatusHeader(it) { HomeMenu(it, onPause, onSave, onBack) }
+                GameStatusHeader(it) { HomeMenu(it, onPause, onSave, onBack, onSettings) }
             }
             Column(
                 modifier = Modifier.fillMaxWidth().weight(1f)
                     .verticalScroll(rememberScrollState()).padding(LpSpacing.base),
                 verticalArrangement = Arrangement.spacedBy(LpSpacing.sm)
             ) {
+                session?.let { GamePauseNotice(it, onPause) }
                 when (state) {
                     MainUiState.Loading -> GameLoading()
                     MainUiState.Empty -> LpBody(stringResource(R.string.game_no_save))
                     is MainUiState.Content -> HomeContent(
                         state.session,
                         onAction,
-                        onWork,
-                        onShop
+                        onCity,
+                        onTraining,
+                        onFridge
                     )
                     is MainUiState.Error -> {
                         state.session?.let { NeedsPanel(it.player.needs, compact = true) }
@@ -102,13 +110,19 @@ internal fun GameHomeScreen(
                 }
                 if (state !is MainUiState.Content) GameBackButton(onBack)
             }
-            HomeSections(onWork, onShop)
         }
     }
 }
 
 @Composable
-private fun HomeSections(onWork: (() -> Unit)?, onShop: (() -> Unit)?) {
+internal fun HomeSections(
+    onWork: (() -> Unit)?,
+    onShop: (() -> Unit)?,
+    onHome: () -> Unit,
+    onFinance: () -> Unit,
+    onHero: () -> Unit,
+    selected: Int
+) {
     val colors = LastPaycheckTheme.colors
     Surface(color = colors.surface) {
         Row(
@@ -119,29 +133,36 @@ private fun HomeSections(onWork: (() -> Unit)?, onShop: (() -> Unit)?) {
                 R.string.game_home_section,
                 R.drawable.game_ic_home,
                 Modifier.weight(1f),
-                selected = true
+                onHome,
+                selected = selected == R.string.game_home_section
             )
             SectionLink(
                 R.string.game_work_section,
                 R.drawable.game_ic_work,
                 Modifier.weight(1f),
-                onWork
+                onWork,
+                selected = selected == R.string.game_work_section
             )
             SectionLink(
                 R.string.game_shop_section,
                 R.drawable.game_ic_shop,
                 Modifier.weight(1f),
-                onShop
+                onShop,
+                selected = selected == R.string.game_shop_section
             )
             SectionLink(
                 R.string.game_finance_section,
                 R.drawable.game_ic_finance,
-                Modifier.weight(1f)
+                Modifier.weight(1f),
+                onFinance,
+                selected = selected == R.string.game_finance_section
             )
             SectionLink(
                 R.string.game_character_section,
                 R.drawable.game_ic_hero,
-                Modifier.weight(1f)
+                Modifier.weight(1f),
+                onHero,
+                selected = selected == R.string.game_character_section
             )
         }
     }
@@ -166,7 +187,7 @@ private fun SectionLink(
         )
     }
     Column(
-        modifier.then(click).heightIn(min = 72.dp),
+        modifier.then(click).testTag("tab.$label").heightIn(min = 72.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(LpSpacing.sm)
     ) {
@@ -184,9 +205,12 @@ private fun SectionLink(
 private fun HomeContent(
     session: GameSession,
     onAction: (ActivityRequest) -> Unit,
-    onWork: (() -> Unit)?,
-    onShop: (() -> Unit)?
+    onCity: (() -> Unit)?,
+    onTraining: () -> Unit,
+    onFridge: () -> Unit
 ) {
+    var confirmation by rememberSaveable { mutableStateOf(false) }
+    var sleeping by rememberSaveable { mutableStateOf(false) }
     NeedsPanel(session.player.needs, compact = true)
     Box(
         Modifier.padding(top = LpSpacing.base, bottom = LpSpacing.md)
@@ -213,10 +237,11 @@ private fun HomeContent(
             R.string.game_training_action,
             R.drawable.game_ic_study,
             Modifier.weight(1f),
-            false
-        ) {}
+            onClick = onTraining
+        )
         HomeAction(R.string.game_rest, R.drawable.game_ic_mood, Modifier.weight(1f), ready) {
-            onAction(ActivityRequest.Rest)
+            sleeping = false
+            confirmation = true
         }
     }
     LpCaption(
@@ -229,15 +254,14 @@ private fun HomeContent(
             R.string.game_fridge,
             R.drawable.game_ic_food,
             Modifier.weight(1f),
-            ready && food != null
-        ) {
-            food?.let { onAction(ActivityRequest.Food(it)) }
-        }
+            onClick = onFridge
+        )
         HomeAction(R.string.game_sleep, R.drawable.game_ic_sleep, Modifier.weight(1f), ready) {
-            onAction(ActivityRequest.Sleep)
+            sleeping = true
+            confirmation = true
         }
     }
-    CityAction(onWork, onShop)
+    CityAction(onCity)
     val activityLabel = when {
         session.status == SessionStatus.FINISHED -> R.string.game_finished
         activity is TimedActivity.Rest -> R.string.game_resting
@@ -250,40 +274,37 @@ private fun HomeContent(
     if (food != null) {
         LpCaption(stringResource(R.string.game_in_stock, session.inventory.quantity(food)))
     }
+    if (confirmation) {
+        GameConfirmation(
+            stringResource(if (sleeping) R.string.game_sleep else R.string.game_rest),
+            stringResource(
+                if (sleeping) R.string.progress_sleep_details else R.string.progress_rest_details
+            ),
+            stringResource(if (sleeping) R.string.game_sleep else R.string.game_rest),
+            { confirmation = false },
+            {
+                confirmation = false
+                onAction(if (sleeping) ActivityRequest.Sleep else ActivityRequest.Rest)
+            }
+        )
+    }
 }
 
 @Composable
-private fun CityAction(onWork: (() -> Unit)?, onShop: (() -> Unit)?) {
-    var expanded by rememberSaveable { mutableStateOf(false) }
-    Box(Modifier.fillMaxWidth()) {
-        LpButton(
-            stringResource(R.string.game_go_to_city),
-            { expanded = true },
-            Modifier.fillMaxWidth(),
-            enabled = onWork != null || onShop != null,
-            pinLeadingIcon = true
-        ) { tint ->
-            Icon(
-                painterResource(R.drawable.game_ic_back),
-                contentDescription = null,
-                modifier = Modifier.size(20.dp).rotate(180f),
-                tint = tint
-            )
-        }
-        DropdownMenu(expanded, onDismissRequest = { expanded = false }) {
-            onWork?.let {
-                HomeMenuItem(R.string.game_work_section, R.drawable.game_ic_work) {
-                    expanded = false
-                    it()
-                }
-            }
-            onShop?.let {
-                HomeMenuItem(R.string.game_shop_section, R.drawable.game_ic_shop) {
-                    expanded = false
-                    it()
-                }
-            }
-        }
+private fun CityAction(onCity: (() -> Unit)?) {
+    LpButton(
+        stringResource(R.string.game_go_to_city),
+        { onCity?.invoke() },
+        Modifier.fillMaxWidth().testTag("home.city"),
+        enabled = onCity != null,
+        pinLeadingIcon = true
+    ) { tint ->
+        Icon(
+            painterResource(R.drawable.game_ic_back),
+            contentDescription = null,
+            modifier = Modifier.size(20.dp).rotate(180f),
+            tint = tint
+        )
     }
 }
 
@@ -292,7 +313,8 @@ private fun HomeMenu(
     session: GameSession,
     onPause: () -> Unit,
     onSave: () -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onSettings: () -> Unit
 ) {
     var expanded by rememberSaveable { mutableStateOf(false) }
     val paused = PauseReason.MANUAL in session.clock.pauseReasons
@@ -324,6 +346,10 @@ private fun HomeMenu(
             HomeMenuItem(R.string.game_back, R.drawable.game_ic_back) {
                 expanded = false
                 onBack()
+            }
+            HomeMenuItem(R.string.progress_settings, R.drawable.game_ic_more) {
+                expanded = false
+                onSettings()
             }
         }
     }
@@ -454,10 +480,15 @@ private fun HomeAction(
     enabled: Boolean = true,
     onClick: () -> Unit
 ) {
+    val actionModifier = if (label == R.string.game_fridge) {
+        modifier.testTag("home.fridge")
+    } else {
+        modifier
+    }
     LpButton(
         stringResource(label),
         onClick,
-        modifier,
+        actionModifier,
         LpButtonStyle.Secondary,
         enabled,
         pinLeadingIcon = true
@@ -503,7 +534,8 @@ internal fun GameErrorPanel(reason: GameError, onRetry: () -> Unit) {
     val label = when (reason) {
         is GameError.InvalidSnapshot -> R.string.game_invalid_save
         GameError.CatalogUnavailable, GameError.InvalidCatalog -> R.string.game_catalog_error
-        GameError.Busy, GameError.Paused -> R.string.game_busy
+        GameError.Busy -> R.string.game_busy
+        GameError.Paused -> R.string.progress_unpause_hint
         is GameError.InsufficientFunds -> R.string.game_insufficient_funds
         is GameError.PriceChanged -> R.string.game_price_changed
         GameError.InsufficientEnergy -> R.string.game_no_energy

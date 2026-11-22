@@ -12,20 +12,25 @@ import com.lastpaycheck.domain.model.NewGamePreview
 import com.lastpaycheck.domain.model.OperationKey
 import com.lastpaycheck.domain.model.OperationReceipt
 import com.lastpaycheck.domain.model.PauseReason
+import com.lastpaycheck.domain.model.Product
 import com.lastpaycheck.domain.model.SessionStatus
+import com.lastpaycheck.domain.model.ValidationIssue
 import com.lastpaycheck.domain.model.WorkShift
 import com.lastpaycheck.domain.repository.ActiveGameClock
 import com.lastpaycheck.domain.repository.CatalogRepository
 import com.lastpaycheck.domain.repository.CheckpointChoice
 import com.lastpaycheck.domain.repository.GameSessionRepository
 import com.lastpaycheck.domain.usecase.ContinueGameUseCase
+import com.lastpaycheck.domain.usecase.GetFoodPreviewUseCase
 import com.lastpaycheck.domain.usecase.GetPlayerStatusUseCase
 import com.lastpaycheck.domain.usecase.PreviewNewGameUseCase
+import com.lastpaycheck.domain.usecase.RenameCharacterUseCase
 import com.lastpaycheck.domain.usecase.SaveProgressUseCase
 import com.lastpaycheck.domain.usecase.SetPauseUseCase
 import com.lastpaycheck.domain.usecase.StartActivityUseCase
 import com.lastpaycheck.domain.usecase.StartNewGameUseCase
 import com.lastpaycheck.domain.usecase.UpdateGameTimeUseCase
+import com.lastpaycheck.domain.usecase.ValidateCharacterName
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.UUID
 import javax.inject.Inject
@@ -55,7 +60,9 @@ class MainViewModel @Inject constructor(
     private val updateTime: UpdateGameTimeUseCase,
     private val setPause: SetPauseUseCase,
     private val saveProgress: SaveProgressUseCase,
-    private val sections: SectionActions
+    private val sections: SectionActions,
+    private val renameCharacter: RenameCharacterUseCase,
+    private val getFoodPreview: GetFoodPreviewUseCase = GetFoodPreviewUseCase()
 ) : ViewModel() {
     private val mutableState = MutableStateFlow<MainUiState>(MainUiState.Loading)
     internal val state = mutableState.asStateFlow()
@@ -73,6 +80,44 @@ class MainViewModel @Inject constructor(
     private var activeSessionId: String? = null
     private var retryAction: (() -> Unit)? = null
     private var catalogLoad: Job? = null
+    internal fun foodPreview(sessionId: String, product: Product) =
+        currentSession()?.takeIf { it.id == sessionId }?.let { getFoodPreview(it, product) }
+            ?: DomainResult.Failure(GameError.NoSession)
+    private val mutableNameError = MutableStateFlow<ValidationIssue?>(null)
+    internal val nameError = mutableNameError.asStateFlow()
+    private val mutableNameSaved = MutableStateFlow(false)
+    internal val nameSaved = mutableNameSaved.asStateFlow()
+
+    internal fun clearNameFeedback() {
+        mutableNameError.value = null
+        mutableNameSaved.value = false
+    }
+
+    internal fun rename(sessionId: String, name: String) {
+        if (mutableBusy.value) return
+        mutableNameSaved.value = false
+        mutableNameError.value = ValidateCharacterName()(name)
+        if (mutableNameError.value != null) return
+        mutableBusy.value = true
+        val running = operation
+        operation = viewModelScope.launch {
+            try {
+                running?.join()
+                when (val result = renameCharacter(sessionId, name)) {
+                    is DomainResult.Success -> {
+                        publish(result)
+                        mutableNameSaved.value = true
+                    }
+                    is DomainResult.Failure -> showError(result.error)
+                }
+            } finally {
+                mutableBusy.value = false
+            }
+        }
+    }
+
+    internal fun startCourse(sessionId: String, courseId: String) =
+        sectionCommand(sessionId) { key, _ -> startActivity(key, ActivityRequest.Course(courseId)) }
 
     init {
         loadSavedGame()

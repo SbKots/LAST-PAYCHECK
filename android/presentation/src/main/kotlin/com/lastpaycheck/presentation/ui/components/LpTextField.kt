@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.error
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.input.VisualTransformation
 import com.lastpaycheck.presentation.ui.theme.LastPaycheckTheme
 import com.lastpaycheck.presentation.ui.theme.LpDimensions
 import com.lastpaycheck.presentation.ui.theme.LpSpacing
@@ -36,7 +37,8 @@ fun LpTextField(
     supportingText: String? = null,
     errorMessage: String? = null,
     enabled: Boolean = true,
-    keyboardOptions: KeyboardOptions = KeyboardOptions.Default
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    visualTransformation: VisualTransformation = VisualTransformation.None
 ) {
     val colors = LastPaycheckTheme.colors
     val interactionSource = remember { MutableInteractionSource() }
@@ -71,6 +73,7 @@ fun LpTextField(
             enabled = enabled,
             singleLine = true,
             keyboardOptions = keyboardOptions,
+            visualTransformation = visualTransformation,
             interactionSource = interactionSource,
             cursorBrush = SolidColor(colors.primary),
             textStyle = MaterialTheme.typography.bodyLarge.copy(

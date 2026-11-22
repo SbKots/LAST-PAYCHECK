@@ -41,6 +41,31 @@ import org.junit.Rule
 import org.junit.Test
 
 class LocalDatabaseTest {
+    @Test
+    fun oldSnapshotWithoutNameLoadsAndRenamedCharacterSurvivesDatabaseReopen() = runBlocking {
+        withDatabase { db ->
+            val repository = RoomGameSessionRepository(db)
+            val coordinator = GameSessionCoordinator(GameEngine(), repository) { 0L }
+            val session = StartNewGameUseCase(FixtureCatalog(), coordinator)(
+                "legacy-player",
+                "scenario",
+                "training-1"
+            ).value()
+            val row = checkNotNull(db.sessions().snapshot(0))
+            org.junit.Assert.assertFalse(row.payload.contains("\"name\""))
+            assertEquals("", repository.load(CheckpointChoice.LATEST).value().player.name)
+            com.lastpaycheck.domain.usecase.RenameCharacterUseCase(
+                coordinator
+            )(session.id, "Максим").value()
+        }
+        withDatabase { db ->
+            val loaded = RoomGameSessionRepository(db).load(CheckpointChoice.LATEST).value()
+            assertEquals("Максим", loaded.player.name)
+            assertEquals("legacy-player", loaded.id)
+            assertEquals(1000L, loaded.player.moneyMinor)
+        }
+    }
+
     private val name = "persistence-${UUID.randomUUID()}.db"
     private val context get() = ApplicationProvider.getApplicationContext<android.content.Context>()
 

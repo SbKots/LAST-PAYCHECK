@@ -10,10 +10,12 @@ import com.lastpaycheck.domain.repository.GameSessionRepository
 import com.lastpaycheck.domain.usecase.BuyProductUseCase
 import com.lastpaycheck.domain.usecase.ContinueGameUseCase
 import com.lastpaycheck.domain.usecase.FinishShiftUseCase
+import com.lastpaycheck.domain.usecase.GetFinancialOverviewUseCase
 import com.lastpaycheck.domain.usecase.GetPlayerStatusUseCase
 import com.lastpaycheck.domain.usecase.PlaceBoxUseCase
 import com.lastpaycheck.domain.usecase.PreviewNewGameUseCase
 import com.lastpaycheck.domain.usecase.QuoteProductUseCase
+import com.lastpaycheck.domain.usecase.RenameCharacterUseCase
 import com.lastpaycheck.domain.usecase.SaveProgressUseCase
 import com.lastpaycheck.domain.usecase.SetPauseUseCase
 import com.lastpaycheck.domain.usecase.StartActivityUseCase
@@ -30,6 +32,15 @@ import dagger.hilt.android.scopes.ViewModelScoped
 @Module
 @InstallIn(ViewModelComponent::class)
 object GameModule {
+    @Provides
+    fun foodPreview() = com.lastpaycheck.domain.usecase.GetFoodPreviewUseCase()
+
+    @Provides
+    fun rename(coordinator: GameSessionCoordinator) = RenameCharacterUseCase(coordinator)
+
+    @Provides
+    fun finances(repository: GameSessionRepository) = GetFinancialOverviewUseCase(repository)
+
     @Provides
     fun catalog(): CatalogRepository = TrainingGameCatalogRepository()
 

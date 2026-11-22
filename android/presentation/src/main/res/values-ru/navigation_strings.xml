@@ -1,0 +1,32 @@
+<resources>
+    <string name="city_title">Куда пойдём?</string>
+    <string name="city_subtitle">Выбери место на карте</string>
+    <string name="city_warehouse">Склад «Север»</string>
+    <string name="city_work_hint">Выбери профессию и условия смены</string>
+    <string name="city_shop_hint">Продукты и автомобили</string>
+    <string name="city_garage">Гараж</string>
+    <string name="city_garage_hint">Автомобили и ремонт · Пока недоступно</string>
+    <string name="city_return_home">Вернуться домой</string>
+    <string name="city_home_hint">Сон, отдых и обучение</string>
+    <string name="stores_title">Выбери магазин</string>
+    <string name="stores_subtitle">Еда для жизни. Машина для новых маршрутов</string>
+    <string name="stores_buy_food">Купить продукты</string>
+    <string name="stores_motors">LAST MOTORS</string>
+    <string name="stores_car_description">Автомобили для города и гонок</string>
+    <string name="stores_car_price">Ориентир стоимости — от 6 000 ед.</string>
+    <string name="stores_open_dealership">Открыть автосалон</string>
+    <string name="vehicles_unavailable">Автомобильная система пока недоступна</string>
+    <string name="vehicles_status">Покупки автомобилей, ремонт и гонки появятся в автомобильном расширении игры.</string>
+    <string name="vehicles_buy">Покупка недоступна</string>
+    <string name="vehicles_garage_empty">Автомобилей в гараже пока нет. Управление автомобилями станет доступно вместе с автомобильной системой.</string>
+    <string name="fridge_subtitle">Запасы дома</string>
+    <string name="fridge_meal">Домашний обед</string>
+    <string name="fridge_satiety">Сытость: %1$d → %2$d</string>
+    <string name="fridge_time">Игровое время: %1$d мин</string>
+    <string name="fridge_result">Сытость после порции</string>
+    <string name="fridge_result_hint">Одна порция расходуется после завершения еды.</string>
+    <string name="fridge_eat">Поесть</string>
+    <string name="fridge_eating">Ты ешь · Осталось %1$d мин</string>
+    <string name="fridge_eaten">Порция съедена. Сытость: %1$d / 100</string>
+    <string name="fridge_buy_food">Купить продукты</string>
+</resources>

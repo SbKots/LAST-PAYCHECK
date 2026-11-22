@@ -1,0 +1,32 @@
+<resources>
+    <string name="city_title">Where shall we go?</string>
+    <string name="city_subtitle">Choose a place on the map</string>
+    <string name="city_warehouse">North Warehouse</string>
+    <string name="city_work_hint">Choose a job and review shift conditions</string>
+    <string name="city_shop_hint">Groceries and cars</string>
+    <string name="city_garage">Garage</string>
+    <string name="city_garage_hint">Cars and repairs · Currently unavailable</string>
+    <string name="city_return_home">Return home</string>
+    <string name="city_home_hint">Sleep, rest and training</string>
+    <string name="stores_title">Choose a shop</string>
+    <string name="stores_subtitle">Food for life. A car for new routes</string>
+    <string name="stores_buy_food">Buy groceries</string>
+    <string name="stores_motors">LAST MOTORS</string>
+    <string name="stores_car_description">Cars for the city and racing</string>
+    <string name="stores_car_price">Indicative prices from 6,000 units</string>
+    <string name="stores_open_dealership">Open dealership</string>
+    <string name="vehicles_unavailable">The vehicle system is currently unavailable</string>
+    <string name="vehicles_status">Car purchases, repairs and races will be available in the vehicle expansion.</string>
+    <string name="vehicles_buy">Purchasing unavailable</string>
+    <string name="vehicles_garage_empty">There are no cars in the garage. Vehicle management will become available with the vehicle system.</string>
+    <string name="fridge_subtitle">Food at home</string>
+    <string name="fridge_meal">Home meal</string>
+    <string name="fridge_satiety">Satiety: %1$d → %2$d</string>
+    <string name="fridge_time">Game time: %1$d min</string>
+    <string name="fridge_result">Satiety after a portion</string>
+    <string name="fridge_result_hint">One portion is consumed when eating finishes.</string>
+    <string name="fridge_eat">Eat</string>
+    <string name="fridge_eating">Eating · %1$d min remaining</string>
+    <string name="fridge_eaten">Portion eaten. Satiety: %1$d / 100</string>
+    <string name="fridge_buy_food">Buy groceries</string>
+</resources>

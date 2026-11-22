@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.doublePreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.lastpaycheck.domain.model.AppLanguage
 import com.lastpaycheck.domain.model.ControlMode
 import com.lastpaycheck.domain.model.DomainResult
 import com.lastpaycheck.domain.model.GameError
@@ -36,6 +37,7 @@ internal class DataStoreSettingsRepository(
                 it[sound] = settings.soundEnabled
                 it[vibration] = settings.vibrationEnabled
                 it[theme] = settings.theme.name
+                it[language] = settings.language.name
             }
             DomainResult.Success(settings)
         }
@@ -52,7 +54,8 @@ internal class DataStoreSettingsRepository(
                 calibration = offset,
                 soundEnabled = prefs[sound] ?: true,
                 vibrationEnabled = prefs[vibration] ?: true,
-                theme = prefs[theme]?.let(ThemePreference::valueOf) ?: ThemePreference.SYSTEM
+                theme = prefs[theme]?.let(ThemePreference::valueOf) ?: ThemePreference.SYSTEM,
+                language = prefs[language]?.let(AppLanguage::valueOf) ?: AppLanguage.SYSTEM
             )
         )
     } catch (_: IllegalArgumentException) {
@@ -65,5 +68,6 @@ internal class DataStoreSettingsRepository(
         val sound = booleanPreferencesKey("sound_enabled")
         val vibration = booleanPreferencesKey("vibration_enabled")
         val theme = stringPreferencesKey("theme")
+        val language = stringPreferencesKey("language")
     }
 }

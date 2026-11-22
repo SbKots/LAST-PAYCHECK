@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.lastpaycheck.domain.model.DomainResult
@@ -30,7 +31,8 @@ internal fun GameStartScreen(
     onRestore: () -> Unit,
     onNew: () -> Unit,
     onRetry: () -> Unit,
-    onTheme: () -> Unit
+    onTheme: () -> Unit,
+    onSettings: () -> Unit
 ) {
     GamePage {
         Column {
@@ -53,7 +55,7 @@ internal fun GameStartScreen(
                 LpButton(
                     stringResource(R.string.game_continue),
                     onContinue,
-                    Modifier.fillMaxWidth()
+                    Modifier.fillMaxWidth().testTag("start.continue")
                 )
             }
             is MainUiState.Error -> {
@@ -71,7 +73,7 @@ internal fun GameStartScreen(
             LpButton(
                 stringResource(R.string.game_new),
                 onNew,
-                Modifier.fillMaxWidth(),
+                Modifier.fillMaxWidth().testTag("start.new"),
                 enabled = state != MainUiState.Loading,
                 style = if (state == MainUiState.Empty) {
                     LpButtonStyle.Primary
@@ -85,6 +87,12 @@ internal fun GameStartScreen(
             onTheme,
             Modifier.fillMaxWidth(),
             style = LpButtonStyle.Outline
+        )
+        LpButton(
+            stringResource(R.string.progress_settings),
+            onSettings,
+            Modifier.fillMaxWidth(),
+            LpButtonStyle.Secondary
         )
         LpCaption(stringResource(R.string.game_local), Modifier.padding(bottom = LpSpacing.sm))
     }
@@ -123,7 +131,7 @@ internal fun NewGameScreen(
                 LpButton(
                     stringResource(label),
                     onStart,
-                    Modifier.fillMaxWidth(),
+                    Modifier.fillMaxWidth().testTag("newgame.start"),
                     enabled = !creating
                 )
             }

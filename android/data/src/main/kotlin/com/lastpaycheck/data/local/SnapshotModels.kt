@@ -53,7 +53,8 @@ internal data class StoredPlayerState(
     val selectedJobId: String,
     val rentDebtMinor: Long,
     val experience: Int,
-    val taskRemainder: Int
+    val taskRemainder: Int,
+    val name: String = ""
 )
 
 private fun PlayerState.toStored() = StoredPlayerState(
@@ -62,7 +63,8 @@ private fun PlayerState.toStored() = StoredPlayerState(
     selectedJobId = selectedJobId,
     rentDebtMinor = rentDebtMinor,
     experience = experience,
-    taskRemainder = taskRemainder
+    taskRemainder = taskRemainder,
+    name = name
 )
 
 private fun StoredPlayerState.toDomain() = PlayerState(
@@ -71,7 +73,8 @@ private fun StoredPlayerState.toDomain() = PlayerState(
     selectedJobId = selectedJobId,
     rentDebtMinor = rentDebtMinor,
     experience = experience,
-    taskRemainder = taskRemainder
+    taskRemainder = taskRemainder,
+    name = name
 )
 
 @Serializable

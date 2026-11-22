@@ -61,6 +61,30 @@ import org.junit.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class MainViewModelTest {
     @Test
+    fun characterNameValidationSavesOnlyValidInputAndSurvivesReload() = verify { model, store ->
+        createSession(model)
+        val session = checkNotNull(store.latest)
+        model.rename(session.id, " ")
+        assertEquals(com.lastpaycheck.domain.model.ValidationIssue.REQUIRED, model.nameError.value)
+        model.rename(session.id, "Максим")
+        model.rename(session.id, "Другое имя")
+        runCurrent()
+        assertEquals("Максим", store.latest?.player?.name)
+        assertTrue(model.nameSaved.value)
+        assertNull(model.nameError.value)
+        val reloaded = newModel(store)
+        try {
+            runCurrent()
+            assertEquals(
+                "Максим",
+                (reloaded.state.value as MainUiState.Content).session.player.name
+            )
+        } finally {
+            reloaded.viewModelScope.cancel()
+        }
+    }
+
+    @Test
     fun loadingBecomesEmptyWhenNoSaveExists() = verify { model, _ ->
         assertEquals(MainUiState.Loading, model.state.value)
         runCurrent()
@@ -347,7 +371,8 @@ class MainViewModelTest {
                 FinishShiftUseCase(coordinator),
                 QuoteProductUseCase(catalog, coordinator),
                 BuyProductUseCase(catalog, coordinator)
-            )
+            ),
+            com.lastpaycheck.domain.usecase.RenameCharacterUseCase(coordinator)
         )
     }
 

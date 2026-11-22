@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.test.core.app.ApplicationProvider
+import com.lastpaycheck.domain.model.AppLanguage
 import com.lastpaycheck.domain.model.ControlMode
 import com.lastpaycheck.domain.model.DomainResult
 import com.lastpaycheck.domain.model.GameError
@@ -29,7 +30,15 @@ class DataStoreSettingsTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val file = File(context.cacheDir, "${UUID.randomUUID()}.preferences_pb")
         val defaults = GameSettings(ControlMode.TOUCH, 0.0, true, true)
-        val updated = GameSettings(ControlMode.TILT, -0.3, false, false, ThemePreference.DARK)
+        val updated =
+            GameSettings(
+                ControlMode.TILT,
+                -0.3,
+                false,
+                false,
+                ThemePreference.DARK,
+                AppLanguage.RUSSIAN
+            )
         try {
             withStore(file) {
                 assertEquals(DomainResult.Success(defaults), it.observe().first())

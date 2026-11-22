@@ -3,3 +3,11 @@ package com.lastpaycheck.domain.model
 data class NewGamePreview(val initial: InitialConditions, val scenario: EconomicScenario)
 
 data class ProductQuote(val sessionId: String, val productId: String, val unitPriceMinor: Long)
+
+data class FoodPreview(
+    val quantity: Int,
+    val satietyBefore: Double,
+    val satietyAfter: Double,
+    val durationMinutes: Int,
+    val blockedReason: GameError?
+)

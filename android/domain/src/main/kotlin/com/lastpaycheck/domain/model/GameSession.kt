@@ -15,6 +15,10 @@ data class Needs(
     val mood: Double get() = moodUnits.toDouble() / GAME_HOUR_MILLIS
     val health: Double get() = healthUnits.toDouble() / GAME_HOUR_MILLIS
 
+    internal fun afterFood(satietyGain: Int) = copy(
+        satietyUnits = minOf(satietyUnits + satietyGain * GAME_HOUR_MILLIS, MAX_UNITS)
+    )
+
     internal fun isValid() = satietyUnits in 0..MAX_UNITS && energyUnits in 0..MAX_UNITS &&
         moodUnits in 0..MAX_UNITS && healthUnits in 0..MAX_UNITS
 
@@ -36,12 +40,14 @@ data class PlayerState(
     val selectedJobId: String,
     val rentDebtMinor: Long = 0,
     val experience: Int = 0,
-    val taskRemainder: Int = 0
+    val taskRemainder: Int = 0,
+    val name: String = ""
 ) {
     val level: Int get() = experience / 100
 
     internal fun isValid() = moneyMinor >= 0 && rentDebtMinor >= 0 && experience >= 0 &&
-        taskRemainder in 0..9 && selectedJobId.isNotBlank() && needs.isValid()
+        taskRemainder in 0..9 && selectedJobId.isNotBlank() && needs.isValid() &&
+        (name.isEmpty() || com.lastpaycheck.domain.usecase.ValidateCharacterName()(name) == null)
 }
 
 enum class PauseReason { MANUAL, BACKGROUND, FOCUS_LOST, STORAGE_FAILURE }

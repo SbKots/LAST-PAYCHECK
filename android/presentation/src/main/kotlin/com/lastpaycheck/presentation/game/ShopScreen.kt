@@ -50,6 +50,7 @@ internal fun ShopContent(
         stringResource(R.string.game_grocery_subtitle),
         session,
         onBack,
+        screenTag = "screen.groceries",
         footer = {
             if (item == null) {
                 GameBackButton(onBack)
@@ -64,6 +65,7 @@ internal fun ShopContent(
             }
         }
     ) {
+        GamePauseNotice(session, game::togglePause, busy)
         SectionScene(R.drawable.grocery) {
             if (effect is GameEffect.Purchase) {
                 SectionCard(stringResource(R.string.game_purchase_done)) {
@@ -147,13 +149,8 @@ internal fun ShopContent(
                     }
                 }
                 if (!canAfford) LpBody(stringResource(R.string.game_insufficient_funds))
-                if (!active) {
-                    val warning = if (session.clock.isPaused) {
-                        R.string.game_busy
-                    } else {
-                        R.string.game_finished
-                    }
-                    LpCaption(stringResource(warning))
+                if (session.status == SessionStatus.FINISHED) {
+                    LpCaption(stringResource(R.string.game_finished))
                 }
                 products.filterNot { it.product.id == product.id }.forEach { other ->
                     SectionCard(productName(other.product.id)) {
@@ -195,5 +192,5 @@ internal fun ShopContent(
 }
 
 @Composable
-private fun productName(id: String): String =
+internal fun productName(id: String): String =
     if (id == "meal") stringResource(R.string.game_meal) else id

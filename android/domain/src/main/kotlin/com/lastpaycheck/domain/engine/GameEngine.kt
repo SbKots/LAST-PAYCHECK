@@ -13,7 +13,6 @@ import com.lastpaycheck.domain.model.GameError
 import com.lastpaycheck.domain.model.GameSession
 import com.lastpaycheck.domain.model.GameTransition
 import com.lastpaycheck.domain.model.Job
-import com.lastpaycheck.domain.model.Needs
 import com.lastpaycheck.domain.model.OperationKey
 import com.lastpaycheck.domain.model.SessionStatus
 import com.lastpaycheck.domain.model.TimedActivity
@@ -284,6 +283,8 @@ class GameEngine(
             is ActivityRequest.Course -> {
                 val course = command.catalog?.courses?.find { it.id == request.courseId }
                     ?: return failure(GameError.NotFound(request.courseId))
+                com.lastpaycheck.domain.usecase.GetCourseAvailabilityUseCase()(session, course)
+                    ?.let { return failure(it) }
                 debit(session, course.priceMinor).mapSession { next ->
                     ledger.record(next, TransactionCategory.COURSE, -course.priceMinor)
                     GameTransition(
@@ -305,14 +306,10 @@ class GameEngine(
         when (activity) {
             is TimedActivity.Food -> {
                 val player = next.player
-                val satiety = player.needs.satietyUnits +
-                    activity.product.satietyGain * GAME_HOUR_MILLIS
                 next = next.copy(
                     inventory = next.inventory.consume(activity.product.id),
                     player = player.copy(
-                        needs = player.needs.copy(
-                            satietyUnits = minOf(satiety, Needs.MAX_UNITS)
-                        )
+                        needs = player.needs.afterFood(activity.product.satietyGain)
                     )
                 )
             }

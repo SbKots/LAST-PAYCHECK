@@ -27,11 +27,15 @@ fun LpHeading(text: String, level: LpHeadingLevel, modifier: Modifier = Modifier
 }
 
 @Composable
-fun LpBody(text: String, modifier: Modifier = Modifier) {
+fun LpBody(
+    text: String,
+    modifier: Modifier = Modifier,
+    color: Color = LastPaycheckTheme.colors.textPrimary
+) {
     Text(
         text = text,
         modifier = modifier,
-        color = LastPaycheckTheme.colors.textPrimary,
+        color = color,
         style = MaterialTheme.typography.bodyLarge
     )
 }

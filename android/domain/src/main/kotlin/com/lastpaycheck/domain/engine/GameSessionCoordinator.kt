@@ -146,6 +146,20 @@ class GameSessionCoordinator(
         }
     }
 
+    internal suspend fun rename(sessionId: String, name: String): DomainResult<GameSession> =
+        lock.withLock {
+            val snapshot = current.value ?: return@withLock failure(GameError.NoSession)
+            if (snapshot.id != sessionId) return@withLock failure(GameError.RevisionConflict)
+            val ready = if (snapshot.status == SessionStatus.FINISHED) {
+                DomainResult.Success(snapshot)
+            } else {
+                advanceLocked()
+            }
+            ready.flatMap {
+                checkpoint(it.copy(player = it.player.copy(name = name)))
+            }
+        }
+
     private suspend fun advanceLocked(): DomainResult<GameSession> {
         val snapshot = current.value ?: return failure(GameError.NoSession)
         if (snapshot.status == SessionStatus.FINISHED) return failure(GameError.GameFinished)

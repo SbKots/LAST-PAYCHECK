@@ -26,6 +26,7 @@ internal fun SectionRoute(
     game: MainViewModel,
     sessionId: String,
     section: Section,
+    onHardware: (() -> Unit)? = null,
     onBack: () -> Unit
 ) {
     val state by game.state.collectAsStateWithLifecycle()
@@ -45,7 +46,15 @@ internal fun SectionRoute(
     val loaded = (catalog as? DomainResult.Success)?.value
     if (session != null && loaded?.sessionId == sessionId && loaded.day == session.clock.day) {
         when (section) {
-            Section.Work -> WorkContent(session, loaded.gameCatalog.jobs, busy, effect, game, back)
+            Section.Work -> WorkContent(
+                session,
+                loaded.gameCatalog.jobs,
+                busy,
+                effect,
+                game,
+                onHardware,
+                back
+            )
             Section.Shop -> ShopContent(session, loaded.products, busy, effect, game, back)
         }
         return
@@ -74,13 +83,14 @@ internal fun GameConfirmation(
     onDismiss: () -> Unit,
     onConfirm: () -> Unit
 ) {
+    val cancelLabel = stringResource(R.string.game_cancel)
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { LpHeading(title, LpHeadingLevel.Section) },
         text = { LpBody(message) },
         confirmButton = { LpButton(action, onConfirm) },
         dismissButton = {
-            LpButton(stringResource(R.string.game_cancel), onDismiss, style = LpButtonStyle.Outline)
+            LpButton(cancelLabel, onDismiss, style = LpButtonStyle.Outline)
         }
     )
 }

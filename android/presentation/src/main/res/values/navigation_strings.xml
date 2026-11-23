@@ -5,7 +5,7 @@
     <string name="city_work_hint">Choose a job and review shift conditions</string>
     <string name="city_shop_hint">Groceries and cars</string>
     <string name="city_garage">Garage</string>
-    <string name="city_garage_hint">Cars and repairs · Currently unavailable</string>
+    <string name="city_garage_hint">Cars, upgrades and races</string>
     <string name="city_return_home">Return home</string>
     <string name="city_home_hint">Sleep, rest and training</string>
     <string name="stores_title">Choose a shop</string>

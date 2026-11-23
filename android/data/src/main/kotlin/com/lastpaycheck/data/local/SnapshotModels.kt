@@ -294,7 +294,8 @@ internal data class StoredGameSession(
     val workMillis: Long,
     val randomState: Long,
     val events: List<StoredGameEvent>,
-    val lastShiftResult: StoredShiftResult?
+    val lastShiftResult: StoredShiftResult?,
+    val vehicles: StoredVehicles = StoredVehicles()
 )
 
 internal fun GameSession.toStored() = StoredGameSession(
@@ -313,7 +314,8 @@ internal fun GameSession.toStored() = StoredGameSession(
     workMillis = workMillis,
     randomState = randomState,
     events = events.map(GameEvent::toStored),
-    lastShiftResult = lastShiftResult?.toStored()
+    lastShiftResult = lastShiftResult?.toStored(),
+    vehicles = vehicles.toStoredVehicles()
 )
 
 internal fun StoredGameSession.toDomain() = GameSession(
@@ -332,7 +334,8 @@ internal fun StoredGameSession.toDomain() = GameSession(
     workMillis = workMillis,
     randomState = randomState,
     events = events.map(StoredGameEvent::toDomain),
-    lastShiftResult = lastShiftResult?.toDomain()
+    lastShiftResult = lastShiftResult?.toDomain(),
+    vehicles = vehicles.toVehicleProgress()
 )
 
 @Serializable
@@ -347,7 +350,10 @@ internal sealed interface StoredActivity {
         val correct: Int,
         val errors: Int,
         val processedBoxIds: Set<String>,
-        val boxPosition: Double
+        val boxPosition: Double,
+        val targetBoxes: Int = job.plan,
+        val compact: Boolean = false,
+        val boxReadyAtGameMillis: Long = 0
     ) : StoredActivity
 
     @Serializable
@@ -384,7 +390,10 @@ private fun Activity.toStored(): StoredActivity = when (this) {
         correct,
         errors,
         processedBoxIds,
-        boxPosition
+        boxPosition,
+        targetBoxes,
+        compact,
+        boxReadyAtGameMillis
     )
     is TimedActivity.Food -> StoredActivity.Food(id, product.toStored(), remainingGameMillis)
     is TimedActivity.Sleep -> StoredActivity.Sleep(id, remainingGameMillis)
@@ -401,7 +410,10 @@ private fun StoredActivity.toDomain(): Activity = when (this) {
         correct,
         errors,
         processedBoxIds,
-        boxPosition
+        boxPosition,
+        targetBoxes,
+        compact,
+        boxReadyAtGameMillis
     )
     is StoredActivity.Food -> TimedActivity.Food(id, product.toDomain(), remainingGameMillis)
     is StoredActivity.Sleep -> TimedActivity.Sleep(id, remainingGameMillis)
@@ -425,7 +437,11 @@ internal sealed interface StoredEffect {
 
     @Serializable
     @SerialName("placement")
-    data class Placement(val correct: Boolean) : StoredEffect
+    data class Placement(
+        val correct: Boolean,
+        val expected: BoxCategory? = null,
+        val actual: BoxCategory? = null
+    ) : StoredEffect
 
     @Serializable
     @SerialName("shift")
@@ -435,13 +451,13 @@ internal sealed interface StoredEffect {
 internal fun GameEffect.toStored(): StoredEffect = when (this) {
     GameEffect.Applied -> StoredEffect.Applied
     is GameEffect.Purchase -> StoredEffect.Purchase(productId, quantity, costMinor)
-    is GameEffect.Placement -> StoredEffect.Placement(correct)
+    is GameEffect.Placement -> StoredEffect.Placement(correct, expected, actual)
     is GameEffect.ShiftFinished -> StoredEffect.Shift(result.toStored())
 }
 
 internal fun StoredEffect.toDomain(): GameEffect = when (this) {
     StoredEffect.Applied -> GameEffect.Applied
     is StoredEffect.Purchase -> GameEffect.Purchase(productId, quantity, costMinor)
-    is StoredEffect.Placement -> GameEffect.Placement(correct)
+    is StoredEffect.Placement -> GameEffect.Placement(correct, expected, actual)
     is StoredEffect.Shift -> GameEffect.ShiftFinished(result.toDomain())
 }

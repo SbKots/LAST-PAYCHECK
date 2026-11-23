@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -18,6 +19,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import com.lastpaycheck.domain.model.BoxCategory
@@ -45,6 +47,7 @@ internal fun WorkContent(
     busy: Boolean,
     effect: GameEffect?,
     game: MainViewModel,
+    onHardware: (() -> Unit)?,
     onBack: () -> Unit
 ) {
     val shift = session.activeActivity as? WorkShift
@@ -79,6 +82,9 @@ internal fun WorkContent(
             }
         ) {
             GamePauseNotice(session, game::togglePause, busy)
+            onHardware?.let {
+                LpButton(stringResource(R.string.hardware_title), it, Modifier.fillMaxWidth())
+            }
             if (jobs.isEmpty()) LpBody(stringResource(R.string.game_no_jobs))
             if (effect is GameEffect.ShiftFinished) ShiftSummary(effect.result)
             Column(verticalArrangement = Arrangement.spacedBy(LpSpacing.sm)) {
@@ -155,7 +161,7 @@ private fun JobListCard(job: Job, playerLevel: Int, onClick: () -> Unit) {
                 )
             }
             LpCaption(stringResource(R.string.game_job_duration, job.durationHours))
-            LpCaption(stringResource(R.string.game_job_plan, job.plan))
+            LpCaption(stringResource(R.string.game_job_plan, minOf(24, job.plan)))
             LpCaption(stringResource(R.string.game_job_energy, job.extraEnergyPerHour))
         }
     }
@@ -186,6 +192,11 @@ private fun ShiftPreparation(
         }
     ) {
         GamePauseNotice(session, onResume, busy)
+        SectionCard(stringResource(R.string.sorting_title)) {
+            LpBody(stringResource(R.string.sorting_intro))
+            LpCaption(stringResource(R.string.sorting_round))
+            BoxCategory.entries.forEach { LpCaption(stringResource(sortLabel(it))) }
+        }
         SectionScene(R.drawable.warehouse) {
             SectionCard(stringResource(R.string.game_shift_requirements)) {
                 JobDetails(job)
@@ -225,7 +236,7 @@ private fun JobDetails(job: Job) {
         stringResource(
             R.string.game_shift_conditions,
             job.durationHours,
-            job.plan,
+            minOf(24, job.plan),
             job.extraEnergyPerHour
         )
     )
@@ -245,6 +256,7 @@ private fun ActiveShift(
     val boxId = shift.selectedBox.id
     var selectedZone by rememberSaveable(boxId) { mutableStateOf<BoxCategory?>(null) }
     val enabled = !busy && !session.clock.isPaused
+    val ready = session.clock.gameMillis >= shift.boxReadyAtGameMillis
     SectionPage(
         stringResource(R.string.game_warehouse),
         gameTime(session.clock),
@@ -254,9 +266,9 @@ private fun ActiveShift(
             Row(horizontalArrangement = Arrangement.spacedBy(LpSpacing.xs)) {
                 BoxCategory.entries.forEach { zone ->
                     LpButton(
-                        stringResource(boxLabel(zone)),
+                        stringResource(sortLabel(zone)),
                         { selectedZone = zone },
-                        Modifier.weight(1f),
+                        Modifier.weight(1f).testTag("work.zone.${zone.name}"),
                         style = if (zone == selectedZone) {
                             LpButtonStyle.Primary
                         } else {
@@ -266,62 +278,115 @@ private fun ActiveShift(
                     )
                 }
             }
-            SectionAction(R.string.game_place_box, enabled && selectedZone != null) {
-                selectedZone?.let { game.placeBox(session.id, boxId, it) }
-            }
+            LpButton(
+                stringResource(if (ready) R.string.game_place_box else R.string.sorting_transit),
+                { selectedZone?.let { game.placeBox(session.id, boxId, it) } },
+                Modifier.fillMaxWidth().testTag("work.place"),
+                enabled = enabled && ready && selectedZone != null
+            )
         }
     ) {
         GamePauseNotice(session, game::togglePause, busy)
         Row(horizontalArrangement = Arrangement.spacedBy(LpSpacing.sm)) {
             ShiftMetric(
                 R.string.game_shift_correct,
-                "${shift.correct} / ${shift.job.plan}",
+                "${shift.correct} / ${shift.targetBoxes}",
                 Modifier.weight(1f)
             )
             ShiftMetric(R.string.game_shift_errors, shift.errors.toString(), Modifier.weight(1f))
             ShiftMetric(
                 R.string.game_shift_remaining,
-                durationLabel(shift.remainingGameMillis),
+                if (shift.compact) {
+                    stringResource(
+                        R.string.sorting_seconds,
+                        (
+                            shift.remainingGameMillis * 90 /
+                                (shift.job.durationHours * 3_600_000L)
+                            ).toInt()
+                    )
+                } else {
+                    durationLabel(shift.remainingGameMillis)
+                },
                 Modifier.weight(1.4f)
             )
         }
-        SectionScene(R.drawable.warehouse) {
-            SectionCard(stringResource(boxLabel(shift.selectedBox.category))) {
-                LpCaption(stringResource(R.string.game_current_box))
-                LpCaption(stringResource(R.string.game_sort_hint))
-                if (effect is GameEffect.Placement) {
-                    val feedback = if (effect.correct) {
-                        R.string.game_box_correct
-                    } else {
-                        R.string.game_box_wrong
-                    }
-                    LpCaption(stringResource(feedback))
+        LpCaption(
+            stringResource(
+                R.string.sorting_progress,
+                shift.processedBoxIds.size,
+                shift.targetBoxes
+            )
+        )
+        LinearProgressIndicator(
+            progress = {
+                (shift.processedBoxIds.size.toFloat() / shift.targetBoxes).coerceIn(
+                    0f,
+                    1f
+                )
+            },
+            modifier = Modifier.fillMaxWidth(),
+            color = LastPaycheckTheme.colors.primary
+        )
+        SectionCard(stringResource(R.string.game_current_box)) {
+            val category = shift.selectedBox.category
+            Text(
+                text = when (category) {
+                    BoxCategory.FOOD -> "■ A"
+                    BoxCategory.FRAGILE -> "◆ B"
+                    BoxCategory.GENERAL -> "● C"
+                },
+                style = MaterialTheme.typography.displayLarge,
+                color = when (category) {
+                    BoxCategory.FOOD -> LastPaycheckTheme.colors.primary
+                    BoxCategory.FRAGILE -> LastPaycheckTheme.colors.accent
+                    BoxCategory.GENERAL -> MaterialTheme.colorScheme.onSurface
                 }
-                Need(
-                    R.string.game_energy,
-                    session.player.needs.energy,
-                    Modifier.fillMaxWidth(),
-                    accent = true
-                )
-            }
-            Row(horizontalArrangement = Arrangement.spacedBy(LpSpacing.sm)) {
-                LpButton(
+            )
+            LpBody(
+                stringResource(R.string.sorting_box, stringResource(sortLabel(category))),
+                Modifier.testTag("work.box")
+            )
+            LpCaption(stringResource(R.string.sorting_choose))
+            if (effect is GameEffect.Placement) {
+                val expected = effect.expected ?: category
+                val message = if (effect.correct) {
                     stringResource(
-                        if (session.clock.isPaused) R.string.game_unpause else R.string.game_pause
-                    ),
-                    game::togglePause,
-                    Modifier.weight(1f),
-                    LpButtonStyle.Secondary,
-                    !busy
-                )
-                LpButton(
-                    stringResource(R.string.game_finish_shift),
-                    { finishing = true },
-                    Modifier.weight(1f),
-                    LpButtonStyle.Secondary,
-                    enabled
-                )
+                        R.string.sorting_correct,
+                        stringResource(sortLabel(expected))
+                    )
+                } else {
+                    stringResource(
+                        R.string.sorting_wrong,
+                        stringResource(sortLabel(expected)),
+                        stringResource(sortLabel(effect.actual ?: category))
+                    )
+                }
+                LpCaption(message, Modifier.testTag("work.feedback"))
             }
+            Need(
+                R.string.game_energy,
+                session.player.needs.energy,
+                Modifier.fillMaxWidth(),
+                accent = true
+            )
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(LpSpacing.sm)) {
+            LpButton(
+                stringResource(
+                    if (session.clock.isPaused) R.string.game_unpause else R.string.game_pause
+                ),
+                game::togglePause,
+                Modifier.weight(1f),
+                LpButtonStyle.Secondary,
+                !busy
+            )
+            LpButton(
+                stringResource(R.string.game_finish_shift),
+                { finishing = true },
+                Modifier.weight(1f),
+                LpButtonStyle.Secondary,
+                enabled
+            )
         }
     }
     if (finishing && enabled) {
@@ -375,4 +440,10 @@ private fun boxLabel(category: BoxCategory): Int = when (category) {
     BoxCategory.FOOD -> R.string.game_box_food
     BoxCategory.FRAGILE -> R.string.game_box_fragile
     BoxCategory.GENERAL -> R.string.game_box_general
+}
+
+private fun sortLabel(category: BoxCategory): Int = when (category) {
+    BoxCategory.FOOD -> R.string.sorting_food
+    BoxCategory.FRAGILE -> R.string.sorting_fragile
+    BoxCategory.GENERAL -> R.string.sorting_general
 }

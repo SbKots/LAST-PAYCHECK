@@ -3,8 +3,14 @@ package com.lastpaycheck.domain.engine
 import com.lastpaycheck.domain.model.ActivityRequest
 import com.lastpaycheck.domain.model.BoxCategory
 import com.lastpaycheck.domain.model.GameCatalog
+import com.lastpaycheck.domain.model.VehicleAction
+import com.lastpaycheck.domain.model.VehicleCatalog
 
 internal sealed interface GameCommand {
+    data class Vehicle(
+        val action: VehicleAction,
+        val catalog: VehicleCatalog? = null
+    ) : GameCommand
     data class Buy(
         val catalog: GameCatalog,
         val productId: String,

@@ -40,10 +40,11 @@ internal class WagePolicy {
             BigInteger.ONE
         }
         val accuracyDenominator = attempts * moodDivisor
-        val planCredit = minOf(shift.correct, job.plan).toBigInteger()
+        val planCredit = minOf(shift.correct, shift.targetBoxes).toBigInteger()
         val base = job.basePayMinor.toBigInteger() * accuracyDenominator
         val bonus = job.bonusCapMinor.toBigInteger() * shift.correct.toBigInteger()
-        return ((base + bonus) * planCredit / (job.plan.toBigInteger() * accuracyDenominator))
+        val denominator = shift.targetBoxes.toBigInteger() * accuracyDenominator
+        return ((base + bonus) * planCredit / denominator)
             .longValueExact()
     }
 }

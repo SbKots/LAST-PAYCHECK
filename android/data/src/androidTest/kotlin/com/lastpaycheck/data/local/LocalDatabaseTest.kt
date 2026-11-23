@@ -4,6 +4,7 @@ import androidx.room.testing.MigrationTestHelper
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.platform.app.InstrumentationRegistry
 import com.lastpaycheck.data.catalog.CachedManifest
+import com.lastpaycheck.data.catalog.DemoVehicleCatalogRepository
 import com.lastpaycheck.data.remote.dto.CatalogManifestDto
 import com.lastpaycheck.data.remote.dto.SourceMetadataDto
 import com.lastpaycheck.domain.engine.GameEngine
@@ -21,13 +22,21 @@ import com.lastpaycheck.domain.model.Job
 import com.lastpaycheck.domain.model.Needs
 import com.lastpaycheck.domain.model.OperationKey
 import com.lastpaycheck.domain.model.Product
+import com.lastpaycheck.domain.model.RaceOutcome
 import com.lastpaycheck.domain.model.TransactionCategory
+import com.lastpaycheck.domain.model.VehicleUpgrade
 import com.lastpaycheck.domain.repository.CatalogRepository
 import com.lastpaycheck.domain.repository.CheckpointChoice
+import com.lastpaycheck.domain.usecase.AbandonRaceUseCase
 import com.lastpaycheck.domain.usecase.BuyProductUseCase
+import com.lastpaycheck.domain.usecase.BuyVehicleUseCase
 import com.lastpaycheck.domain.usecase.ContinueGameUseCase
+import com.lastpaycheck.domain.usecase.GetVehicleCatalogUseCase
+import com.lastpaycheck.domain.usecase.RenameCharacterUseCase
 import com.lastpaycheck.domain.usecase.SaveProgressUseCase
 import com.lastpaycheck.domain.usecase.StartNewGameUseCase
+import com.lastpaycheck.domain.usecase.StartRaceUseCase
+import com.lastpaycheck.domain.usecase.UpgradeVehicleUseCase
 import java.math.BigDecimal
 import java.time.Instant
 import java.util.UUID
@@ -42,6 +51,62 @@ import org.junit.Test
 
 class LocalDatabaseTest {
     @Test
+    fun vehicleOwnershipUpgradesAndRacePersistAcrossDatabaseReopen() = runBlocking {
+        withDatabase { db ->
+            val repository = RoomGameSessionRepository(db)
+            val coordinator = GameSessionCoordinator(GameEngine(), repository) { 0L }
+            val original = StartNewGameUseCase(FixtureCatalog(), coordinator)(
+                "vehicle-reopen",
+                "scenario",
+                "training-1"
+            ).value()
+            val payload = checkNotNull(db.sessions().snapshot(0)).payload
+            org.junit.Assert.assertFalse(payload.contains("\"vehicles\""))
+            repository.checkpoint(
+                original.identity,
+                original.copy(player = original.player.copy(moneyMinor = 100_000))
+            ).value()
+            ContinueGameUseCase(coordinator)().value()
+            val catalog = GetVehicleCatalogUseCase(
+                DemoVehicleCatalogRepository()
+            )
+            BuyVehicleUseCase(catalog, coordinator)(
+                OperationKey(original.id, "buy-car"),
+                "city-hatch"
+            ).value()
+            UpgradeVehicleUseCase(coordinator)(
+                OperationKey(original.id, "engine"),
+                "city-hatch",
+                VehicleUpgrade.ENGINE
+            ).value()
+            StartRaceUseCase(catalog, coordinator)(
+                OperationKey(original.id, "race"),
+                "night-standard"
+            ).value()
+        }
+        withDatabase { db ->
+            val repository = RoomGameSessionRepository(db)
+            val coordinator = GameSessionCoordinator(GameEngine(), repository) { 0L }
+            val loaded = ContinueGameUseCase(coordinator)().value()
+            assertEquals("city-hatch", loaded.vehicles.activeVehicleId)
+            assertEquals(1, loaded.vehicles.activeVehicle!!.level(VehicleUpgrade.ENGINE))
+            assertEquals("race", loaded.vehicles.race!!.id)
+            AbandonRaceUseCase(coordinator)(
+                OperationKey(loaded.id, "abandon"),
+                "race"
+            ).value()
+            val saved = repository.load(CheckpointChoice.LATEST).value()
+            assertEquals(1L, saved.vehicles.completed)
+            assertEquals(
+                RaceOutcome.ABANDONED,
+                saved.vehicles.history.single().outcome
+            )
+            assertEquals(93_400L, saved.player.moneyMinor)
+            assertEquals(2, repository.readTransactions(saved.identity).value().size)
+        }
+    }
+
+    @Test
     fun oldSnapshotWithoutNameLoadsAndRenamedCharacterSurvivesDatabaseReopen() = runBlocking {
         withDatabase { db ->
             val repository = RoomGameSessionRepository(db)
@@ -54,7 +119,7 @@ class LocalDatabaseTest {
             val row = checkNotNull(db.sessions().snapshot(0))
             org.junit.Assert.assertFalse(row.payload.contains("\"name\""))
             assertEquals("", repository.load(CheckpointChoice.LATEST).value().player.name)
-            com.lastpaycheck.domain.usecase.RenameCharacterUseCase(
+            RenameCharacterUseCase(
                 coordinator
             )(session.id, "Максим").value()
         }

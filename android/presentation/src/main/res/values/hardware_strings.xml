@@ -1,0 +1,29 @@
+<resources>
+    <string name="hardware_title">Warehouse equipment</string>
+    <string name="hardware_subtitle">Tilt input and camera check</string>
+    <string name="hardware_motion">Tilt control</string>
+    <string name="hardware_motion_hint">Optional accelerometer input. Hold a tilt briefly to prepare a direction. Sorting still uses the screen buttons; no boxes are placed automatically.</string>
+    <string name="hardware_stopped">Sensor stopped</string>
+    <string name="hardware_starting">Connecting sensor…</string>
+    <string name="hardware_active">Accelerometer active</string>
+    <string name="hardware_no_sensor">No accelerometer. Screen controls remain available.</string>
+    <string name="hardware_sensor_error">Sensor unavailable. Try enabling it again; screen controls still work.</string>
+    <string name="hardware_axes">X %1$.2f · Y %2$.2f · Z %3$.2f m/s² · Rotation %4$d°</string>
+    <string name="hardware_normalized">Horizontal input: %1$.2f</string>
+    <string name="hardware_left">Tilt left</string>
+    <string name="hardware_right">Tilt right</string>
+    <string name="hardware_neutral">Neutral position</string>
+    <string name="hardware_prepared">Direction prepared · Sequence %1$d</string>
+    <string name="hardware_enable">Enable tilt input</string>
+    <string name="hardware_stop">Disable tilt input</string>
+    <string name="hardware_camera">Warehouse camera check</string>
+    <string name="hardware_camera_rationale">The camera lets you check an image of a work badge. This version takes a real frame without recognizing QR codes. Images stay in memory, are not saved or sent to a server. Camera use is optional.</string>
+    <string name="hardware_permission_request">Allow camera</string>
+    <string name="hardware_permission_denied">Camera permission was not granted. The game remains available. You can retry if Android allows another request.</string>
+    <string name="hardware_no_camera">No camera available. Warehouse work does not require it.</string>
+    <string name="hardware_capture">Capture a frame</string>
+    <string name="hardware_capturing">Capturing…</string>
+    <string name="hardware_camera_error">Could not capture a frame. The camera has been released. Try again.</string>
+    <string name="hardware_frame">Frame received from the camera</string>
+    <string name="hardware_frame_hint">Real camera image · Kept only until leaving this screen</string>
+</resources>

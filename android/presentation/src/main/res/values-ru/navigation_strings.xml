@@ -5,7 +5,7 @@
     <string name="city_work_hint">Выбери профессию и условия смены</string>
     <string name="city_shop_hint">Продукты и автомобили</string>
     <string name="city_garage">Гараж</string>
-    <string name="city_garage_hint">Автомобили и ремонт · Пока недоступно</string>
+    <string name="city_garage_hint">Автомобили, улучшения и гонки</string>
     <string name="city_return_home">Вернуться домой</string>
     <string name="city_home_hint">Сон, отдых и обучение</string>
     <string name="stores_title">Выбери магазин</string>

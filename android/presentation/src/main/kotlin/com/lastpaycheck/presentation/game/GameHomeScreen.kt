@@ -531,6 +531,10 @@ internal fun GameLoading() {
 
 @Composable
 internal fun GameErrorPanel(reason: GameError, onRetry: () -> Unit) {
+    if (reason is GameError.Vehicle) {
+        LpBody(vehicleError(reason))
+        return
+    }
     val label = when (reason) {
         is GameError.InvalidSnapshot -> R.string.game_invalid_save
         GameError.CatalogUnavailable, GameError.InvalidCatalog -> R.string.game_catalog_error

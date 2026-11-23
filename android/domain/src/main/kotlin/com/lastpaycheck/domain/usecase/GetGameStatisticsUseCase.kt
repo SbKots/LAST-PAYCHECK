@@ -27,24 +27,26 @@ class GetGameStatisticsUseCase(private val repository: GameSessionRepository) {
             }
         }
 
-    private fun summarize(
+    internal fun summarize(
         session: GameSession,
         records: List<FinancialTransaction>
     ): DomainResult<GameStatistics> = checkedArithmetic {
+        if (!session.isValid()) return invalidSnapshot()
         var income = 0L
         var expense = 0L
         val ids = mutableSetOf<String>()
         val categories = mutableMapOf<TransactionCategory, Long>()
         for (record in records) {
-            val isWage = record.category == TransactionCategory.WAGE
+            val isIncome = record.category == TransactionCategory.WAGE ||
+                record.category == TransactionCategory.RACE_PRIZE
             val validTime = record.gameMillis in 0..session.clock.gameMillis
             if (record.sessionId != session.id || !validTime ||
                 record.id.isBlank() || !ids.add(record.id) || record.operationId.isBlank() ||
-                (isWage && record.amountMinor <= 0) || (!isWage && record.amountMinor >= 0)
+                (isIncome && record.amountMinor <= 0) || (!isIncome && record.amountMinor >= 0)
             ) {
                 return invalidSnapshot()
             }
-            if (isWage) {
+            if (isIncome) {
                 income = Math.addExact(income, record.amountMinor)
             } else {
                 expense = Math.subtractExact(expense, record.amountMinor)

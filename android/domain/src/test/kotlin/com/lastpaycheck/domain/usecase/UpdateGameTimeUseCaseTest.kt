@@ -39,9 +39,8 @@ class UpdateGameTimeUseCaseTest {
     }
 
     @Test
-    fun elapsedTimeCompletesShiftAtTwoHundredFiftySeconds() = runTest {
-        val game = Fixture().open()
-        game.startShift(game.key("work"), helperJob.id).ok()
+    fun legacyShiftStillCompletesAtTwoHundredFiftySeconds() = runTest {
+        val game = Fixture(sampleSession().copy(activeActivity = sampleShift())).open()
         game.tick(249_999).ok()
         assertEquals(144L, game.session.activeActivity?.remainingGameMillis)
         game.tick(1).ok()
@@ -116,7 +115,7 @@ class UpdateGameTimeUseCaseTest {
         ContinueGameUseCase(game.coordinator)().ok()
         val beforeShift = game.session.player.needs.energy
         game.startShift(game.key("event-shift"), helperJob.id).ok()
-        game.tick(50_000).ok()
+        game.tick(18_000).ok()
         assertEquals(beforeShift - 10, game.session.player.needs.energy, 0.0)
         assertEquals(1, game.store.transactions.size)
         assertEquals(1, game.session.events.size)

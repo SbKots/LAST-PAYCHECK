@@ -17,7 +17,10 @@ data class WorkShift(
     val correct: Int = 0,
     val errors: Int = 0,
     val processedBoxIds: Set<String> = emptySet(),
-    val boxPosition: Double = 0.0
+    val boxPosition: Double = 0.0,
+    val targetBoxes: Int = job.plan,
+    val compact: Boolean = false,
+    val boxReadyAtGameMillis: Long = 0
 ) : Activity
 
 sealed interface TimedActivity : Activity {
@@ -56,7 +59,8 @@ internal fun Activity.isValid(): Boolean {
     return when (this) {
         is WorkShift -> job.isValid() &&
             remainingGameMillis <= job.durationHours * GAME_HOUR_MILLIS &&
-            correct >= 0 && errors >= 0 &&
+            correct >= 0 && errors >= 0 && targetBoxes in 1..job.plan &&
+            boxReadyAtGameMillis >= 0 &&
             correct.toLong() + errors == processedBoxIds.size.toLong() &&
             processedBoxIds.none(String::isBlank) &&
             selectedBox.id.isNotBlank() && selectedBox.id !in processedBoxIds &&

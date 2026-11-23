@@ -17,6 +17,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -59,14 +60,18 @@ internal fun FinanceScreen(
         overview?.session?.let { gameTime(it.clock) }.orEmpty(),
         overview?.session,
         onBack,
-        { GameBackButton(onBack) }
+        { GameBackButton(onBack) },
+        screenTag = "screen.finances"
     ) {
         when (val current = result) {
             null -> GameLoading()
-            is DomainResult.Failure -> GameErrorPanel(current.error) { viewModel.load(sessionId) }
+            is DomainResult.Failure -> SectionCard(stringResource(R.string.finance_unavailable)) {
+                LpCaption(stringResource(R.string.finance_preserved))
+                LpButton(stringResource(R.string.catalog_retry), { viewModel.load(sessionId) })
+            }
             is DomainResult.Success -> overview?.let { data ->
                 SectionCard(stringResource(R.string.progress_balance)) {
-                    MoneyValue(data.session.player.moneyMinor)
+                    MoneyValue(data.session.player.moneyMinor, Modifier.testTag("finance.balance"))
                     LpCaption(
                         stringResource(
                             R.string.progress_debt,
@@ -139,8 +144,8 @@ internal fun FinanceScreen(
 }
 
 @Composable
-private fun MoneyValue(amount: Long) {
-    LpBody(gameMoney(amount), color = LastPaycheckTheme.colors.accent)
+private fun MoneyValue(amount: Long, modifier: Modifier = Modifier) {
+    LpBody(gameMoney(amount), modifier, color = LastPaycheckTheme.colors.accent)
 }
 
 private fun transactionLabel(category: TransactionCategory): Int = when (category) {
@@ -150,6 +155,11 @@ private fun transactionLabel(category: TransactionCategory): Int = when (categor
     TransactionCategory.RENT -> R.string.progress_rent
     TransactionCategory.DEBT_PAYMENT -> R.string.progress_debt_payment
     TransactionCategory.EVENT -> R.string.progress_event
+    TransactionCategory.CAR_PURCHASE -> R.string.vehicle_journal_purchase
+    TransactionCategory.CAR_UPGRADE -> R.string.vehicle_journal_upgrade
+    TransactionCategory.CAR_REPAIR -> R.string.vehicle_journal_repair
+    TransactionCategory.RACE_ENTRY -> R.string.vehicle_journal_entry
+    TransactionCategory.RACE_PRIZE -> R.string.vehicle_journal_prize
 }
 
 @Composable

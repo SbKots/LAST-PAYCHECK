@@ -15,6 +15,8 @@ import com.lastpaycheck.domain.model.PauseReason
 import com.lastpaycheck.domain.model.Product
 import com.lastpaycheck.domain.model.SessionStatus
 import com.lastpaycheck.domain.model.ValidationIssue
+import com.lastpaycheck.domain.model.VehicleAction
+import com.lastpaycheck.domain.model.VehicleCatalog
 import com.lastpaycheck.domain.model.WorkShift
 import com.lastpaycheck.domain.repository.ActiveGameClock
 import com.lastpaycheck.domain.repository.CatalogRepository
@@ -62,7 +64,8 @@ class MainViewModel @Inject constructor(
     private val saveProgress: SaveProgressUseCase,
     private val sections: SectionActions,
     private val renameCharacter: RenameCharacterUseCase,
-    private val getFoodPreview: GetFoodPreviewUseCase = GetFoodPreviewUseCase()
+    private val getFoodPreview: GetFoodPreviewUseCase = GetFoodPreviewUseCase(),
+    private val vehicleActions: VehicleActions? = null
 ) : ViewModel() {
     private val mutableState = MutableStateFlow<MainUiState>(MainUiState.Loading)
     internal val state = mutableState.asStateFlow()
@@ -74,6 +77,43 @@ class MainViewModel @Inject constructor(
     internal val sectionEffect = mutableEffect.asStateFlow()
     private val mutableBusy = MutableStateFlow(false)
     internal val sectionBusy = mutableBusy.asStateFlow()
+    private val mutableVehicles = MutableStateFlow<DomainResult<VehicleCatalog>?>(null)
+    internal val vehicleCatalog = mutableVehicles.asStateFlow()
+    private val mutableVehicleError = MutableStateFlow<GameError?>(null)
+    internal val vehicleError = mutableVehicleError.asStateFlow()
+
+    internal fun loadVehicles() {
+        viewModelScope.launch {
+            mutableVehicles.value = vehicleActions?.catalog?.invoke()
+                ?: DomainResult.Failure(GameError.CatalogUnavailable)
+        }
+    }
+
+    internal fun vehicleAction(
+        action: VehicleAction,
+        operationId: String,
+        onSuccess: () -> Unit = {}
+    ) = perform {
+        val current = currentSession() ?: return@perform
+        mutableBusy.value = true
+        mutableVehicleError.value = null
+        try {
+            val result = vehicleActions?.execute(OperationKey(current.id, operationId), action)
+                ?: DomainResult.Failure(GameError.CatalogUnavailable)
+            when (result) {
+                is DomainResult.Success -> {
+                    publish(playerStatus())
+                    onSuccess()
+                }
+                is DomainResult.Failure -> {
+                    mutableVehicleError.value = result.error
+                    publish(playerStatus())
+                }
+            }
+        } finally {
+            mutableBusy.value = false
+        }
+    }
     private var operation: Job? = null
     private var ticker: Job? = null
     private var homeVisible = false
@@ -342,7 +382,9 @@ class MainViewModel @Inject constructor(
         } else if (ticker == null) {
             ticker = viewModelScope.launch {
                 while (true) {
-                    delay(1000)
+                    val current = currentSession()
+                    val compactShift = (current?.activeActivity as? WorkShift)?.compact == true
+                    delay(if (current?.vehicles?.race != null || compactShift) 100 else 1000)
                     val content = state.value as? MainUiState.Content ?: continue
                     if (content.session.status == SessionStatus.ACTIVE) {
                         perform {

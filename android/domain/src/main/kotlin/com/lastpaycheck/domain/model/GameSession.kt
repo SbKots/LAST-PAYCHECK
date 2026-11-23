@@ -1,5 +1,7 @@
 package com.lastpaycheck.domain.model
 
+import com.lastpaycheck.domain.usecase.ValidateCharacterName
+
 const val GAME_MINUTE_MILLIS = 60_000L
 const val GAME_HOUR_MILLIS = 60 * GAME_MINUTE_MILLIS
 const val GAME_DAY_MILLIS = 24 * GAME_HOUR_MILLIS
@@ -47,7 +49,7 @@ data class PlayerState(
 
     internal fun isValid() = moneyMinor >= 0 && rentDebtMinor >= 0 && experience >= 0 &&
         taskRemainder in 0..9 && selectedJobId.isNotBlank() && needs.isValid() &&
-        (name.isEmpty() || com.lastpaycheck.domain.usecase.ValidateCharacterName()(name) == null)
+        (name.isEmpty() || ValidateCharacterName()(name) == null)
 }
 
 enum class PauseReason { MANUAL, BACKGROUND, FOCUS_LOST, STORAGE_FAILURE }
@@ -97,7 +99,8 @@ data class GameSession(
     val workMillis: Long = 0,
     val randomState: Long = 0,
     val events: List<GameEvent> = emptyList(),
-    val lastShiftResult: ShiftResult? = null
+    val lastShiftResult: ShiftResult? = null,
+    val vehicles: VehicleProgress = VehicleProgress()
 ) {
     val identity: SessionRevision get() = SessionRevision(id, revision)
     val speed: Int get() = if (activeActivity is TimedActivity.Sleep) 4 else 1
@@ -121,7 +124,8 @@ data class GameSession(
             events.zipWithNext().all { (a, b) ->
                 b.occurredAt - a.occurredAt >= maxOf(3 * GAME_DAY_MILLIS, a.durationGameMillis)
             } &&
-            (lastShiftResult == null || lastShiftResult.isValid())
+            (lastShiftResult == null || lastShiftResult.isValid()) && vehicles.isValid() &&
+            (vehicles.race == null || (active == null && !finished))
     }
 
     private fun ShiftResult.isValid() = correct >= 0 && errors >= 0 &&

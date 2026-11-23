@@ -21,26 +21,41 @@ import com.lastpaycheck.domain.model.Needs
 import com.lastpaycheck.domain.model.OperationKey
 import com.lastpaycheck.domain.model.OperationReceipt
 import com.lastpaycheck.domain.model.Product
+import com.lastpaycheck.domain.model.RaceDefinition
 import com.lastpaycheck.domain.model.SessionRevision
 import com.lastpaycheck.domain.model.TimedActivity
+import com.lastpaycheck.domain.model.ValidationIssue
+import com.lastpaycheck.domain.model.VehicleAction
+import com.lastpaycheck.domain.model.VehicleCatalog
+import com.lastpaycheck.domain.model.VehicleDefinition
 import com.lastpaycheck.domain.model.WorkShift
 import com.lastpaycheck.domain.repository.ActiveGameClock
 import com.lastpaycheck.domain.repository.CatalogRepository
 import com.lastpaycheck.domain.repository.CheckpointChoice
 import com.lastpaycheck.domain.repository.GameSessionRepository
+import com.lastpaycheck.domain.repository.VehicleCatalogRepository
+import com.lastpaycheck.domain.usecase.AbandonRaceUseCase
 import com.lastpaycheck.domain.usecase.BuyProductUseCase
+import com.lastpaycheck.domain.usecase.BuyVehicleUseCase
 import com.lastpaycheck.domain.usecase.ContinueGameUseCase
+import com.lastpaycheck.domain.usecase.DriveRaceUseCase
 import com.lastpaycheck.domain.usecase.FinishShiftUseCase
 import com.lastpaycheck.domain.usecase.GetPlayerStatusUseCase
+import com.lastpaycheck.domain.usecase.GetVehicleCatalogUseCase
 import com.lastpaycheck.domain.usecase.PlaceBoxUseCase
 import com.lastpaycheck.domain.usecase.PreviewNewGameUseCase
 import com.lastpaycheck.domain.usecase.QuoteProductUseCase
+import com.lastpaycheck.domain.usecase.RenameCharacterUseCase
+import com.lastpaycheck.domain.usecase.RepairVehicleUseCase
 import com.lastpaycheck.domain.usecase.SaveProgressUseCase
+import com.lastpaycheck.domain.usecase.SelectActiveVehicleUseCase
 import com.lastpaycheck.domain.usecase.SetPauseUseCase
 import com.lastpaycheck.domain.usecase.StartActivityUseCase
 import com.lastpaycheck.domain.usecase.StartNewGameUseCase
+import com.lastpaycheck.domain.usecase.StartRaceUseCase
 import com.lastpaycheck.domain.usecase.StartShiftUseCase
 import com.lastpaycheck.domain.usecase.UpdateGameTimeUseCase
+import com.lastpaycheck.domain.usecase.UpgradeVehicleUseCase
 import java.math.BigDecimal
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -61,11 +76,55 @@ import org.junit.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class MainViewModelTest {
     @Test
+    fun vehiclePurchaseAndDuplicateReceiptUseSharedSession() = verify { model, store ->
+        createSession(model)
+        model.loadVehicles()
+        runCurrent()
+        assertTrue(model.vehicleCatalog.value is DomainResult.Success)
+        model.vehicleAction(VehicleAction.Buy("city-hatch"), "buy-car")
+        runCurrent()
+        assertEquals(1, store.latest!!.vehicles.garage.size)
+        assertEquals(400L, store.latest!!.player.moneyMinor)
+        model.vehicleAction(VehicleAction.Buy("city-hatch"), "buy-car")
+        runCurrent()
+        assertEquals(400L, store.latest!!.player.moneyMinor)
+    }
+
+    @Test
+    fun vehicleErrorsAreVisibleAndTheNextValidActionCanRecover() = verify { model, store ->
+        createSession(model)
+        model.vehicleAction(VehicleAction.Buy("unknown"), "bad-car")
+        runCurrent()
+        assertTrue(model.vehicleError.value is GameError.NotFound)
+        assertTrue(store.latest!!.vehicles.garage.isEmpty())
+        model.vehicleAction(VehicleAction.Buy("city-hatch"), "good-car")
+        runCurrent()
+        assertNull(model.vehicleError.value)
+        assertEquals(1, store.latest!!.vehicles.garage.size)
+    }
+
+    @Test
+    fun failedVehicleStorageDoesNotSpendMoneyAndCanBeSavedBeforeRetry() = verify { model, store ->
+        createSession(model)
+        store.writeError = true
+        model.vehicleAction(VehicleAction.Buy("city-hatch"), "storage-car")
+        runCurrent()
+        assertEquals(GameError.StorageFailure, model.vehicleError.value)
+        assertEquals(1000L, store.latest!!.player.moneyMinor)
+        store.writeError = false
+        model.save()
+        runCurrent()
+        model.vehicleAction(VehicleAction.Buy("city-hatch"), "storage-car")
+        runCurrent()
+        assertEquals(1, store.latest!!.vehicles.garage.size)
+    }
+
+    @Test
     fun characterNameValidationSavesOnlyValidInputAndSurvivesReload() = verify { model, store ->
         createSession(model)
         val session = checkNotNull(store.latest)
         model.rename(session.id, " ")
-        assertEquals(com.lastpaycheck.domain.model.ValidationIssue.REQUIRED, model.nameError.value)
+        assertEquals(ValidationIssue.REQUIRED, model.nameError.value)
         model.rename(session.id, "Максим")
         model.rename(session.id, "Другое имя")
         runCurrent()
@@ -372,7 +431,31 @@ class MainViewModelTest {
                 QuoteProductUseCase(catalog, coordinator),
                 BuyProductUseCase(catalog, coordinator)
             ),
-            com.lastpaycheck.domain.usecase.RenameCharacterUseCase(coordinator)
+            RenameCharacterUseCase(coordinator),
+            vehicleActions = testVehicleActions(coordinator)
+        )
+    }
+
+    private fun testVehicleActions(coordinator: GameSessionCoordinator): VehicleActions {
+        val fakeCatalog = VehicleCatalog(
+            "test-cars",
+            listOf(VehicleDefinition("city-hatch", 600, 140, 3.0, 0.7, 40, 6.0, 5)),
+            listOf(RaceDefinition("night-standard", 1000, 120, 0, 180, 1, emptyList()))
+        )
+        val catalog = GetVehicleCatalogUseCase(
+            object : VehicleCatalogRepository {
+                override suspend fun get() = DomainResult.Success(fakeCatalog)
+            }
+        )
+        return VehicleActions(
+            catalog,
+            BuyVehicleUseCase(catalog, coordinator),
+            SelectActiveVehicleUseCase(coordinator),
+            UpgradeVehicleUseCase(coordinator),
+            RepairVehicleUseCase(coordinator),
+            StartRaceUseCase(catalog, coordinator),
+            DriveRaceUseCase(coordinator),
+            AbandonRaceUseCase(coordinator)
         )
     }
 

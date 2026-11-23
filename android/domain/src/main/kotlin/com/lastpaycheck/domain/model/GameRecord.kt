@@ -1,6 +1,18 @@
 package com.lastpaycheck.domain.model
 
-enum class TransactionCategory { PURCHASE, COURSE, WAGE, RENT, DEBT_PAYMENT, EVENT }
+enum class TransactionCategory {
+    PURCHASE,
+    COURSE,
+    WAGE,
+    RENT,
+    DEBT_PAYMENT,
+    EVENT,
+    CAR_PURCHASE,
+    CAR_UPGRADE,
+    CAR_REPAIR,
+    RACE_ENTRY,
+    RACE_PRIZE
+}
 
 data class FinancialTransaction(
     val id: String,
@@ -78,7 +90,11 @@ data class OperationKey(val sessionId: String, val id: String)
 sealed interface GameEffect {
     data object Applied : GameEffect
     data class Purchase(val productId: String, val quantity: Int, val costMinor: Long) : GameEffect
-    data class Placement(val correct: Boolean) : GameEffect
+    data class Placement(
+        val correct: Boolean,
+        val expected: BoxCategory? = null,
+        val actual: BoxCategory? = null
+    ) : GameEffect
     data class ShiftFinished(val result: ShiftResult) : GameEffect
 }
 

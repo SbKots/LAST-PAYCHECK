@@ -181,7 +181,8 @@ class GameSessionCoordinator(
             val next = transition.session
             val durableEffect = transition.transactions.isNotEmpty() ||
                 snapshot.activeActivity?.id != next.activeActivity?.id ||
-                snapshot.lastRentDay != next.lastRentDay || snapshot.status != next.status
+                snapshot.lastRentDay != next.lastRentDay || snapshot.status != next.status ||
+                (snapshot.vehicles.race != null && next.vehicles.race == null)
             when {
                 durableEffect -> commit(key, transition).map { checkNotNull(current.value) }
                 elapsed >= CHECKPOINT_INTERVAL_MILLIS - activeSinceCheckpoint -> checkpoint(next)

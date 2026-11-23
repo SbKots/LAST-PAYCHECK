@@ -6,6 +6,7 @@ sealed interface DomainResult<out T> {
 }
 
 sealed interface GameError {
+    data class Vehicle(val reason: VehicleFailure) : GameError
     data class Remote(
         val reason: RemoteFailure,
         val status: Int? = null,

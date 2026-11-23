@@ -15,13 +15,13 @@ class PlaceBoxUseCaseTest {
         val place = PlaceBoxUseCase(game.coordinator)
         val key = game.key("first")
         val receipt = place(key, "next", BoxCategory.FOOD).ok()
-        assertEquals(GameEffect.Placement(true), receipt.effect)
+        assertEquals(GameEffect.Placement(true, BoxCategory.FOOD, BoxCategory.FOOD), receipt.effect)
         assertEquals(receipt, place(key, "next", BoxCategory.FOOD).ok())
         place(game.key("duplicate"), "next", BoxCategory.FOOD).failsWith(GameError.BoxAlreadyPlaced)
 
         val next = (game.session.activeActivity as WorkShift).selectedBox
         assertEquals(
-            GameEffect.Placement(false),
+            GameEffect.Placement(false, next.category, BoxCategory.FRAGILE),
             place(game.key("wrong-zone"), next.id, BoxCategory.FRAGILE).ok().effect
         )
         val shift = game.session.activeActivity as WorkShift

@@ -50,7 +50,7 @@ class GameNavigationTest {
         waitFor("screen.stores")
         compose.onNodeWithTag("stores.dealership").performScrollTo().performClick()
         waitFor("screen.dealership")
-        compose.onNodeWithTag("dealership.buy").assertIsNotEnabled()
+        compose.onNodeWithTag("vehicle.details.city-hatch").performScrollTo().assertIsDisplayed()
         back()
         waitFor("screen.stores")
         back()

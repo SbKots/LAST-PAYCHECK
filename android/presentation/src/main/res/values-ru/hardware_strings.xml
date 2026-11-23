@@ -1,0 +1,29 @@
+<resources>
+    <string name="hardware_title">Оборудование склада</string>
+    <string name="hardware_subtitle">Наклон и проверка камеры</string>
+    <string name="hardware_motion">Управление наклоном</string>
+    <string name="hardware_motion_hint">Необязательный ввод акселерометром. Ненадолго удержи наклон, чтобы подготовить направление. Сортировка выполняется экранными кнопками; коробки автоматически не размещаются.</string>
+    <string name="hardware_stopped">Датчик выключен</string>
+    <string name="hardware_starting">Подключаем датчик…</string>
+    <string name="hardware_active">Акселерометр активен</string>
+    <string name="hardware_no_sensor">Акселерометра нет. Управление экранными кнопками доступно.</string>
+    <string name="hardware_sensor_error">Ошибка датчика. Попробуй включить его снова; экранные кнопки работают.</string>
+    <string name="hardware_axes">X %1$.2f · Y %2$.2f · Z %3$.2f м/с² · Поворот %4$d°</string>
+    <string name="hardware_normalized">Горизонтальный ввод: %1$.2f</string>
+    <string name="hardware_left">Наклон влево</string>
+    <string name="hardware_right">Наклон вправо</string>
+    <string name="hardware_neutral">Нейтральное положение</string>
+    <string name="hardware_prepared">Направление подготовлено · Номер %1$d</string>
+    <string name="hardware_enable">Включить управление наклоном</string>
+    <string name="hardware_stop">Выключить управление наклоном</string>
+    <string name="hardware_camera">Проверка камеры склада</string>
+    <string name="hardware_camera_rationale">Камера позволяет проверить изображение рабочего пропуска. В этой версии получается настоящий кадр без распознавания QR-кодов. Изображения остаются в памяти, не сохраняются и не отправляются на сервер. Камера необязательна для игры.</string>
+    <string name="hardware_permission_request">Разрешить камеру</string>
+    <string name="hardware_permission_denied">Разрешение камеры не выдано. Игра остаётся доступной. Запрос можно повторить, если Android разрешает его показать.</string>
+    <string name="hardware_no_camera">Камера недоступна. Для работы на складе она не требуется.</string>
+    <string name="hardware_capture">Получить кадр</string>
+    <string name="hardware_capturing">Получаем кадр…</string>
+    <string name="hardware_camera_error">Не удалось получить кадр. Камера освобождена. Попробуй снова.</string>
+    <string name="hardware_frame">Настоящий кадр с камеры</string>
+    <string name="hardware_frame_hint">Изображение с камеры · Только до выхода с экрана</string>
+</resources>

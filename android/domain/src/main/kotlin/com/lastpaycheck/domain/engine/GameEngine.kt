@@ -23,6 +23,7 @@ import com.lastpaycheck.domain.model.checkedArithmetic
 import com.lastpaycheck.domain.model.failure
 import com.lastpaycheck.domain.model.flatMap
 import com.lastpaycheck.domain.repository.RandomSource
+import com.lastpaycheck.domain.usecase.GetCourseAvailabilityUseCase
 
 class GameEngine(
     private val random: RandomSource = SeededRandomSource,
@@ -32,6 +33,7 @@ class GameEngine(
     private val wages = WagePolicy()
     private val needs = NeedsPolicy()
     private val rent = RentPolicy(prices)
+    private val vehicles = VehicleRules()
 
     internal fun handle(
         session: GameSession,
@@ -41,7 +43,11 @@ class GameEngine(
         if (session.status == SessionStatus.FINISHED) return failure(GameError.GameFinished)
         if (session.clock.isPaused) return failure(GameError.Paused)
         val ledger = Ledger(key)
+        if (session.vehicles.race != null && command !is GameCommand.Vehicle) {
+            return failure(GameError.Busy)
+        }
         when (command) {
+            is GameCommand.Vehicle -> vehicles.handle(session, key, command, ledger)
             is GameCommand.Buy -> buy(session, command, ledger)
             is GameCommand.SelectJob -> selectJob(session, command.jobId, command.catalog.jobs)
             is GameCommand.StartShift -> startShift(
@@ -51,7 +57,7 @@ class GameEngine(
                 command.catalog.jobs
             )
             is GameCommand.MoveBox -> moveBox(session, command.direction)
-            is GameCommand.PlaceBox -> placeBox(session, command)
+            is GameCommand.PlaceBox -> placeBox(session, command, ledger)
             GameCommand.FinishShift -> withShift(session) { shift ->
                 DomainResult.Success(finishShift(session, shift, ledger))
             }
@@ -68,15 +74,21 @@ class GameEngine(
         if (session.status == SessionStatus.FINISHED) return failure(GameError.GameFinished)
         if (session.clock.isPaused || activeMillis == 0L) return transition(session)
 
+        var rate = (session.activeActivity as? WorkShift)?.takeIf { it.compact }
+            ?.let { it.job.durationHours * 160L } ?: 576L
         var budget = Math.addExact(
-            Math.multiplyExact(activeMillis, 576L),
+            Math.multiplyExact(activeMillis, rate),
             session.clock.fractionalRemainder.toLong()
         )
         var current = session
         val ledger = Ledger(key)
         var effect: GameEffect = GameEffect.Applied
         while (current.status == SessionStatus.ACTIVE) {
-            val unitCost = 4 / current.speed
+            val unitCost = if ((current.activeActivity as? WorkShift)?.compact == true) {
+                4
+            } else {
+                4 / current.speed
+            }
             val available = budget / unitCost
             if (available == 0L) break
             val active = current.activeActivity
@@ -123,8 +135,16 @@ class GameEngine(
                 val completed = completeActivity(current, ending, ledger)
                 current = completed.session
                 if (completed.effect != GameEffect.Applied) effect = completed.effect
+                if (ending is WorkShift && ending.compact) {
+                    budget = Math.addExact(
+                        Math.multiplyExact(budget / rate, 576L),
+                        budget % rate * 576 / rate
+                    )
+                    rate = 576L
+                }
             }
         }
+        current = vehicles.advance(current, activeMillis, ledger)
         val remainder = if (current.status == SessionStatus.FINISHED) 0 else budget.toInt()
         DomainResult.Success(
             GameTransition(
@@ -184,7 +204,13 @@ class GameEngine(
             transition(
                 session.copy(
                     player = session.player.copy(selectedJobId = job.id),
-                    activeActivity = WorkShift(shiftId, job, box),
+                    activeActivity = WorkShift(
+                        shiftId,
+                        job,
+                        box,
+                        targetBoxes = minOf(24, job.plan),
+                        compact = true
+                    ),
                     randomState = state
                 )
             )
@@ -206,7 +232,7 @@ class GameEngine(
         transition(session.copy(activeActivity = shift.copy(boxPosition = position)))
     }
 
-    private fun placeBox(session: GameSession, command: GameCommand.PlaceBox) =
+    private fun placeBox(session: GameSession, command: GameCommand.PlaceBox, ledger: Ledger) =
         withShift(session) { shift ->
             if (command.boxId in shift.processedBoxIds) {
                 return@withShift failure(
@@ -218,6 +244,9 @@ class GameEngine(
                     GameError.NotFound(command.boxId)
                 )
             }
+            if (shift.compact && session.clock.gameMillis < shift.boxReadyAtGameMillis) {
+                return@withShift failure(GameError.Busy)
+            }
             val correct = shift.selectedBox.category == command.zone
             val processed = shift.processedBoxIds + command.boxId
             val (box, state) = nextBox(session.randomState, shift.id, processed.size)
@@ -226,12 +255,22 @@ class GameEngine(
                 correct = shift.correct + if (correct) 1 else 0,
                 errors = shift.errors + if (correct) 0 else 1,
                 processedBoxIds = processed,
-                boxPosition = 0.0
+                boxPosition = 0.0,
+                boxReadyAtGameMillis = if (shift.compact) {
+                    session.clock.gameMillis + shift.job.durationHours * GAME_HOUR_MILLIS / 36
+                } else {
+                    0
+                }
             )
+            if (next.compact && processed.size >= next.targetBoxes) {
+                return@withShift DomainResult.Success(
+                    finishShift(session.copy(randomState = state), next, ledger)
+                )
+            }
             DomainResult.Success(
                 GameTransition(
                     session.copy(activeActivity = next, randomState = state),
-                    effect = GameEffect.Placement(correct)
+                    effect = GameEffect.Placement(correct, shift.selectedBox.category, command.zone)
                 )
             )
         }
@@ -283,7 +322,7 @@ class GameEngine(
             is ActivityRequest.Course -> {
                 val course = command.catalog?.courses?.find { it.id == request.courseId }
                     ?: return failure(GameError.NotFound(request.courseId))
-                com.lastpaycheck.domain.usecase.GetCourseAvailabilityUseCase()(session, course)
+                GetCourseAvailabilityUseCase()(session, course)
                     ?.let { return failure(it) }
                 debit(session, course.priceMinor).mapSession { next ->
                     ledger.record(next, TransactionCategory.COURSE, -course.priceMinor)
@@ -402,7 +441,7 @@ class GameEngine(
     ) = flatMap { DomainResult.Success(action(it)) }
 }
 
-private class Ledger(private val key: OperationKey) {
+internal class Ledger(private val key: OperationKey) {
     private val entries = mutableListOf<FinancialTransaction>()
     val transactions: List<FinancialTransaction> get() = entries.toList()
 

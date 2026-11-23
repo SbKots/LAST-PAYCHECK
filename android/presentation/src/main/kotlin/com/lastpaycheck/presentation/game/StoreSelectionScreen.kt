@@ -33,10 +33,14 @@ internal fun StoreSelectionScreen(
     onBack: () -> Unit
 ) {
     val result by game.sectionCatalog.collectAsStateWithLifecycle()
+    val cars by game.vehicleCatalog.collectAsStateWithLifecycle()
     LaunchedEffect(
         session.id,
         session.clock.day
-    ) { game.loadSection(session.id, session.clock.day) }
+    ) {
+        game.loadSection(session.id, session.clock.day)
+        game.loadVehicles()
+    }
     SectionPage(
         stringResource(R.string.stores_title),
         stringResource(R.string.stores_subtitle),
@@ -79,7 +83,13 @@ internal fun StoreSelectionScreen(
                 LpBody(stringResource(R.string.stores_car_description))
             }
             LpCaption(
-                stringResource(R.string.stores_car_price),
+                stringResource(
+                    R.string.vehicle_from_price,
+                    gameMoney(
+                        (cars as? DomainResult.Success)?.value?.vehicles
+                            ?.minOfOrNull { it.priceMinor } ?: 6000
+                    )
+                ),
                 color = LastPaycheckTheme.colors.accent
             )
             LpCaption(stringResource(R.string.vehicles_unavailable))

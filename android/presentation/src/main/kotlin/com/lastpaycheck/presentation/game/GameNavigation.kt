@@ -2,6 +2,8 @@ package com.lastpaycheck.presentation.game
 
 import android.content.res.Configuration
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.LocalActivity
+import androidx.activity.compose.LocalActivityResultRegistryOwner
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,6 +39,8 @@ import com.lastpaycheck.domain.repository.CheckpointChoice
 import com.lastpaycheck.presentation.R
 import com.lastpaycheck.presentation.account.AccountScreen
 import com.lastpaycheck.presentation.account.AccountViewModel
+import com.lastpaycheck.presentation.hardware.HardwareScreen
+import com.lastpaycheck.presentation.hardware.HardwareViewModel
 import com.lastpaycheck.presentation.startup.StartupViewModel
 import com.lastpaycheck.presentation.ui.components.LpBody
 import com.lastpaycheck.presentation.ui.theme.LastPaycheckTheme
@@ -69,7 +73,25 @@ internal object GameRoutes {
     data class Garage(val sessionId: String)
 
     @Serializable
+    data class VehicleDetail(val sessionId: String, val modelId: String)
+
+    @Serializable
+    data class RaceSelection(val sessionId: String)
+
+    @Serializable
+    data class RacePreparation(val sessionId: String, val eventId: String)
+
+    @Serializable
+    data class Race(val sessionId: String)
+
+    @Serializable
+    data class RaceResult(val sessionId: String, val raceId: String)
+
+    @Serializable
     data class Work(val sessionId: String)
+
+    @Serializable
+    data class Hardware(val sessionId: String)
 
     @Serializable
     data class Training(val sessionId: String)
@@ -99,6 +121,7 @@ fun GameNavigation(
     startup: StartupViewModel,
     account: AccountViewModel,
     finances: FinanceViewModel,
+    hardware: HardwareViewModel,
     onThemeChanged: (Boolean) -> Unit
 ) {
     val nav = rememberNavController()
@@ -109,6 +132,8 @@ fun GameNavigation(
     val theme = (settings as? DomainResult.Success)?.value?.theme
     val language = (settings as? DomainResult.Success)?.value?.language ?: AppLanguage.SYSTEM
     val context = LocalContext.current
+    val hostActivity = LocalActivity.current
+    val resultRegistryOwner = checkNotNull(LocalActivityResultRegistryOwner.current)
     val configuration = LocalConfiguration.current
     val localizedConfiguration = remember(configuration, language) {
         Configuration(configuration).apply {
@@ -139,6 +164,11 @@ fun GameNavigation(
         destination?.hasRoute<GameRoutes.StoreSelection>() == true ||
         destination?.hasRoute<GameRoutes.Dealership>() == true ||
         destination?.hasRoute<GameRoutes.Garage>() == true ||
+        destination?.hasRoute<GameRoutes.VehicleDetail>() == true ||
+        destination?.hasRoute<GameRoutes.RaceSelection>() == true ||
+        destination?.hasRoute<GameRoutes.RacePreparation>() == true ||
+        destination?.hasRoute<GameRoutes.Race>() == true ||
+        destination?.hasRoute<GameRoutes.RaceResult>() == true ||
         destination?.hasRoute<GameRoutes.Training>() == true ||
         destination?.hasRoute<GameRoutes.Hero>() == true ||
         destination?.hasRoute<GameRoutes.Fridge>() == true ||
@@ -154,6 +184,13 @@ fun GameNavigation(
     }
 
     val currentSession = (state as? MainUiState.Content)?.session
+    LaunchedEffect(currentSession?.vehicles?.race?.id, destination) {
+        if (currentSession?.vehicles?.race != null &&
+            destination?.hasRoute<GameRoutes.Apartment>() == true
+        ) {
+            nav.navigate(GameRoutes.Race(currentSession.id)) { launchSingleTop = true }
+        }
+    }
     LaunchedEffect(currentSession?.status, destination) {
         if (currentSession?.status == SessionStatus.FINISHED &&
             destination?.hasRoute<GameRoutes.Start>() != true &&
@@ -167,7 +204,9 @@ fun GameNavigation(
     }
     CompositionLocalProvider(
         LocalContext provides localizedContext,
-        LocalConfiguration provides localizedConfiguration
+        LocalConfiguration provides localizedConfiguration,
+        LocalActivity provides hostActivity,
+        LocalActivityResultRegistryOwner provides resultRegistryOwner
     ) {
         LastPaycheckTheme(darkTheme = dark) {
             Column(Modifier.fillMaxSize()) {
@@ -243,7 +282,22 @@ fun GameNavigation(
                     }
                     composable<GameRoutes.Work> { entry ->
                         val route = entry.toRoute<GameRoutes.Work>()
-                        SectionRoute(game, route.sessionId, Section.Work) { nav.popBackStack() }
+                        SectionRoute(
+                            game,
+                            route.sessionId,
+                            Section.Work,
+                            onHardware = {
+                                nav.navigate(GameRoutes.Hardware(route.sessionId)) {
+                                    launchSingleTop = true
+                                }
+                            }
+                        ) { nav.popBackStack() }
+                    }
+                    composable<GameRoutes.Hardware> { entry ->
+                        val route = entry.toRoute<GameRoutes.Hardware>()
+                        ProgressRoute(game, route.sessionId, { nav.popBackStack() }) { session ->
+                            HardwareScreen(session, hardware) { nav.popBackStack() }
+                        }
                     }
                     composable<GameRoutes.Shop> { entry ->
                         val route = entry.toRoute<GameRoutes.Shop>()
@@ -297,13 +351,133 @@ fun GameNavigation(
                     composable<GameRoutes.Dealership> { entry ->
                         val route = entry.toRoute<GameRoutes.Dealership>()
                         ProgressRoute(game, route.sessionId, { nav.popBackStack() }) { session ->
-                            VehicleStatusScreen(session, garage = false) { nav.popBackStack() }
+                            DealershipScreen(
+                                session,
+                                game,
+                                {
+                                    nav.navigate(
+                                        GameRoutes.VehicleDetail(session.id, it)
+                                    ) { launchSingleTop = true }
+                                },
+                                {
+                                    nav.navigate(
+                                        GameRoutes.Garage(session.id)
+                                    ) { launchSingleTop = true }
+                                },
+                                { nav.popBackStack() }
+                            )
                         }
                     }
                     composable<GameRoutes.Garage> { entry ->
                         val route = entry.toRoute<GameRoutes.Garage>()
                         ProgressRoute(game, route.sessionId, { nav.popBackStack() }) { session ->
-                            VehicleStatusScreen(session, garage = true) { nav.popBackStack() }
+                            GarageScreen(
+                                session,
+                                game,
+                                {
+                                    nav.navigate(
+                                        GameRoutes.VehicleDetail(session.id, it)
+                                    ) { launchSingleTop = true }
+                                },
+                                {
+                                    nav.navigate(
+                                        GameRoutes.Dealership(session.id)
+                                    ) { launchSingleTop = true }
+                                },
+                                {
+                                    nav.navigate(
+                                        GameRoutes.RaceSelection(session.id)
+                                    ) { launchSingleTop = true }
+                                },
+                                {
+                                    nav.navigate(GameRoutes.City(session.id)) {
+                                        popUpTo<GameRoutes.Apartment>()
+                                        launchSingleTop = true
+                                    }
+                                },
+                                { nav.popBackStack() }
+                            )
+                        }
+                    }
+                    composable<GameRoutes.VehicleDetail> { entry ->
+                        val route = entry.toRoute<GameRoutes.VehicleDetail>()
+                        ProgressRoute(game, route.sessionId, { nav.popBackStack() }) { session ->
+                            VehicleDetailScreen(session, game, route.modelId, {
+                                nav.navigate(GameRoutes.Garage(session.id)) {
+                                    popUpTo<GameRoutes.Apartment>()
+                                    launchSingleTop = true
+                                }
+                            }, { nav.popBackStack() })
+                        }
+                    }
+                    composable<GameRoutes.RaceSelection> { entry ->
+                        val route = entry.toRoute<GameRoutes.RaceSelection>()
+                        ProgressRoute(game, route.sessionId, { nav.popBackStack() }) { session ->
+                            RaceSelectionScreen(
+                                session,
+                                game,
+                                {
+                                    nav.navigate(
+                                        GameRoutes.RacePreparation(session.id, it)
+                                    ) { launchSingleTop = true }
+                                },
+                                {
+                                    nav.navigate(
+                                        GameRoutes.RaceResult(session.id, it)
+                                    ) { launchSingleTop = true }
+                                },
+                                {
+                                    nav.navigate(
+                                        GameRoutes.Race(session.id)
+                                    ) { launchSingleTop = true }
+                                },
+                                { nav.popBackStack() }
+                            )
+                        }
+                    }
+                    composable<GameRoutes.RacePreparation> { entry ->
+                        val route = entry.toRoute<GameRoutes.RacePreparation>()
+                        ProgressRoute(game, route.sessionId, { nav.popBackStack() }) { session ->
+                            RacePreparationScreen(
+                                session,
+                                game,
+                                route.eventId,
+                                {
+                                    nav.navigate(
+                                        GameRoutes.Race(session.id)
+                                    ) { launchSingleTop = true }
+                                },
+                                { nav.popBackStack() }
+                            )
+                        }
+                    }
+                    composable<GameRoutes.Race> { entry ->
+                        val route = entry.toRoute<GameRoutes.Race>()
+                        val garage = {
+                            nav.navigate(GameRoutes.Garage(route.sessionId)) {
+                                popUpTo<GameRoutes.Apartment>()
+                                launchSingleTop = true
+                            }
+                        }
+                        ProgressRoute(game, route.sessionId, garage) { session ->
+                            RaceScreen(session, game, {
+                                nav.navigate(GameRoutes.RaceResult(session.id, it)) {
+                                    popUpTo<GameRoutes.Race> { inclusive = true }
+                                    launchSingleTop = true
+                                }
+                            }, garage)
+                        }
+                    }
+                    composable<GameRoutes.RaceResult> { entry ->
+                        val route = entry.toRoute<GameRoutes.RaceResult>()
+                        val garage = {
+                            nav.navigate(GameRoutes.Garage(route.sessionId)) {
+                                popUpTo<GameRoutes.Apartment>()
+                                launchSingleTop = true
+                            }
+                        }
+                        ProgressRoute(game, route.sessionId, garage) { session ->
+                            RaceResultScreen(session, route.raceId, garage)
                         }
                     }
                     composable<GameRoutes.Statistics> { entry ->

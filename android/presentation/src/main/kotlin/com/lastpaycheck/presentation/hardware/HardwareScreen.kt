@@ -1,10 +1,13 @@
 package com.lastpaycheck.presentation.hardware
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
+import android.net.Uri
+import android.provider.Settings
 import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -13,10 +16,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
@@ -43,25 +44,29 @@ internal fun HardwareScreen(session: GameSession, model: HardwareViewModel, onBa
     val state by model.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val activity = LocalActivity.current
-    var requested by rememberSaveable { mutableStateOf(false) }
     val refreshPermission = {
         model.updatePermission(
             context.checkSelfPermission(Manifest.permission.CAMERA) ==
                 PackageManager.PERMISSION_GRANTED,
-            activity?.shouldShowRequestPermissionRationale(Manifest.permission.CAMERA) == true,
-            requested
+            activity?.shouldShowRequestPermissionRationale(Manifest.permission.CAMERA) == true
         )
     }
     val permission = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
-    ) { refreshPermission() }
+    ) {
+        model.permissionResult(
+            context.checkSelfPermission(Manifest.permission.CAMERA) ==
+                PackageManager.PERMISSION_GRANTED,
+            activity?.shouldShowRequestPermissionRationale(Manifest.permission.CAMERA) == true
+        )
+    }
     val latestRefresh by rememberUpdatedState(refreshPermission)
     val owner = LocalLifecycleOwner.current
     DisposableEffect(owner, model) {
         latestRefresh()
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) latestRefresh()
-            if (event == Lifecycle.Event.ON_STOP) model.stop()
+            if (event == Lifecycle.Event.ON_PAUSE) model.stop()
         }
         owner.lifecycle.addObserver(observer)
         onDispose {
@@ -135,15 +140,40 @@ internal fun HardwareScreen(session: GameSession, model: HardwareViewModel, onBa
                 ) {
                     LpCaption(stringResource(R.string.hardware_permission_denied))
                 }
-                LpButton(
-                    stringResource(R.string.hardware_permission_request),
-                    {
-                        requested = true
-                        permission.launch(Manifest.permission.CAMERA)
-                    },
-                    Modifier.fillMaxWidth().testTag("hardware.camera.permission"),
-                    enabled = state.permission != CameraPermission.DENIED
-                )
+                if (state.permission == CameraPermission.DENIED) {
+                    LpCaption(stringResource(R.string.camera_permanent_denial))
+                    LpButton(
+                        stringResource(R.string.camera_open_settings),
+                        {
+                            activity?.startActivity(
+                                Intent(
+                                    Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                                    Uri.fromParts("package", context.packageName, null)
+                                )
+                            )
+                        },
+                        Modifier.fillMaxWidth().testTag("hardware.camera.settings")
+                    )
+                } else {
+                    LpButton(
+                        stringResource(R.string.hardware_permission_request),
+                        {
+                            model.requestPermission {
+                                permission.launch(
+                                    Manifest.permission.CAMERA
+                                )
+                            }
+                        },
+                        Modifier.fillMaxWidth().testTag("hardware.camera.permission"),
+                        enabled = !state.permissionLoading && !state.requestPending &&
+                            !state.permissionStorageError
+                    )
+                }
+                if (state.permissionStorageError) {
+                    LpCaption(
+                        stringResource(R.string.tilt_settings_error)
+                    )
+                }
             } else {
                 LpButton(
                     stringResource(

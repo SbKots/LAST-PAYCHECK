@@ -3,10 +3,13 @@ package com.lastpaycheck.presentation.hardware
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lastpaycheck.domain.model.CameraResult
+import com.lastpaycheck.domain.model.DomainResult
+import com.lastpaycheck.domain.model.GameSettings
 import com.lastpaycheck.domain.model.MotionEvent
 import com.lastpaycheck.domain.model.PreparedSortDirection
 import com.lastpaycheck.domain.model.TiltReading
 import com.lastpaycheck.domain.repository.MotionSensorSource
+import com.lastpaycheck.domain.repository.SettingsRepository
 import com.lastpaycheck.domain.repository.WorkCameraSource
 import com.lastpaycheck.domain.usecase.InterpretTilt
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -27,19 +30,53 @@ data class HardwareUiState(
     val cameraAvailable: Boolean = false,
     val permission: CameraPermission = CameraPermission.NOT_REQUESTED,
     val cameraBusy: Boolean = false,
-    val cameraResult: CameraResult? = null
+    val cameraResult: CameraResult? = null,
+    val cameraRequested: Boolean = false,
+    val requestPending: Boolean = false,
+    val permissionLoading: Boolean = false,
+    val permissionStorageError: Boolean = false
 )
 
 @HiltViewModel
 class HardwareViewModel @Inject constructor(
     private val motion: MotionSensorSource,
-    private val camera: WorkCameraSource
+    private val camera: WorkCameraSource,
+    private val settings: SettingsRepository? = null
 ) : ViewModel() {
-    private val mutableState = MutableStateFlow(HardwareUiState(cameraAvailable = camera.available))
+    private val mutableState = MutableStateFlow(
+        HardwareUiState(
+            cameraAvailable = camera.available,
+            permissionLoading = settings != null
+        )
+    )
     val state = mutableState.asStateFlow()
     private var motionJob: Job? = null
     private var cameraJob: Job? = null
     private val interpret = InterpretTilt()
+    private var preferences: GameSettings? = null
+    private var granted = false
+    private var rationale = false
+
+    init {
+        settings?.let { repository ->
+            viewModelScope.launch {
+                repository.observe().collect { result ->
+                    if (result is DomainResult.Success) {
+                        preferences = result.value
+                        mutableState.value = state.value.copy(
+                            cameraRequested = result.value.cameraPermissionRequested,
+                            permissionLoading = false, permissionStorageError = false
+                        )
+                        updatePermission(granted, rationale, result.value.cameraPermissionRequested)
+                    } else {
+                        mutableState.value = state.value.copy(
+                            permissionLoading = false, permissionStorageError = true
+                        )
+                    }
+                }
+            }
+        }
+    }
 
     fun enableMotion() {
         if (motionJob?.isActive == true) return
@@ -94,15 +131,65 @@ class HardwareViewModel @Inject constructor(
         )
     }
 
-    fun updatePermission(granted: Boolean, rationale: Boolean, requested: Boolean) {
+    fun updatePermission(
+        granted: Boolean,
+        rationale: Boolean,
+        requested: Boolean = state.value.cameraRequested
+    ) {
+        this.granted = granted
+        this.rationale = rationale
         mutableState.value = state.value.copy(
+            cameraAvailable = camera.available,
+            cameraRequested = requested,
             permission = when {
                 granted -> CameraPermission.GRANTED
                 rationale -> CameraPermission.RATIONALE
+                state.value.requestPending -> CameraPermission.NOT_REQUESTED
                 requested -> CameraPermission.DENIED
                 else -> CameraPermission.NOT_REQUESTED
             }
         )
+    }
+
+    fun requestPermission(launch: () -> Unit) {
+        if (!state.value.cameraAvailable || state.value.requestPending ||
+            state.value.permissionLoading || state.value.permissionStorageError ||
+            state.value.permission == CameraPermission.DENIED ||
+            state.value.permission == CameraPermission.GRANTED
+        ) {
+            return
+        }
+        mutableState.value = state.value.copy(requestPending = true)
+        viewModelScope.launch {
+            val current = preferences
+            if (settings != null && current != null) {
+                when (
+                    val result = settings.update(
+                        current.copy(cameraPermissionRequested = true)
+                    )
+                ) {
+                    is DomainResult.Success -> preferences = result.value
+                    is DomainResult.Failure -> {
+                        mutableState.value = state.value.copy(
+                            requestPending = false, permissionStorageError = true
+                        )
+                        return@launch
+                    }
+                }
+            }
+            mutableState.value = state.value.copy(cameraRequested = true)
+            try {
+                launch()
+            } catch (_: RuntimeException) {
+                mutableState.value = state.value.copy(requestPending = false)
+                updatePermission(this@HardwareViewModel.granted, this@HardwareViewModel.rationale)
+            }
+        }
+    }
+
+    fun permissionResult(granted: Boolean, rationale: Boolean) {
+        mutableState.value = state.value.copy(requestPending = false)
+        updatePermission(granted, rationale, requested = true)
     }
 
     fun capture() {

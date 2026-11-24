@@ -1,0 +1,17 @@
+<resources>
+    <string name="tilt_control_title">Управление сортировкой</string>
+    <string name="tilt_touch">Экранные кнопки</string>
+    <string name="tilt_mode">Наклоны телефона</string>
+    <string name="tilt_mapping">← A ■ · B ◆ подтвердить в нейтрали · C ● →</string>
+    <string name="tilt_center">Подтвердить B ◆ в нейтрали</string>
+    <string name="tilt_calibrate">Калибровать нейтраль</string>
+    <string name="tilt_calibrate_hint">Удерживай телефон неподвижно в удобном нейтральном положении и калибруй. После поворота экрана нужна новая калибровка.</string>
+    <string name="tilt_return_neutral">Верни телефон в нейтраль перед следующим движением.</string>
+    <string name="tilt_armed">Готово: наклони влево или вправо один раз. Для B оставайся в нейтрали и нажми подтверждение.</string>
+    <string name="tilt_inactive">На паузе и вне активной сцены сортировка наклоном остановлена.</string>
+    <string name="tilt_no_sensor">Акселерометра нет. Сортировка экранными кнопками доступна.</string>
+    <string name="tilt_error">Датчик недоступен. Продолжай сортировку экранными кнопками.</string>
+    <string name="tilt_settings_error">Не удалось прочитать или сохранить настройки управления. Экранные кнопки остаются доступны.</string>
+    <string name="camera_permanent_denial">Android больше не показывает запрос камеры. Разрешение можно включить в настройках этого приложения. Сортировка работает и без камеры.</string>
+    <string name="camera_open_settings">Открыть настройки приложения</string>
+</resources>

@@ -275,6 +275,20 @@ class MainViewModel @Inject constructor(
         sections.finishShift(key)
     }
 
+    internal fun placeTilt(
+        sessionId: String,
+        boxId: String,
+        zone: BoxCategory,
+        operationId: String
+    ) = sectionCommand(sessionId, operationId) { key, session ->
+        val shift = session.activeActivity as? WorkShift
+        if (shift?.selectedBox?.id != boxId) {
+            DomainResult.Failure(GameError.BoxAlreadyPlaced)
+        } else {
+            sections.placeBox(key, boxId, zone)
+        }
+    }
+
     internal fun buy(sessionId: String, item: StoreProduct, quantity: Int, confirmationId: String) =
         sectionCommand(sessionId, confirmationId) { key, _ ->
             sections.buy(key, item.product.id, quantity, item.quote.unitPriceMinor)

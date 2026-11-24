@@ -32,6 +32,19 @@ android {
         compose = true
         buildConfig = true
     }
+
+    buildTypes {
+        create("hardwareTest") {
+            initWith(getByName("debug"))
+            applicationIdSuffix = ".hardwaretest"
+            matchingFallbacks += "debug"
+        }
+    }
+    testBuildType = if (providers.gradleProperty("hardwareTestBuild").isPresent) {
+        "hardwareTest"
+    } else {
+        "debug"
+    }
 }
 
 kotlin {

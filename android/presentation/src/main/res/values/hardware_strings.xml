@@ -2,7 +2,7 @@
     <string name="hardware_title">Warehouse equipment</string>
     <string name="hardware_subtitle">Tilt input and camera check</string>
     <string name="hardware_motion">Tilt control</string>
-    <string name="hardware_motion_hint">Optional accelerometer input. Hold a tilt briefly to prepare a direction. Sorting still uses the screen buttons; no boxes are placed automatically.</string>
+    <string name="hardware_motion_hint">Check the accelerometer here. During a warehouse shift, select tilt control: left sorts to A, right to C, and B needs explicit confirmation in neutral. Touch controls remain available.</string>
     <string name="hardware_stopped">Sensor stopped</string>
     <string name="hardware_starting">Connecting sensor…</string>
     <string name="hardware_active">Accelerometer active</string>

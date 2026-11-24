@@ -1,0 +1,17 @@
+<resources>
+    <string name="tilt_control_title">Sorting controls</string>
+    <string name="tilt_touch">On-screen buttons</string>
+    <string name="tilt_mode">Phone tilt</string>
+    <string name="tilt_mapping">← A ■ · B ◆ confirm in neutral · C ● →</string>
+    <string name="tilt_center">Confirm B ◆ in neutral</string>
+    <string name="tilt_calibrate">Calibrate neutral</string>
+    <string name="tilt_calibrate_hint">Hold the phone still in a comfortable neutral position, then calibrate. Recalibrate after rotating the screen.</string>
+    <string name="tilt_return_neutral">Return to neutral before the next move.</string>
+    <string name="tilt_armed">Ready: tilt left or right once. For B, stay neutral and press Confirm.</string>
+    <string name="tilt_inactive">Tilt sorting is stopped while the game is paused or this screen is inactive.</string>
+    <string name="tilt_no_sensor">No accelerometer. On-screen buttons remain available.</string>
+    <string name="tilt_error">Motion input is unavailable. Continue with on-screen buttons.</string>
+    <string name="tilt_settings_error">Could not read or save control preferences. On-screen sorting remains available.</string>
+    <string name="camera_permanent_denial">Android no longer offers the camera request. You can allow Camera in this app’s settings. Sorting works without camera access.</string>
+    <string name="camera_open_settings">Open app settings</string>
+</resources>

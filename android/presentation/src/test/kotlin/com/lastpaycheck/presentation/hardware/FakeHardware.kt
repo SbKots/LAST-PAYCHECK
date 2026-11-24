@@ -14,15 +14,16 @@ class FakeMotionSensorSource(override var available: Boolean = true) : MotionSen
     var active = false
     var stops = 0
     var throwOnObserve = false
-    private val events = Channel<MotionEvent>(Channel.UNLIMITED)
+    private var events: Channel<MotionEvent>? = null
+    var observations = 0
 
-    fun sample(x: Double, y: Double, z: Double, timestamp: Long) {
-        events.trySend(MotionEvent.Sample(AccelerationSample(x, y, z, timestamp)))
+    fun sample(x: Double, y: Double, z: Double, timestamp: Long, rotation: Int = 0) {
+        events?.trySend(MotionEvent.Sample(AccelerationSample(x, y, z, timestamp, rotation)))
     }
 
     fun fail() {
-        events.trySend(MotionEvent.Failure)
-        events.close()
+        events?.trySend(MotionEvent.Failure)
+        events?.close()
     }
 
     override fun observe(): Flow<MotionEvent> = flow {
@@ -32,12 +33,17 @@ class FakeMotionSensorSource(override var available: Boolean = true) : MotionSen
             return@flow
         }
         active = true
+        observations++
+        val queue = Channel<MotionEvent>(Channel.UNLIMITED)
+        events = queue
         try {
             emit(MotionEvent.Started)
-            for (event in events) emit(event)
+            for (event in queue) emit(event)
         } finally {
             active = false
             stops++
+            if (events === queue) events = null
+            queue.close()
         }
     }
 }

@@ -41,6 +41,7 @@ import com.lastpaycheck.presentation.account.AccountScreen
 import com.lastpaycheck.presentation.account.AccountViewModel
 import com.lastpaycheck.presentation.hardware.HardwareScreen
 import com.lastpaycheck.presentation.hardware.HardwareViewModel
+import com.lastpaycheck.presentation.hardware.WorkTiltViewModel
 import com.lastpaycheck.presentation.startup.StartupViewModel
 import com.lastpaycheck.presentation.ui.components.LpBody
 import com.lastpaycheck.presentation.ui.theme.LastPaycheckTheme
@@ -122,6 +123,7 @@ fun GameNavigation(
     account: AccountViewModel,
     finances: FinanceViewModel,
     hardware: HardwareViewModel,
+    tilt: WorkTiltViewModel,
     onThemeChanged: (Boolean) -> Unit
 ) {
     val nav = rememberNavController()
@@ -286,6 +288,7 @@ fun GameNavigation(
                             game,
                             route.sessionId,
                             Section.Work,
+                            tilt = tilt,
                             onHardware = {
                                 nav.navigate(GameRoutes.Hardware(route.sessionId)) {
                                     launchSingleTop = true

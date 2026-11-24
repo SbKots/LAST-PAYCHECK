@@ -82,7 +82,9 @@ data class GameSettings(
     val soundEnabled: Boolean,
     val vibrationEnabled: Boolean,
     val theme: ThemePreference = ThemePreference.SYSTEM,
-    val language: AppLanguage = AppLanguage.SYSTEM
+    val language: AppLanguage = AppLanguage.SYSTEM,
+    val calibrationRotation: Int? = null,
+    val cameraPermissionRequested: Boolean = false
 )
 
 data class OperationKey(val sessionId: String, val id: String)

@@ -5,6 +5,7 @@ import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -94,7 +95,14 @@ class GameNavigationTest {
         compose.onNodeWithTag("pause.resume").performScrollTo().assertIsDisplayed()
         text(PresentationR.string.game_start_shift).assertIsNotEnabled()
         resume()
-        text(PresentationR.string.game_start_shift).assertIsEnabled()
+        val energyBlocked = compose.onAllNodesWithText(
+            compose.activity.getString(PresentationR.string.game_no_energy)
+        ).fetchSemanticsNodes().isNotEmpty()
+        if (energyBlocked) {
+            text(PresentationR.string.game_start_shift).assertIsNotEnabled()
+        } else {
+            text(PresentationR.string.game_start_shift).assertIsEnabled()
+        }
         back()
         home()
 

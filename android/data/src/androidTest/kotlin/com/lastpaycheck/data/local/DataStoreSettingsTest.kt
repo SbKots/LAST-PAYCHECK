@@ -37,7 +37,9 @@ class DataStoreSettingsTest {
                 false,
                 false,
                 ThemePreference.DARK,
-                AppLanguage.RUSSIAN
+                AppLanguage.RUSSIAN,
+                calibrationRotation = 90,
+                cameraPermissionRequested = true
             )
         try {
             withStore(file) {

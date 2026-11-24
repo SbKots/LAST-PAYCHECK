@@ -2,7 +2,7 @@
     <string name="hardware_title">Оборудование склада</string>
     <string name="hardware_subtitle">Наклон и проверка камеры</string>
     <string name="hardware_motion">Управление наклоном</string>
-    <string name="hardware_motion_hint">Необязательный ввод акселерометром. Ненадолго удержи наклон, чтобы подготовить направление. Сортировка выполняется экранными кнопками; коробки автоматически не размещаются.</string>
+    <string name="hardware_motion_hint">Здесь можно проверить акселерометр. Во время смены выбери управление наклоном: влево — A, вправо — C, для B нужно отдельное подтверждение в нейтрали. Экранные кнопки остаются доступны.</string>
     <string name="hardware_stopped">Датчик выключен</string>
     <string name="hardware_starting">Подключаем датчик…</string>
     <string name="hardware_active">Акселерометр активен</string>

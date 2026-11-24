@@ -13,6 +13,15 @@ class InterpretTilt {
     private var candidate = TiltDirection.NEUTRAL
     private var candidateSince = 0L
     private var sequence = 0L
+    private var baseline = 0.0
+    private var baselineRotation: Int? = null
+
+    fun calibrate(horizontal: Double, rotationDegrees: Int) {
+        require(horizontal in -1.0..1.0 && rotationDegrees in listOf(0, 90, 180, 270))
+        baseline = horizontal
+        baselineRotation = rotationDegrees
+        reset()
+    }
 
     fun reset() {
         lastTimestamp = -1
@@ -29,13 +38,8 @@ class InterpretTilt {
         ) {
             return null
         }
-        val screenX = when (sample.rotationDegrees) {
-            90 -> -sample.y
-            180 -> -sample.x
-            270 -> sample.y
-            else -> sample.x
-        }
-        val normalized = (-screenX / 9.80665).coerceIn(-1.0, 1.0)
+        val offset = if (baselineRotation == sample.rotationDegrees) baseline else 0.0
+        val normalized = (horizontal(sample) - offset).coerceIn(-1.0, 1.0)
         val delta = (sample.timestampNanos - lastTimestamp) / 1_000_000.0
         if (lastTimestamp < 0 || rotation != sample.rotationDegrees || delta > 500) {
             filtered = normalized
@@ -65,5 +69,17 @@ class InterpretTilt {
             }
         }
         return TiltReading(sample, filtered, direction, command)
+    }
+
+    companion object {
+        fun horizontal(sample: AccelerationSample): Double {
+            val screenX = when (sample.rotationDegrees) {
+                90 -> -sample.y
+                180 -> -sample.x
+                270 -> sample.y
+                else -> sample.x
+            }
+            return (-screenX / 9.80665).coerceIn(-1.0, 1.0)
+        }
     }
 }

@@ -22,6 +22,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lastpaycheck.domain.model.BoxCategory
 import com.lastpaycheck.domain.model.GAME_MINUTE_MILLIS
 import com.lastpaycheck.domain.model.GameEffect
@@ -29,8 +30,11 @@ import com.lastpaycheck.domain.model.GameSession
 import com.lastpaycheck.domain.model.Job
 import com.lastpaycheck.domain.model.SessionStatus
 import com.lastpaycheck.domain.model.ShiftResult
+import com.lastpaycheck.domain.model.TiltDirection
 import com.lastpaycheck.domain.model.WorkShift
 import com.lastpaycheck.presentation.R
+import com.lastpaycheck.presentation.hardware.WorkTiltControls
+import com.lastpaycheck.presentation.hardware.WorkTiltViewModel
 import com.lastpaycheck.presentation.ui.components.LpBody
 import com.lastpaycheck.presentation.ui.components.LpButton
 import com.lastpaycheck.presentation.ui.components.LpButtonStyle
@@ -47,6 +51,7 @@ internal fun WorkContent(
     busy: Boolean,
     effect: GameEffect?,
     game: MainViewModel,
+    tilt: WorkTiltViewModel,
     onHardware: (() -> Unit)?,
     onBack: () -> Unit
 ) {
@@ -57,7 +62,7 @@ internal fun WorkContent(
     val backToJobs = { preparing = false }
     BackHandler(preparing && shift == null && job != null, backToJobs)
     when {
-        shift != null -> ActiveShift(session, shift, busy, effect, game, onBack)
+        shift != null -> ActiveShift(session, shift, busy, effect, game, tilt, onBack)
         preparing && job != null -> ShiftPreparation(
             session,
             job,
@@ -250,6 +255,7 @@ private fun ActiveShift(
     busy: Boolean,
     effect: GameEffect?,
     game: MainViewModel,
+    tilt: WorkTiltViewModel,
     onBack: () -> Unit
 ) {
     var finishing by rememberSaveable(shift.id) { mutableStateOf(false) }
@@ -257,36 +263,54 @@ private fun ActiveShift(
     var selectedZone by rememberSaveable(boxId) { mutableStateOf<BoxCategory?>(null) }
     val enabled = !busy && !session.clock.isPaused
     val ready = session.clock.gameMillis >= shift.boxReadyAtGameMillis
+    val tiltState by tilt.state.collectAsStateWithLifecycle()
     SectionPage(
         stringResource(R.string.game_warehouse),
         gameTime(session.clock),
         session,
         onBack,
         footer = {
-            Row(horizontalArrangement = Arrangement.spacedBy(LpSpacing.xs)) {
-                BoxCategory.entries.forEach { zone ->
-                    LpButton(
-                        stringResource(sortLabel(zone)),
-                        { selectedZone = zone },
-                        Modifier.weight(1f).testTag("work.zone.${zone.name}"),
-                        style = if (zone == selectedZone) {
-                            LpButtonStyle.Primary
-                        } else {
-                            LpButtonStyle.Secondary
-                        },
-                        enabled = enabled
-                    )
+            if (tiltState.usesTilt) {
+                LpCaption(stringResource(sortLabel(shift.selectedBox.category)))
+                LpCaption(stringResource(R.string.tilt_mapping))
+                LpButton(
+                    stringResource(R.string.tilt_center),
+                    tilt::confirmCenter,
+                    Modifier.fillMaxWidth().testTag("work.tilt.center"),
+                    enabled = enabled && ready && tiltState.armed && tiltState.calibrated &&
+                        tiltState.direction == TiltDirection.NEUTRAL
+                )
+            } else {
+                Row(horizontalArrangement = Arrangement.spacedBy(LpSpacing.xs)) {
+                    BoxCategory.entries.forEach { zone ->
+                        LpButton(
+                            stringResource(sortLabel(zone)),
+                            { selectedZone = zone },
+                            Modifier.weight(1f).testTag("work.zone.${zone.name}"),
+                            style = if (zone == selectedZone) {
+                                LpButtonStyle.Primary
+                            } else {
+                                LpButtonStyle.Secondary
+                            },
+                            enabled = enabled
+                        )
+                    }
                 }
+                LpButton(
+                    stringResource(
+                        if (ready) R.string.game_place_box else R.string.sorting_transit
+                    ),
+                    { selectedZone?.let { game.placeBox(session.id, boxId, it) } },
+                    Modifier.fillMaxWidth().testTag("work.place"),
+                    enabled = enabled && ready && selectedZone != null
+                )
             }
-            LpButton(
-                stringResource(if (ready) R.string.game_place_box else R.string.sorting_transit),
-                { selectedZone?.let { game.placeBox(session.id, boxId, it) } },
-                Modifier.fillMaxWidth().testTag("work.place"),
-                enabled = enabled && ready && selectedZone != null
-            )
         }
     ) {
         GamePauseNotice(session, game::togglePause, busy)
+        WorkTiltControls(tilt, shift, !session.clock.isPaused, enabled && ready) {
+            game.placeTilt(session.id, it.boxId, it.zone, it.operationId)
+        }
         Row(horizontalArrangement = Arrangement.spacedBy(LpSpacing.sm)) {
             ShiftMetric(
                 R.string.game_shift_correct,

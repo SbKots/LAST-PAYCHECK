@@ -10,6 +10,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lastpaycheck.domain.model.DomainResult
 import com.lastpaycheck.presentation.R
+import com.lastpaycheck.presentation.hardware.WorkTiltViewModel
 import com.lastpaycheck.presentation.ui.components.LpBody
 import com.lastpaycheck.presentation.ui.components.LpButton
 import com.lastpaycheck.presentation.ui.components.LpButtonStyle
@@ -26,6 +27,7 @@ internal fun SectionRoute(
     game: MainViewModel,
     sessionId: String,
     section: Section,
+    tilt: WorkTiltViewModel? = null,
     onHardware: (() -> Unit)? = null,
     onBack: () -> Unit
 ) {
@@ -52,6 +54,7 @@ internal fun SectionRoute(
                 busy,
                 effect,
                 game,
+                checkNotNull(tilt),
                 onHardware,
                 back
             )

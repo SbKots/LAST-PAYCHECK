@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.doublePreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.lastpaycheck.domain.model.AppLanguage
 import com.lastpaycheck.domain.model.ControlMode
@@ -28,7 +29,9 @@ internal class DataStoreSettingsRepository(
         }
 
     override suspend fun update(settings: GameSettings): DomainResult<GameSettings> = try {
-        if (settings.calibration !in -1.0..1.0) {
+        if (settings.calibration !in -1.0..1.0 ||
+            settings.calibrationRotation?.let { it !in listOf(0, 90, 180, 270) } == true
+        ) {
             DomainResult.Failure(GameError.InvalidInput("calibration"))
         } else {
             store.edit {
@@ -38,6 +41,9 @@ internal class DataStoreSettingsRepository(
                 it[vibration] = settings.vibrationEnabled
                 it[theme] = settings.theme.name
                 it[language] = settings.language.name
+                settings.calibrationRotation?.let { value -> it[rotation] = value }
+                    ?: it.remove(rotation)
+                it[cameraRequested] = settings.cameraPermissionRequested
             }
             DomainResult.Success(settings)
         }
@@ -48,6 +54,7 @@ internal class DataStoreSettingsRepository(
     private fun decode(prefs: Preferences): DomainResult<GameSettings> = try {
         val offset = prefs[calibration] ?: 0.0
         require(offset in -1.0..1.0)
+        require(prefs[rotation]?.let { it in listOf(0, 90, 180, 270) } != false)
         DomainResult.Success(
             GameSettings(
                 controls = prefs[controls]?.let(ControlMode::valueOf) ?: ControlMode.TOUCH,
@@ -55,7 +62,9 @@ internal class DataStoreSettingsRepository(
                 soundEnabled = prefs[sound] ?: true,
                 vibrationEnabled = prefs[vibration] ?: true,
                 theme = prefs[theme]?.let(ThemePreference::valueOf) ?: ThemePreference.SYSTEM,
-                language = prefs[language]?.let(AppLanguage::valueOf) ?: AppLanguage.SYSTEM
+                language = prefs[language]?.let(AppLanguage::valueOf) ?: AppLanguage.SYSTEM,
+                calibrationRotation = prefs[rotation],
+                cameraPermissionRequested = prefs[cameraRequested] ?: false
             )
         )
     } catch (_: IllegalArgumentException) {
@@ -69,5 +78,7 @@ internal class DataStoreSettingsRepository(
         val vibration = booleanPreferencesKey("vibration_enabled")
         val theme = stringPreferencesKey("theme")
         val language = stringPreferencesKey("language")
+        val rotation = intPreferencesKey("calibration_rotation")
+        val cameraRequested = booleanPreferencesKey("camera_permission_requested")
     }
 }

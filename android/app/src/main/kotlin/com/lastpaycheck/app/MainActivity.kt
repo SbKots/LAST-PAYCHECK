@@ -12,6 +12,7 @@ import com.lastpaycheck.presentation.game.FinanceViewModel
 import com.lastpaycheck.presentation.game.GameNavigation
 import com.lastpaycheck.presentation.game.MainViewModel
 import com.lastpaycheck.presentation.hardware.HardwareViewModel
+import com.lastpaycheck.presentation.hardware.WorkTiltViewModel
 import com.lastpaycheck.presentation.startup.StartupViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -24,6 +25,7 @@ class MainActivity : ComponentActivity() {
         val accountViewModel = ViewModelProvider(this)[AccountViewModel::class.java]
         val financeViewModel = ViewModelProvider(this)[FinanceViewModel::class.java]
         val hardwareViewModel = ViewModelProvider(this)[HardwareViewModel::class.java]
+        val tiltViewModel = ViewModelProvider(this)[WorkTiltViewModel::class.java]
         setContent {
             GameNavigation(
                 gameViewModel,
@@ -31,6 +33,7 @@ class MainActivity : ComponentActivity() {
                 accountViewModel,
                 financeViewModel,
                 hardwareViewModel,
+                tiltViewModel,
                 onThemeChanged = ::updateSystemBars
             )
         }
